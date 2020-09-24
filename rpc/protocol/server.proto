@@ -52,3 +52,10 @@ message GetMapRequest {
 message GetMapResponse {
   repeated Object objects = 1;
 }
+
+message MapChunk {
+
+}
+
+message Vector3 {
+}
