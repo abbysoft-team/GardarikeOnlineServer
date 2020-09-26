@@ -59,3 +59,8 @@ message MapChunk {
 
 message Vector3 {
 }
+
+message Handshake {
+  string login = 1;
+  string password = 2;
+}
