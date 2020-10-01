@@ -11,9 +11,9 @@ import (
 )
 
 type Server struct {
-	logger  *log.Entry
-	socket  *net.UDPConn
-	handler logic.Handler
+	logger *log.Entry
+	socket *net.UDPConn
+	logic  logic.Logic
 }
 
 type Config struct {
@@ -21,7 +21,7 @@ type Config struct {
 	ReadBufferSize int
 }
 
-func NewServer(config Config, handler logic.Handler) (*Server, error) {
+func NewServer(config Config, logic logic.Logic) (*Server, error) {
 	logger := log.WithField("module", "Server")
 
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
@@ -39,9 +39,9 @@ func NewServer(config Config, handler logic.Handler) (*Server, error) {
 	}
 
 	return &Server{
-		logger:  logger,
-		socket:  conn,
-		handler: handler,
+		logger: logger,
+		socket: conn,
+		logic:  logic,
 	}, nil
 }
 
@@ -77,11 +77,13 @@ func (s *Server) handleClientPacket(data []byte, address *net.UDPAddr) {
 	var response rpc.Response
 
 	if request.GetGetMapRequest() != nil {
-		getMapResponse, err := s.handler.GetMap(request.GetGetMapRequest())
+		getMapResponse, err := s.logic.GetMap(request.GetGetMapRequest())
 		requestErr = err
 		response.Data = &rpc.Response_GetMapResponse{GetMapResponse: getMapResponse}
-	} else if request.GetSubscribeRequest() != nil {
-		requestErr = s.handler.Subscribe(request.GetSubscribeRequest())
+	} else if request.GetLoginRequest() != nil {
+		loginResponse, err := s.logic.Login(request.GetLoginRequest())
+		requestErr = err
+		response.Data = &rpc.Response_LoginResponse{LoginResponse: loginResponse}
 	}
 
 	if requestErr != nil {
@@ -91,11 +93,15 @@ func (s *Server) handleClientPacket(data []byte, address *net.UDPAddr) {
 	}
 
 	if response.Data != nil {
-		if err := common.WriteToSocket(&response, address, s.socket); err != nil {
+		if err, packetsSent := common.WriteResponse(&response, address, s.socket); err != nil {
 			s.logger.
 				WithError(err).
 				WithField("client", address.String()).
 				Error("Failed to write response to the client")
+		} else {
+			s.logger.
+				WithField("client", address.String()).
+				Infof("%d packets sent to the client", packetsSent)
 		}
 	}
 }

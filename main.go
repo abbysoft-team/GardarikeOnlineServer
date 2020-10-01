@@ -2,13 +2,14 @@ package main
 
 import (
 	"awesomeProject/logic"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
 
 const address = "localhost:27015"
-const clientAddress = "localhost:27016"
-
+const clientPortBase = 2015
+const clientsCount = 5
 const readBufferSize = 1024 * 10 // 10 KB
 
 func initLogging() {
@@ -25,12 +26,16 @@ func main() {
 	server, err := NewServer(Config{
 		Address:        address,
 		ReadBufferSize: readBufferSize,
-	}, &logic.SimpleHandler{})
+	}, logic.NewServerLogic(logic.NewSimplexMapGenerator(5, 1.5)))
+
 	if err != nil {
 		log.WithError(err).Fatalf("Failed to start server on %s", address)
 	}
 
-	go startTestClient(address, clientAddress)
+	for i := 0; i < clientsCount; i++ {
+		go startTestClient(address, fmt.Sprintf("localhost:%d", clientPortBase+i))
+	}
+
 	server.Serve()
 }
 
@@ -41,6 +46,7 @@ func startTestClient(serverAddress string, clientAddress string) {
 	})
 	if err != nil {
 		log.WithError(err).Error("Failed to start client")
+		return
 	}
 
 	client.Serve()
