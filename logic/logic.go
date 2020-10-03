@@ -1,7 +1,7 @@
 package logic
 
 import (
-	rpc "awesomeProject/rpc/generated"
+	rpc "projectx-server/rpc/generated"
 )
 
 const (

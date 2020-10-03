@@ -1,10 +1,9 @@
 package main
 
 import (
-	"awesomeProject/logic"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"projectx-server/logic"
 )
 
 const address = "localhost:27015"
@@ -23,17 +22,17 @@ type gameServer struct {
 func main() {
 	log.SetLevel(log.DebugLevel)
 
+	if len(os.Args) < 2 {
+		log.Fatal("Please, specify listen address in first argument")
+	}
+
 	server, err := NewServer(Config{
-		Address:        address,
+		Address:        os.Args[1],
 		ReadBufferSize: readBufferSize,
 	}, logic.NewServerLogic(logic.NewSimplexMapGenerator(5, 1.5)))
 
 	if err != nil {
 		log.WithError(err).Fatalf("Failed to start server on %s", address)
-	}
-
-	for i := 0; i < clientsCount; i++ {
-		go startTestClient(address, fmt.Sprintf("localhost:%d", clientPortBase+i))
 	}
 
 	server.Serve()

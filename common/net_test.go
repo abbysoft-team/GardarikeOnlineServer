@@ -1,9 +1,9 @@
 package common
 
 import (
-	rpc "awesomeProject/rpc/generated"
 	"github.com/golang/protobuf/proto"
 	"net"
+	rpc "projectx-server/rpc/generated"
 	"testing"
 )
 

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"awesomeProject/common"
-	rpc "awesomeProject/rpc/generated"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"net"
+	"projectx-server/common"
+	rpc "projectx-server/rpc/generated"
 	"time"
 )
 

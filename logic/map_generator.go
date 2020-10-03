@@ -1,9 +1,9 @@
 package logic
 
 import (
-	rpc "awesomeProject/rpc/generated"
 	simplex "github.com/ojrac/opensimplex-go"
 	"math"
+	rpc "projectx-server/rpc/generated"
 	"time"
 )
 

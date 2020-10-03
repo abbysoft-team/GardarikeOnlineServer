@@ -1,10 +1,10 @@
 package common
 
 import (
-	rpc "awesomeProject/rpc/generated"
 	"fmt"
-	"google.golang.org/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"net"
+	rpc "projectx-server/rpc/generated"
 )
 
 const (
@@ -34,7 +34,6 @@ func WriteResponse(msg proto.Message, address *net.UDPAddr, socket *net.UDPConn)
 				Parts: int64(packetsLeft),
 			},
 		}
-
 		if err, _ := WriteResponse(&multipartResponse, address, socket); err != nil {
 			return fmt.Errorf("failed to send multipart response message: %v", err), 0
 		}

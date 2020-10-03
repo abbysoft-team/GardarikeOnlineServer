@@ -1,37 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
-  </component>
-  <component name="BranchesTreeState">
-    <expand>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-    </expand>
-    <select />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="672cdaa3-fc99-4b3b-94a5-c9772d4b3a07" name="Default Changelist" comment="">
+    <list default="true" id="d49c52f3-7625-4f86-bcb8-a82eef219d82" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/awesomeProject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/client.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/net.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/net.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/net_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/net_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/logic.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/logic.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/logic.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/map_generator.go" beforeDir="false" afterPath="$PROJECT_DIR$/logic/map_generator.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/generated/server.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/generated/server.pb.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/protocol/server.proto" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/protocol/server.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/generated/server.pb.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/server.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,72 +21,49 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Go File" />
-      </list>
-    </option>
-  </component>
-  <component name="GOROOT" path="F:\Software\Go\go1.15.2" />
+  <component name="GOROOT" url="file:///usr/lib/go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
   </component>
-  <component name="ProjectId" id="1heUYw1BiLaVr2oRMD89ZE6Zgq7" />
+  <component name="ProjectId" id="1iNTTiklHcyR7jtto0sV3fQa2xb" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$USER_HOME$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
   </component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="F:\Projects\awesomeProject\common" />
-      <recent name="F:\Projects\awesomeProject\handler" />
-      <recent name="F:\Projects\awesomeProject\rpc" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Go Build.go build awesomeProject">
-    <configuration name="go build awesomeProject" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="awesomeProject" />
+  <component name="RunManager">
+    <configuration name="go build projectx-server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="ProjectXServer" />
       <working_directory value="$PROJECT_DIR$" />
+      <parameters value="localhost:27015" />
       <kind value="PACKAGE" />
       <filePath value="$PROJECT_DIR$/main.go" />
-      <package value="awesomeProject" />
+      <package value="projectx-server" />
       <directory value="$PROJECT_DIR$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestWriteToSocket in awesomeProject/common" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="awesomeProject" />
-      <working_directory value="$PROJECT_DIR$/common" />
-      <framework value="gotest" />
-      <kind value="PACKAGE" />
-      <package value="awesomeProject/common" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <pattern value="^\QTestWriteToSocket\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="generate" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="generate" workingDirectory="" arguments="">
-        <envs />
-      </makefile>
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Build.go build awesomeProject" />
-        <item itemvalue="Go Test.TestWriteToSocket in awesomeProject/common" />
-        <item itemvalue="Makefile.generate" />
-        <item itemvalue="Makefile.generate" />
+        <item itemvalue="Go Build.go build projectx-server" />
       </list>
     </recent_temporary>
   </component>
@@ -112,100 +71,29 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="[ADD] Protobuf commands parsing&#10;&#10; - Test client" />
-    <option name="LAST_COMMIT_MESSAGE" value="[ADD] Protobuf commands parsing&#10;&#10; - Test client" />
-  </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
   </component>
   <component name="WindowStateProjectService">
-    <state x="713" y="322" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600374196809">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="418" y="211" width="1084" height="684" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1601749106488">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
-    <state x="713" y="322" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1600374196809" />
-    <state width="1877" height="279" key="GridCell.Tab.0.bottom" timestamp="1601582994931">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="418" y="211" width="1084" height="684" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.1920.1053@0.27.1920.1053" timestamp="1601749106488" />
+    <state width="1870" height="275" key="GridCell.Tab.0.bottom" timestamp="1601749095229">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
-    <state width="1877" height="279" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1601582994931" />
-    <state width="1877" height="279" key="GridCell.Tab.0.center" timestamp="1601582994931">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1870" height="275" key="GridCell.Tab.0.bottom/0.27.1920.1053@0.27.1920.1053" timestamp="1601749095229" />
+    <state width="1870" height="275" key="GridCell.Tab.0.center" timestamp="1601749095228">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
-    <state width="1877" height="279" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1601582994931" />
-    <state width="1877" height="279" key="GridCell.Tab.0.left" timestamp="1601582994931">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1870" height="275" key="GridCell.Tab.0.center/0.27.1920.1053@0.27.1920.1053" timestamp="1601749095228" />
+    <state width="1870" height="275" key="GridCell.Tab.0.left" timestamp="1601749095227">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
-    <state width="1877" height="279" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1601582994931" />
-    <state width="1877" height="279" key="GridCell.Tab.0.right" timestamp="1601582994931">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="1870" height="275" key="GridCell.Tab.0.left/0.27.1920.1053@0.27.1920.1053" timestamp="1601749095227" />
+    <state width="1870" height="275" key="GridCell.Tab.0.right" timestamp="1601749095229">
+      <screen x="0" y="27" width="1920" height="1053" />
     </state>
-    <state width="1877" height="279" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1601582994931" />
-    <state width="1877" height="348" key="GridCell.Tab.1.bottom" timestamp="1601581199219">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1601581199219" />
-    <state width="1877" height="348" key="GridCell.Tab.1.center" timestamp="1601581199219">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1601581199219" />
-    <state width="1877" height="348" key="GridCell.Tab.1.left" timestamp="1601581199219">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1601581199219" />
-    <state width="1877" height="348" key="GridCell.Tab.1.right" timestamp="1601581199219">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1877" height="348" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1601581199219" />
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2" timestamp="1601145874975">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="552" y="253" key="Vcs.Push.Dialog.v2/0.0.1920.1040@0.0.1920.1040" timestamp="1601145874975" />
-    <state width="968" height="528" key="XDebugger.FullValuePopup" timestamp="1601580582014">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="968" height="528" key="XDebugger.FullValuePopup/0.0.1920.1040@0.0.1920.1040" timestamp="1601580582014" />
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1600974506419">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="92" y="92" width="1736" height="856" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1600974506419" />
-    <state x="803" y="281" key="refactoring.ChangeSignatureDialog" timestamp="1601490245797">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="803" y="281" key="refactoring.ChangeSignatureDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601490245797" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1601579212693">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1601579212693" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/common/net_test.go</url>
-          <line>53</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/common/net.go</url>
-          <line>26</line>
-          <option name="timeStamp" value="7" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/awesomeProject$TestWriteToSocket_in_awesomeProject_common.out" NAME="TestWriteToSocket in awesomeProject/common Coverage Results" MODIFIED="1601579640202" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="GoCoverage" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <state width="1870" height="275" key="GridCell.Tab.0.right/0.27.1920.1053@0.27.1920.1053" timestamp="1601749095229" />
   </component>
 </project>

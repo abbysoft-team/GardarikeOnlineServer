@@ -1,13 +1,13 @@
 package main
 
 import (
-	"awesomeProject/common"
-	"awesomeProject/logic"
-	rpc "awesomeProject/rpc/generated"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 	"net"
+	"projectx-server/common"
+	"projectx-server/logic"
+	rpc "projectx-server/rpc/generated"
 )
 
 type Server struct {
