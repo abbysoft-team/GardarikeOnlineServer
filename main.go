@@ -3,13 +3,15 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
+	"projectx-server/common"
 	"projectx-server/logic"
 )
 
-const address = "localhost:27015"
-const clientPortBase = 2015
-const clientsCount = 5
-const readBufferSize = 1024 * 10 // 10 KB
+const (
+	clientPortBase = 2015
+	clientsCount   = 5
+	version        = "0.0.3"
+)
 
 func initLogging() {
 	log.SetOutput(os.Stdout)
@@ -21,6 +23,7 @@ type gameServer struct {
 
 func main() {
 	log.SetLevel(log.DebugLevel)
+	log.Printf("ProjectX Server v%s", version)
 
 	if len(os.Args) < 2 {
 		log.Fatal("Please, specify listen address in first argument")
@@ -28,11 +31,11 @@ func main() {
 
 	server, err := NewServer(Config{
 		Address:        os.Args[1],
-		ReadBufferSize: readBufferSize,
+		ReadBufferSize: common.MaxPacketSize,
 	}, logic.NewServerLogic(logic.NewSimplexMapGenerator(5, 1.5)))
 
 	if err != nil {
-		log.WithError(err).Fatalf("Failed to start server on %s", address)
+		log.WithError(err).Fatalf("Failed to start server on %s", os.Args[1])
 	}
 
 	server.Serve()
