@@ -14,6 +14,7 @@ type Server struct {
 	logger *log.Entry
 	socket *net.UDPConn
 	logic  logic.Logic
+	config Config
 }
 
 type Config struct {
@@ -24,7 +25,7 @@ type Config struct {
 func NewServer(config Config, logic logic.Logic) (*Server, error) {
 	logger := log.WithField("module", "Server")
 
-	udpAddr, err := net.ResolveUDPAddr("udp", address)
+	udpAddr, err := net.ResolveUDPAddr("udp", config.Address)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve address: %w", err)
 	}
@@ -42,13 +43,14 @@ func NewServer(config Config, logic logic.Logic) (*Server, error) {
 		logger: logger,
 		socket: conn,
 		logic:  logic,
+		config: config,
 	}, nil
 }
 
 func (s *Server) Serve() {
 	defer s.socket.Close()
 
-	s.logger.Infof("Listen packets at %s", address)
+	s.logger.Infof("Listen packets at %s", s.config.Address)
 
 	var buffer [1024]byte
 	for {
