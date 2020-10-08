@@ -19,5 +19,4 @@ jobs:
       - run: make generate
       - run: make build
       - store_artifacts:
-        path: /projects/{{ORG_NAME}}/{{REPO_NAME}}/projectx-server
-        destination: projectx-server
+          path: projectx-server
