@@ -1,22 +1,23 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  build_linux:
     docker:
-      # specify the version
       - image: jorgenpo/projectx-server
-
-    #### TEMPLATE_NOTE: go expects specific checkout path representing url
-    #### expecting it in the form of
-    ####   /go/src/github.com/circleci/go-tool
-    ####   /go/src/bitbucket.org/circleci/go-tool
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
 
       - run: make generate
-      - run: make build
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o projectx-server-linux64 
       - store_artifacts:
-          path: projectx-server
+          path: projectx-server-linux64
+ build_windows:
+   docker:
+     - image: jorgenpo/projectx-server
+   working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+   steps:
+     - checkout
+     - run: make generate
+     - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o projectx-server-windows64.exe
+     - store_artifacts:
+         path: projectx-server-windows64.exe
