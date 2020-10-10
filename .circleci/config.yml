@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build_linux:
+  build:
     docker:
       - image: jorgenpo/projectx-server
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
@@ -8,22 +8,16 @@ jobs:
       - checkout
 
       - run: make generate
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o projectx-server-linux64
+      - run: mkdir bin
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/projectx-server-linux64
+      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/projectx-server-windows64.exe
+      - run: ./bin/projectx-server-linux64 --version > version.txt
+      - run: mv bin/projectx-server-linux64 bin/projectx-server-$(cat version.txt)-${CIRCLE_BRANCH}-linux64
+      - run: mv bin/projectx-server-windows64.exe bin/projectx-server-$(cat version.txt)-${CIRCLE_BRANCH}-windows64.exe
       - store_artifacts:
-          path: projectx-server-linux64
-  build_windows:
-    docker:
-      - image: jorgenpo/projectx-server
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
-    steps:
-      - checkout
-      - run: make generate
-      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o projectx-server-windows64.exe
-      - store_artifacts:
-          path: projectx-server-windows64.exe
+          path: bin
 workflows:
   version: 2
   build:
     jobs:
-      - build_linux
-      - build_windows
+      - build

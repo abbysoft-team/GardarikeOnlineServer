@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"projectx-server/common"
@@ -22,12 +23,17 @@ type gameServer struct {
 }
 
 func main() {
-	log.SetLevel(log.DebugLevel)
-	log.Printf("ProjectX Server v%s", version)
-
 	if len(os.Args) < 2 {
 		log.Fatal("Please, specify listen address in first argument")
 	}
+
+	if os.Args[1] == "--version" {
+		fmt.Println(version)
+		os.Exit(0)
+	}
+
+	log.SetLevel(log.DebugLevel)
+	log.Printf("ProjectX Server v%s", version)
 
 	server, err := NewServer(Config{
 		Address:        os.Args[1],
