@@ -21,3 +21,9 @@ jobs:
       - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o projectx-server-windows64.exe
       - store_artifacts:
           path: projectx-server-windows64.exe
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_linux
+      - build_windows
