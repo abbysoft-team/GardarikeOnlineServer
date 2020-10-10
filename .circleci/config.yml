@@ -11,14 +11,13 @@ jobs:
       - run: mkdir bin
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/projectx-server-linux64
       - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/projectx-server-windows64.exe
-      - run: ./bin/projectx-server-linux64 --version > version.txt
-      - run: mv bin/projectx-server-linux64 bin/projectx-server-$(cat version.txt)-${CIRCLE_BRANCH}-linux64
-      - run: mv bin/projectx-server-windows64.exe bin/projectx-server-$(cat version.txt)-${CIRCLE_BRANCH}-windows64.exe
+      - run: export VERSION=$(projectx-server-linux64 --version) >> $BASH_ENV
+      - run: mv bin/projectx-server-linux64 projectx-server-${VERSION}-${CIRCLE_BRANCH}-linux64
+      - run: mv bin/projectx-server-windows64.exe projectx-server-${VERSION}-${CIRCLE_BRANCH}-windows64.exe
       - store_artifacts:
           path: bin
 workflows:
   version: 2
   build:
     jobs:
-      - build_linux
-      - build_windows
+      - build
