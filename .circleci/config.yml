@@ -8,16 +8,16 @@ jobs:
       - checkout
 
       - run: make generate
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o projectx-server-linux64 
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o projectx-server-linux64
       - store_artifacts:
           path: projectx-server-linux64
- build_windows:
-   docker:
-     - image: jorgenpo/projectx-server
-   working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
-   steps:
-     - checkout
-     - run: make generate
-     - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o projectx-server-windows64.exe
-     - store_artifacts:
-         path: projectx-server-windows64.exe
+  build_windows:
+    docker:
+      - image: jorgenpo/projectx-server
+    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    steps:
+      - checkout
+      - run: make generate
+      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o projectx-server-windows64.exe
+      - store_artifacts:
+          path: projectx-server-windows64.exe
