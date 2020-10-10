@@ -7,7 +7,9 @@ Project XXX
 
 <h3> Linux (Elementary OS Hera) </h3>
 run <code>sudo apt-get install golang-goprotobuf-dev</code>
+<br>
 run <code>sudo apt-get install protobuf-compiler</code>
+<br>
 run <code>make generate</code>
 
 TODO
