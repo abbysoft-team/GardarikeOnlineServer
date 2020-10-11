@@ -18,8 +18,9 @@ type Server struct {
 }
 
 type Config struct {
-	Address        string
-	ReadBufferSize int
+	Address         string
+	ReadBufferSize  int
+	WriteBufferSize int
 }
 
 func NewServer(config Config, logic logic.Logic) (*Server, error) {
@@ -37,6 +38,10 @@ func NewServer(config Config, logic logic.Logic) (*Server, error) {
 
 	if err := conn.SetReadBuffer(config.ReadBufferSize); err != nil {
 		return nil, fmt.Errorf("failed to reserve read buffer of size %d: %w", config.ReadBufferSize, err)
+	}
+
+	if err := conn.SetWriteBuffer(config.WriteBufferSize); err != nil {
+		return nil, fmt.Errorf("failed to reserve write buffer of size %d: %w", config.ReadBufferSize, err)
 	}
 
 	return &Server{

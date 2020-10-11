@@ -3,12 +3,11 @@ package logic
 import (
 	simplex "github.com/ojrac/opensimplex-go"
 	"math"
-	rpc "projectx-server/rpc/generated"
 	"time"
 )
 
 type TerrainGenerator interface {
-	GenerateTerrain(width int, height int) []*rpc.Vector3D
+	GenerateTerrain(width int, height int) []float32
 }
 
 type SimplexTerrainGenerator struct {
@@ -23,7 +22,7 @@ func NewSimplexMapGenerator(octaves int, persistence float64) SimplexTerrainGene
 	}
 }
 
-func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result []*rpc.Vector3D) {
+func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result []float32) {
 	var generator simplex.Noise
 	generator = simplex.New(time.Now().Unix())
 
@@ -57,11 +56,7 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 			normalized := (pixels[x][y] - minNoise) / (maxNoise - minNoise)
 			normalized = math.Pow(normalized, s.persistence)
 
-			result = append(result, &rpc.Vector3D{
-				X: float32(x),
-				Y: float32(y),
-				Z: float32(normalized),
-			})
+			result = append(result, float32(normalized))
 		}
 	}
 

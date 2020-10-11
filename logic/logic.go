@@ -1,11 +1,12 @@
 package logic
 
 import (
+	log "github.com/sirupsen/logrus"
 	rpc "projectx-server/rpc/generated"
 )
 
 const (
-	mapChunkSize = 500
+	mapChunkSize = 100
 )
 
 type Logic interface {
@@ -22,6 +23,9 @@ func NewServerLogic(generator TerrainGenerator) *ServerLogic {
 	height := mapChunkSize
 
 	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
+
+	log.WithField("size", len(terrain)*4).Infof("Terrain generated")
+
 	return &ServerLogic{gameMap: rpc.Map{
 		Width:  int32(width),
 		Height: int32(height),

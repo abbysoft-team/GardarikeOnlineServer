@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	MaxPacketSize = 65535
+	MaxPacketSize = 1024
 )
 
 // WriteResponse - writes proto message to the socket. If the specific address is not nil then

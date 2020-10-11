@@ -11,7 +11,7 @@ import (
 const (
 	clientPortBase = 2015
 	clientsCount   = 5
-	version        = "0.0.3"
+	version        = "0.0.4"
 )
 
 func initLogging() {
@@ -36,8 +36,9 @@ func main() {
 	log.Printf("ProjectX Server v%s", version)
 
 	server, err := NewServer(Config{
-		Address:        os.Args[1],
-		ReadBufferSize: common.MaxPacketSize,
+		Address:         os.Args[1],
+		ReadBufferSize:  common.MaxPacketSize,
+		WriteBufferSize: common.MaxPacketSize,
 	}, logic.NewServerLogic(logic.NewSimplexMapGenerator(5, 1.5)))
 
 	if err != nil {
