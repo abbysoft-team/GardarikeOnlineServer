@@ -3,107 +3,70 @@ package main
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	zmq "github.com/pebbe/zmq4"
 	log "github.com/sirupsen/logrus"
-	"net"
-	"projectx-server/common"
-	"projectx-server/logic"
-	rpc "projectx-server/rpc/generated"
+	"projectx-server/game"
 )
 
 type Server struct {
-	logger *log.Entry
-	socket *net.UDPConn
-	logic  logic.Logic
-	config Config
+	socket  *zmq.Socket
+	config  Config
+	log     *log.Entry
+	logic   game.Logic
+	handler game.PacketHandler
 }
 
 type Config struct {
-	Address        string
-	ReadBufferSize int
+	Endpoint string // ZMQ endpoint string (e.g. tcp://*:555)
 }
 
-func NewServer(config Config, logic logic.Logic) (*Server, error) {
-	logger := log.WithField("module", "Server")
-
-	udpAddr, err := net.ResolveUDPAddr("udp", config.Address)
+func NewServer(config Config, logic game.Logic, handler game.PacketHandler) (*Server, error) {
+	sock, err := zmq.NewSocket(zmq.REP)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resolve address: %w", err)
+		return nil, fmt.Errorf("failed to create ZMQ REP socket: %w", err)
 	}
 
-	conn, err := net.ListenUDP("udp", udpAddr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to listen address: %w", err)
-	}
-
-	if err := conn.SetReadBuffer(config.ReadBufferSize); err != nil {
-		return nil, fmt.Errorf("failed to reserve read buffer of size %d: %w", config.ReadBufferSize, err)
-	}
+	logger := log.WithField("module", "server")
 
 	return &Server{
-		logger: logger,
-		socket: conn,
-		logic:  logic,
-		config: config,
+		socket:  sock,
+		config:  config,
+		log:     logger,
+		logic:   logic,
+		handler: handler,
 	}, nil
 }
 
-func (s *Server) Serve() {
-	defer s.socket.Close()
+func (s *Server) Serve() error {
+	if err := s.socket.Bind(s.config.Endpoint); err != nil {
+		return fmt.Errorf("failed to bind server socket to address: %w", err)
+	}
 
-	s.logger.Infof("Listen packets at %s", s.config.Address)
+	s.log.Infof("Logic listen on %s", s.config.Endpoint)
 
-	var buffer [1024]byte
 	for {
-		bytesRead, address, err := s.socket.ReadFromUDP(buffer[0:])
+		packet, err := s.socket.Recv(0)
 		if err != nil {
-			s.logger.Errorf("Read from %s failed: %v", address.String(), err)
+			s.log.Errorf("Failed to read client packet: %v", err)
+			continue
 		}
 
-		go s.handleClientPacket(buffer[0:bytesRead], address)
-	}
-}
+		s.log.Debugf("Read %d bytes from client", len(packet))
 
-func (s *Server) handleClientPacket(data []byte, address *net.UDPAddr) {
-	var request rpc.Request
-	if err := proto.Unmarshal(data, &request); err != nil {
-		s.logger.WithError(err).Errorf("Failed to unmarshal client request")
-		return
-	}
-
-	s.logger.WithFields(log.Fields{
-		"address": address.String(),
-		"request": &request,
-	}).Debug("Client request")
-
-	var requestErr error
-	var response rpc.Response
-
-	if request.GetGetMapRequest() != nil {
-		getMapResponse, err := s.logic.GetMap(request.GetGetMapRequest())
-		requestErr = err
-		response.Data = &rpc.Response_GetMapResponse{GetMapResponse: getMapResponse}
-	} else if request.GetLoginRequest() != nil {
-		loginResponse, err := s.logic.Login(request.GetLoginRequest())
-		requestErr = err
-		response.Data = &rpc.Response_LoginResponse{LoginResponse: loginResponse}
-	}
-
-	if requestErr != nil {
-		response.Data = &rpc.Response_ErrorResponse{
-			ErrorResponse: &rpc.ErrorResponse{Message: requestErr.Error()},
+		resp, err := s.handler.HandleClientPacket([]byte(packet))
+		if err != nil {
+			s.log.Errorf("Failed to process client packet: %v", err)
+			continue
 		}
-	}
 
-	if response.Data != nil {
-		if err, packetsSent := common.WriteResponse(&response, address, s.socket); err != nil {
-			s.logger.
-				WithError(err).
-				WithField("client", address.String()).
-				Error("Failed to write response to the client")
-		} else {
-			s.logger.
-				WithField("client", address.String()).
-				Infof("%d packets sent to the client", packetsSent)
+		respBytes, err := proto.Marshal(resp)
+		if err != nil {
+			s.log.Errorf("Failed to marshal server response: %v", err)
+			continue
+		}
+
+		if _, err := s.socket.Send(string(respBytes), 0); err != nil {
+			s.log.Errorf("Failed to send answer to the client: %v", err)
 		}
 	}
 }
