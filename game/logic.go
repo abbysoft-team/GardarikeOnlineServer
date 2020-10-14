@@ -1,4 +1,4 @@
-package logic
+package game
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -14,29 +14,26 @@ type Logic interface {
 	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, error)
 }
 
-type ServerLogic struct {
+type SimpleLogic struct {
 	gameMap rpc.Map
 }
 
-func NewServerLogic(generator TerrainGenerator) *ServerLogic {
+func NewLogic(generator TerrainGenerator) *SimpleLogic {
 	width := mapChunkSize
 	height := mapChunkSize
 
 	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
-
-	log.WithField("size", len(terrain)*4).Infof("Terrain generated")
-
-	return &ServerLogic{gameMap: rpc.Map{
+	return &SimpleLogic{gameMap: rpc.Map{
 		Width:  int32(width),
 		Height: int32(height),
 		Points: terrain,
 	}}
 }
 
-func (s *ServerLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, error) {
+func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, error) {
 	return &rpc.GetMapResponse{Map: &s.gameMap}, nil
 }
 
-func (s *ServerLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, error) {
+func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, error) {
 	return &rpc.LoginResponse{}, nil
 }

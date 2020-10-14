@@ -1,4 +1,4 @@
-package common
+package main
 
 import (
 	"github.com/golang/protobuf/proto"
@@ -31,7 +31,7 @@ func TestWriteToSocket(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		requestLength int
+		requestLength float64
 	}{
 		{"One-packet request sent successfully", MaxPacketSize / 2},
 		{"Two-packet request sent successfully", MaxPacketSize * 1.5},
@@ -43,13 +43,13 @@ func TestWriteToSocket(t *testing.T) {
 			var request rpc.Request
 			request.Data = &rpc.Request_LoginRequest{
 				LoginRequest: &rpc.LoginRequest{
-					Username: generateStringOfLen(test.requestLength),
+					Username: generateStringOfLen(int(test.requestLength)),
 					Password: "",
 				},
 			}
 
 			var buffer [MaxPacketSize]byte
-			rightNumberOfPackets := (test.requestLength / MaxPacketSize) + 1
+			rightNumberOfPackets := int(test.requestLength/MaxPacketSize) + 1
 
 			err, packetsSent := WriteResponse(&request, udpAddr, conn)
 			if err != nil {

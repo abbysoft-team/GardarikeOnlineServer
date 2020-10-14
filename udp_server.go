@@ -1,11 +1,86 @@
-package common
+package main
 
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	log "github.com/sirupsen/logrus"
 	"net"
+	"projectx-server/game"
 	rpc "projectx-server/rpc/generated"
 )
+
+type UDPServer struct {
+	logger  *log.Entry
+	socket  *net.UDPConn
+	logic   game.Logic
+	config  UDPServerConfig
+	handler game.PacketHandler
+}
+
+type UDPServerConfig struct {
+	Address        string
+	ReadBufferSize int
+}
+
+func NewUDPServer(config UDPServerConfig, logic game.Logic, handler game.PacketHandler) (*UDPServer, error) {
+	logger := log.WithField("module", "UDPServer")
+
+	udpAddr, err := net.ResolveUDPAddr("udp", config.Address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve address: %w", err)
+	}
+
+	conn, err := net.ListenUDP("udp", udpAddr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to listen address: %w", err)
+	}
+
+	if err := conn.SetReadBuffer(config.ReadBufferSize); err != nil {
+		return nil, fmt.Errorf("failed to reserve read buffer of size %d: %w", config.ReadBufferSize, err)
+	}
+
+	return &UDPServer{
+		logger:  logger,
+		socket:  conn,
+		logic:   logic,
+		config:  config,
+		handler: handler,
+	}, nil
+}
+
+func (s *UDPServer) Serve() {
+	defer s.socket.Close()
+
+	s.logger.Infof("Listen packets at %s", s.config.Address)
+
+	var buffer [1024]byte
+	for {
+		bytesRead, address, err := s.socket.ReadFromUDP(buffer[0:])
+		if err != nil {
+			s.logger.Errorf("Read from %s failed: %v", address.String(), err)
+			continue
+		}
+
+		response, err := s.handler.HandleClientPacket(buffer[0:bytesRead])
+		if err != nil {
+			s.logger.Errorf("Failed to handle packet: %v", err)
+			continue
+		}
+
+		if response.Data != nil {
+			if err, packetsSent := WriteResponse(response, address, s.socket); err != nil {
+				s.logger.
+					WithError(err).
+					WithField("client", address.String()).
+					Error("Failed to write response to the client")
+			} else {
+				s.logger.
+					WithField("client", address.String()).
+					Infof("%d packets sent to the client", packetsSent)
+			}
+		}
+	}
+}
 
 const (
 	MaxPacketSize = 1024
