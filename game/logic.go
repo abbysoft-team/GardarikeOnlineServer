@@ -1,7 +1,6 @@
 package game
 
 import (
-	log "github.com/sirupsen/logrus"
 	rpc "projectx-server/rpc/generated"
 )
 

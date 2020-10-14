@@ -9,6 +9,7 @@ import (
 )
 
 type Server struct {
+	context *zmq.Context
 	socket  *zmq.Socket
 	config  Config
 	log     *log.Entry
@@ -21,6 +22,11 @@ type Config struct {
 }
 
 func NewServer(config Config, logic game.Logic, handler game.PacketHandler) (*Server, error) {
+	context, err := zmq.NewContext()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create zmq context: %w", err)
+	}
+
 	sock, err := zmq.NewSocket(zmq.REP)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ZMQ REP socket: %w", err)
@@ -34,12 +40,13 @@ func NewServer(config Config, logic game.Logic, handler game.PacketHandler) (*Se
 		log:     logger,
 		logic:   logic,
 		handler: handler,
+		context: context,
 	}, nil
 }
 
 func (s *Server) Serve() error {
 	if err := s.socket.Bind(s.config.Endpoint); err != nil {
-		return fmt.Errorf("failed to bind server socket to address: %w", err)
+		return fmt.Errorf("failed to bind server socket to address %s: %w", s.config.Endpoint, err)
 	}
 
 	s.log.Infof("Logic listen on %s", s.config.Endpoint)
