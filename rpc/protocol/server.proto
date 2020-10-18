@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = ".;rpc";
 
+package Gardarike;
+
 service GameServer {
   // Returns the map around the specific location
   rpc GetNearMap(GetMapRequest) returns (GetMapResponse);
