@@ -29,6 +29,7 @@ type Request struct {
 	// Types that are valid to be assigned to Data:
 	//	*Request_GetMapRequest
 	//	*Request_LoginRequest
+	//	*Request_SelectCharacterRequest
 	Data                 isRequest_Data `protobuf_oneof:"data"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
@@ -72,9 +73,15 @@ type Request_LoginRequest struct {
 	LoginRequest *LoginRequest `protobuf:"bytes,2,opt,name=loginRequest,proto3,oneof"`
 }
 
+type Request_SelectCharacterRequest struct {
+	SelectCharacterRequest *SelectCharacterRequest `protobuf:"bytes,3,opt,name=selectCharacterRequest,proto3,oneof"`
+}
+
 func (*Request_GetMapRequest) isRequest_Data() {}
 
 func (*Request_LoginRequest) isRequest_Data() {}
+
+func (*Request_SelectCharacterRequest) isRequest_Data() {}
 
 func (m *Request) GetData() isRequest_Data {
 	if m != nil {
@@ -97,11 +104,19 @@ func (m *Request) GetLoginRequest() *LoginRequest {
 	return nil
 }
 
+func (m *Request) GetSelectCharacterRequest() *SelectCharacterRequest {
+	if x, ok := m.GetData().(*Request_SelectCharacterRequest); ok {
+		return x.SelectCharacterRequest
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*Request) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
 		(*Request_GetMapRequest)(nil),
 		(*Request_LoginRequest)(nil),
+		(*Request_SelectCharacterRequest)(nil),
 	}
 }
 
@@ -192,6 +207,53 @@ func (m *LoginRequest) GetPassword() string {
 	return ""
 }
 
+type SelectCharacterRequest struct {
+	AccountID            int32    `protobuf:"varint,1,opt,name=accountID,proto3" json:"accountID,omitempty"`
+	CharacterID          int32    `protobuf:"varint,2,opt,name=characterID,proto3" json:"characterID,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *SelectCharacterRequest) Reset()         { *m = SelectCharacterRequest{} }
+func (m *SelectCharacterRequest) String() string { return proto.CompactTextString(m) }
+func (*SelectCharacterRequest) ProtoMessage()    {}
+func (*SelectCharacterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ad098daeda4239f7, []int{3}
+}
+
+func (m *SelectCharacterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SelectCharacterRequest.Unmarshal(m, b)
+}
+func (m *SelectCharacterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SelectCharacterRequest.Marshal(b, m, deterministic)
+}
+func (m *SelectCharacterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SelectCharacterRequest.Merge(m, src)
+}
+func (m *SelectCharacterRequest) XXX_Size() int {
+	return xxx_messageInfo_SelectCharacterRequest.Size(m)
+}
+func (m *SelectCharacterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SelectCharacterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SelectCharacterRequest proto.InternalMessageInfo
+
+func (m *SelectCharacterRequest) GetAccountID() int32 {
+	if m != nil {
+		return m.AccountID
+	}
+	return 0
+}
+
+func (m *SelectCharacterRequest) GetCharacterID() int32 {
+	if m != nil {
+		return m.CharacterID
+	}
+	return 0
+}
+
 // Responses
 type Response struct {
 	// Types that are valid to be assigned to Data:
@@ -199,6 +261,7 @@ type Response struct {
 	//	*Response_GetMapResponse
 	//	*Response_LoginResponse
 	//	*Response_MultipartResponse
+	//	*Response_GetCharacterResponse
 	Data                 isResponse_Data `protobuf_oneof:"data"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
@@ -209,7 +272,7 @@ func (m *Response) Reset()         { *m = Response{} }
 func (m *Response) String() string { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()    {}
 func (*Response) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{3}
+	return fileDescriptor_ad098daeda4239f7, []int{4}
 }
 
 func (m *Response) XXX_Unmarshal(b []byte) error {
@@ -250,6 +313,10 @@ type Response_MultipartResponse struct {
 	MultipartResponse *MultipartResponse `protobuf:"bytes,4,opt,name=multipartResponse,proto3,oneof"`
 }
 
+type Response_GetCharacterResponse struct {
+	GetCharacterResponse *SelectCharacterResponse `protobuf:"bytes,5,opt,name=getCharacterResponse,proto3,oneof"`
+}
+
 func (*Response_ErrorResponse) isResponse_Data() {}
 
 func (*Response_GetMapResponse) isResponse_Data() {}
@@ -257,6 +324,8 @@ func (*Response_GetMapResponse) isResponse_Data() {}
 func (*Response_LoginResponse) isResponse_Data() {}
 
 func (*Response_MultipartResponse) isResponse_Data() {}
+
+func (*Response_GetCharacterResponse) isResponse_Data() {}
 
 func (m *Response) GetData() isResponse_Data {
 	if m != nil {
@@ -293,6 +362,13 @@ func (m *Response) GetMultipartResponse() *MultipartResponse {
 	return nil
 }
 
+func (m *Response) GetGetCharacterResponse() *SelectCharacterResponse {
+	if x, ok := m.GetData().(*Response_GetCharacterResponse); ok {
+		return x.GetCharacterResponse
+	}
+	return nil
+}
+
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*Response) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
@@ -300,6 +376,7 @@ func (*Response) XXX_OneofWrappers() []interface{} {
 		(*Response_GetMapResponse)(nil),
 		(*Response_LoginResponse)(nil),
 		(*Response_MultipartResponse)(nil),
+		(*Response_GetCharacterResponse)(nil),
 	}
 }
 
@@ -317,7 +394,7 @@ func (m *MultipartResponse) Reset()         { *m = MultipartResponse{} }
 func (m *MultipartResponse) String() string { return proto.CompactTextString(m) }
 func (*MultipartResponse) ProtoMessage()    {}
 func (*MultipartResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{4}
+	return fileDescriptor_ad098daeda4239f7, []int{5}
 }
 
 func (m *MultipartResponse) XXX_Unmarshal(b []byte) error {
@@ -346,16 +423,17 @@ func (m *MultipartResponse) GetParts() int64 {
 }
 
 type LoginResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Characters           []*Character `protobuf:"bytes,1,rep,name=characters,proto3" json:"characters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *LoginResponse) Reset()         { *m = LoginResponse{} }
 func (m *LoginResponse) String() string { return proto.CompactTextString(m) }
 func (*LoginResponse) ProtoMessage()    {}
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{5}
+	return fileDescriptor_ad098daeda4239f7, []int{6}
 }
 
 func (m *LoginResponse) XXX_Unmarshal(b []byte) error {
@@ -376,6 +454,13 @@ func (m *LoginResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_LoginResponse proto.InternalMessageInfo
 
+func (m *LoginResponse) GetCharacters() []*Character {
+	if m != nil {
+		return m.Characters
+	}
+	return nil
+}
+
 type ErrorResponse struct {
 	Message              string   `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -387,7 +472,7 @@ func (m *ErrorResponse) Reset()         { *m = ErrorResponse{} }
 func (m *ErrorResponse) String() string { return proto.CompactTextString(m) }
 func (*ErrorResponse) ProtoMessage()    {}
 func (*ErrorResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{6}
+	return fileDescriptor_ad098daeda4239f7, []int{7}
 }
 
 func (m *ErrorResponse) XXX_Unmarshal(b []byte) error {
@@ -415,36 +500,36 @@ func (m *ErrorResponse) GetMessage() string {
 	return ""
 }
 
-type SubscribeRequest struct {
+type SelectCharacterResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *SubscribeRequest) Reset()         { *m = SubscribeRequest{} }
-func (m *SubscribeRequest) String() string { return proto.CompactTextString(m) }
-func (*SubscribeRequest) ProtoMessage()    {}
-func (*SubscribeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{7}
+func (m *SelectCharacterResponse) Reset()         { *m = SelectCharacterResponse{} }
+func (m *SelectCharacterResponse) String() string { return proto.CompactTextString(m) }
+func (*SelectCharacterResponse) ProtoMessage()    {}
+func (*SelectCharacterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ad098daeda4239f7, []int{8}
 }
 
-func (m *SubscribeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_SubscribeRequest.Unmarshal(m, b)
+func (m *SelectCharacterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_SelectCharacterResponse.Unmarshal(m, b)
 }
-func (m *SubscribeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_SubscribeRequest.Marshal(b, m, deterministic)
+func (m *SelectCharacterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_SelectCharacterResponse.Marshal(b, m, deterministic)
 }
-func (m *SubscribeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SubscribeRequest.Merge(m, src)
+func (m *SelectCharacterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SelectCharacterResponse.Merge(m, src)
 }
-func (m *SubscribeRequest) XXX_Size() int {
-	return xxx_messageInfo_SubscribeRequest.Size(m)
+func (m *SelectCharacterResponse) XXX_Size() int {
+	return xxx_messageInfo_SelectCharacterResponse.Size(m)
 }
-func (m *SubscribeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_SubscribeRequest.DiscardUnknown(m)
+func (m *SelectCharacterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_SelectCharacterResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SubscribeRequest proto.InternalMessageInfo
+var xxx_messageInfo_SelectCharacterResponse proto.InternalMessageInfo
 
 type Event struct {
 	// Types that are valid to be assigned to Payload:
@@ -461,7 +546,7 @@ func (m *Event) Reset()         { *m = Event{} }
 func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 func (*Event) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{8}
+	return fileDescriptor_ad098daeda4239f7, []int{9}
 }
 
 func (m *Event) XXX_Unmarshal(b []byte) error {
@@ -552,7 +637,7 @@ func (m *ObjectPlacedEvent) Reset()         { *m = ObjectPlacedEvent{} }
 func (m *ObjectPlacedEvent) String() string { return proto.CompactTextString(m) }
 func (*ObjectPlacedEvent) ProtoMessage()    {}
 func (*ObjectPlacedEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{9}
+	return fileDescriptor_ad098daeda4239f7, []int{10}
 }
 
 func (m *ObjectPlacedEvent) XXX_Unmarshal(b []byte) error {
@@ -591,7 +676,7 @@ func (m *ObjectRemovedEvent) Reset()         { *m = ObjectRemovedEvent{} }
 func (m *ObjectRemovedEvent) String() string { return proto.CompactTextString(m) }
 func (*ObjectRemovedEvent) ProtoMessage()    {}
 func (*ObjectRemovedEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{10}
+	return fileDescriptor_ad098daeda4239f7, []int{11}
 }
 
 func (m *ObjectRemovedEvent) XXX_Unmarshal(b []byte) error {
@@ -631,7 +716,7 @@ func (m *PlayerMovedEvent) Reset()         { *m = PlayerMovedEvent{} }
 func (m *PlayerMovedEvent) String() string { return proto.CompactTextString(m) }
 func (*PlayerMovedEvent) ProtoMessage()    {}
 func (*PlayerMovedEvent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{11}
+	return fileDescriptor_ad098daeda4239f7, []int{12}
 }
 
 func (m *PlayerMovedEvent) XXX_Unmarshal(b []byte) error {
@@ -680,7 +765,7 @@ func (m *Object) Reset()         { *m = Object{} }
 func (m *Object) String() string { return proto.CompactTextString(m) }
 func (*Object) ProtoMessage()    {}
 func (*Object) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{12}
+	return fileDescriptor_ad098daeda4239f7, []int{13}
 }
 
 func (m *Object) XXX_Unmarshal(b []byte) error {
@@ -742,7 +827,7 @@ func (m *Vector3D) Reset()         { *m = Vector3D{} }
 func (m *Vector3D) String() string { return proto.CompactTextString(m) }
 func (*Vector3D) ProtoMessage()    {}
 func (*Vector3D) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{13}
+	return fileDescriptor_ad098daeda4239f7, []int{14}
 }
 
 func (m *Vector3D) XXX_Unmarshal(b []byte) error {
@@ -798,7 +883,7 @@ func (m *Map) Reset()         { *m = Map{} }
 func (m *Map) String() string { return proto.CompactTextString(m) }
 func (*Map) ProtoMessage()    {}
 func (*Map) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{14}
+	return fileDescriptor_ad098daeda4239f7, []int{15}
 }
 
 func (m *Map) XXX_Unmarshal(b []byte) error {
@@ -851,7 +936,7 @@ func (m *GetMapResponse) Reset()         { *m = GetMapResponse{} }
 func (m *GetMapResponse) String() string { return proto.CompactTextString(m) }
 func (*GetMapResponse) ProtoMessage()    {}
 func (*GetMapResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{15}
+	return fileDescriptor_ad098daeda4239f7, []int{16}
 }
 
 func (m *GetMapResponse) XXX_Unmarshal(b []byte) error {
@@ -889,7 +974,7 @@ func (m *MapChunk) Reset()         { *m = MapChunk{} }
 func (m *MapChunk) String() string { return proto.CompactTextString(m) }
 func (*MapChunk) ProtoMessage()    {}
 func (*MapChunk) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{16}
+	return fileDescriptor_ad098daeda4239f7, []int{17}
 }
 
 func (m *MapChunk) XXX_Unmarshal(b []byte) error {
@@ -920,7 +1005,7 @@ func (m *Vector3) Reset()         { *m = Vector3{} }
 func (m *Vector3) String() string { return proto.CompactTextString(m) }
 func (*Vector3) ProtoMessage()    {}
 func (*Vector3) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{17}
+	return fileDescriptor_ad098daeda4239f7, []int{18}
 }
 
 func (m *Vector3) XXX_Unmarshal(b []byte) error {
@@ -953,7 +1038,7 @@ func (m *Handshake) Reset()         { *m = Handshake{} }
 func (m *Handshake) String() string { return proto.CompactTextString(m) }
 func (*Handshake) ProtoMessage()    {}
 func (*Handshake) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ad098daeda4239f7, []int{18}
+	return fileDescriptor_ad098daeda4239f7, []int{19}
 }
 
 func (m *Handshake) XXX_Unmarshal(b []byte) error {
@@ -988,15 +1073,71 @@ func (m *Handshake) GetPassword() string {
 	return ""
 }
 
+type Character struct {
+	Id                   int32    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Gold                 uint64   `protobuf:"varint,3,opt,name=gold,proto3" json:"gold,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Character) Reset()         { *m = Character{} }
+func (m *Character) String() string { return proto.CompactTextString(m) }
+func (*Character) ProtoMessage()    {}
+func (*Character) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ad098daeda4239f7, []int{20}
+}
+
+func (m *Character) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Character.Unmarshal(m, b)
+}
+func (m *Character) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Character.Marshal(b, m, deterministic)
+}
+func (m *Character) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Character.Merge(m, src)
+}
+func (m *Character) XXX_Size() int {
+	return xxx_messageInfo_Character.Size(m)
+}
+func (m *Character) XXX_DiscardUnknown() {
+	xxx_messageInfo_Character.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Character proto.InternalMessageInfo
+
+func (m *Character) GetId() int32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Character) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *Character) GetGold() uint64 {
+	if m != nil {
+		return m.Gold
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Request)(nil), "Request")
 	proto.RegisterType((*GetMapRequest)(nil), "GetMapRequest")
 	proto.RegisterType((*LoginRequest)(nil), "LoginRequest")
+	proto.RegisterType((*SelectCharacterRequest)(nil), "SelectCharacterRequest")
 	proto.RegisterType((*Response)(nil), "Response")
 	proto.RegisterType((*MultipartResponse)(nil), "MultipartResponse")
 	proto.RegisterType((*LoginResponse)(nil), "LoginResponse")
 	proto.RegisterType((*ErrorResponse)(nil), "ErrorResponse")
-	proto.RegisterType((*SubscribeRequest)(nil), "SubscribeRequest")
+	proto.RegisterType((*SelectCharacterResponse)(nil), "SelectCharacterResponse")
 	proto.RegisterType((*Event)(nil), "Event")
 	proto.RegisterType((*ObjectPlacedEvent)(nil), "ObjectPlacedEvent")
 	proto.RegisterType((*ObjectRemovedEvent)(nil), "ObjectRemovedEvent")
@@ -1008,54 +1149,64 @@ func init() {
 	proto.RegisterType((*MapChunk)(nil), "MapChunk")
 	proto.RegisterType((*Vector3)(nil), "Vector3")
 	proto.RegisterType((*Handshake)(nil), "Handshake")
+	proto.RegisterType((*Character)(nil), "Character")
 }
 
 func init() { proto.RegisterFile("server.proto", fileDescriptor_ad098daeda4239f7) }
 
 var fileDescriptor_ad098daeda4239f7 = []byte{
-	// 668 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x54, 0xdf, 0x4f, 0xdb, 0x3a,
-	0x14, 0x26, 0x49, 0x7f, 0x1e, 0xda, 0x42, 0x7d, 0xaf, 0x10, 0xe2, 0xe5, 0x22, 0xeb, 0x6e, 0x82,
-	0x87, 0xe5, 0x01, 0x18, 0xda, 0x84, 0xf6, 0xd2, 0xc1, 0xe8, 0x34, 0xba, 0x21, 0xa3, 0xed, 0x61,
-	0x6f, 0x6e, 0x62, 0xb5, 0x19, 0x4d, 0x9c, 0xd9, 0x2e, 0x50, 0x1e, 0x26, 0xed, 0x3f, 0xdb, 0x9f,
-	0x36, 0xd9, 0x71, 0xb2, 0x24, 0x15, 0x7b, 0xcb, 0xf7, 0xf9, 0x7c, 0x3e, 0x27, 0xdf, 0xf1, 0x39,
-	0xd0, 0x93, 0x4c, 0xdc, 0x31, 0xe1, 0xa7, 0x82, 0x2b, 0x8e, 0x7f, 0x40, 0x9b, 0xb0, 0xef, 0x4b,
-	0x26, 0x15, 0x3a, 0x85, 0xfe, 0x8c, 0xa9, 0x09, 0x4d, 0x2d, 0xb1, 0xeb, 0xec, 0x3b, 0x07, 0x9b,
-	0x47, 0x03, 0xff, 0xb2, 0xcc, 0x8e, 0x37, 0x48, 0x35, 0x0c, 0x1d, 0x43, 0x6f, 0xc1, 0x67, 0x51,
-	0x92, 0xcb, 0x5c, 0x23, 0xeb, 0xfb, 0x57, 0x25, 0x72, 0xbc, 0x41, 0x2a, 0x41, 0xa3, 0x16, 0x34,
-	0x42, 0xaa, 0x28, 0x3e, 0x85, 0x7e, 0xe5, 0x7a, 0xf4, 0x0c, 0x3a, 0x0b, 0x1e, 0x50, 0x15, 0xf1,
-	0xc4, 0x16, 0xd0, 0xf5, 0xbf, 0xb0, 0x40, 0x71, 0x71, 0x7c, 0x4e, 0x8a, 0x23, 0xfc, 0x0e, 0x7a,
-	0xe5, 0xfb, 0xd1, 0x1e, 0x74, 0x96, 0x92, 0x89, 0x84, 0xc6, 0xcc, 0xc8, 0xba, 0xa4, 0xc0, 0xfa,
-	0x2c, 0xa5, 0x52, 0xde, 0x73, 0x11, 0x9a, 0xe2, 0xba, 0xa4, 0xc0, 0xf8, 0xa7, 0x0b, 0x1d, 0xc2,
-	0x64, 0xca, 0x13, 0xc9, 0xb4, 0x03, 0x4c, 0x08, 0x2e, 0x72, 0xa2, 0x70, 0xe0, 0xa2, 0xcc, 0x6a,
-	0x07, 0x2a, 0x61, 0xe8, 0x35, 0x0c, 0x72, 0x4b, 0xac, 0x30, 0xf3, 0x60, 0xab, 0xb0, 0xae, 0x50,
-	0xd6, 0x02, 0x75, 0x4a, 0xeb, 0x8b, 0x55, 0x7a, 0x36, 0xe5, 0x55, 0x99, 0xd5, 0x29, 0x2b, 0x61,
-	0x68, 0x04, 0xc3, 0x78, 0xb9, 0x50, 0x51, 0x4a, 0x85, 0x2a, 0xb4, 0x0d, 0xa3, 0x45, 0xfe, 0xa4,
-	0x7e, 0x32, 0xde, 0x20, 0xeb, 0xe1, 0x45, 0x0f, 0x0e, 0x61, 0xb8, 0xa6, 0x40, 0xff, 0x42, 0x53,
-	0x63, 0x69, 0x3c, 0xf0, 0x48, 0x06, 0xf0, 0x16, 0xf4, 0x2b, 0x85, 0xe1, 0x43, 0xe8, 0x57, 0xcc,
-	0x41, 0xbb, 0xd0, 0x8e, 0x99, 0x94, 0x74, 0x96, 0xf7, 0x21, 0x87, 0x18, 0xc1, 0xf6, 0xcd, 0x72,
-	0x2a, 0x03, 0x11, 0x4d, 0x99, 0x6d, 0x1b, 0xfe, 0xe5, 0x40, 0xf3, 0xe2, 0x8e, 0x25, 0x0a, 0xbd,
-	0x82, 0x1e, 0x9f, 0x7e, 0x63, 0x81, 0xba, 0x5e, 0xd0, 0x80, 0x85, 0xd6, 0x7a, 0xe4, 0x7f, 0x2a,
-	0x91, 0x26, 0x52, 0x3f, 0xa5, 0x72, 0x24, 0x3a, 0x83, 0x7e, 0x86, 0x09, 0x8b, 0xf9, 0x1d, 0x0b,
-	0xad, 0xf9, 0xff, 0x58, 0xa9, 0x65, 0x73, 0x6d, 0x35, 0x16, 0xbd, 0x84, 0xcd, 0x74, 0x41, 0x57,
-	0x4c, 0x4c, 0x8c, 0x34, 0x73, 0x7f, 0xe8, 0x5f, 0xff, 0xe1, 0x72, 0x61, 0x39, 0x6e, 0xd4, 0x85,
-	0x76, 0x4a, 0x57, 0x0b, 0x4e, 0x43, 0x7c, 0x02, 0xc3, 0xb5, 0x1a, 0xd1, 0x7f, 0xd0, 0xca, 0xf2,
-	0xd8, 0xff, 0x68, 0xe7, 0xc5, 0x58, 0x1a, 0xff, 0x0f, 0x68, 0xbd, 0x3c, 0x34, 0x00, 0x37, 0x0a,
-	0xad, 0xe3, 0x6e, 0x14, 0xe2, 0xcf, 0xb0, 0x5d, 0xaf, 0xc4, 0xbc, 0x66, 0xc3, 0xbd, 0x3f, 0xb7,
-	0x91, 0x05, 0xae, 0x0c, 0x8f, 0xfb, 0xf4, 0xf0, 0xc4, 0xd0, 0xca, 0x92, 0xd7, 0x13, 0xea, 0xee,
-	0xf1, 0xfb, 0xc4, 0xdc, 0xed, 0x1a, 0x32, 0x87, 0x08, 0x41, 0xc3, 0x0c, 0x97, 0x67, 0x9a, 0x6a,
-	0xbe, 0x2b, 0xe9, 0x1a, 0x4f, 0xa7, 0x3b, 0x81, 0x4e, 0xce, 0xa2, 0x1e, 0x38, 0x0f, 0x26, 0x9f,
-	0x4b, 0x9c, 0x07, 0x8d, 0x56, 0x26, 0x91, 0x4b, 0x9c, 0x95, 0x46, 0x8f, 0xe6, 0x7e, 0x97, 0x38,
-	0x8f, 0xf8, 0x03, 0x78, 0x13, 0x9a, 0xea, 0x77, 0x78, 0x1f, 0x85, 0x6a, 0x6e, 0x44, 0x4d, 0x92,
-	0x01, 0xb4, 0x03, 0xad, 0x39, 0x8b, 0x66, 0xf3, 0x6c, 0xdb, 0x34, 0x89, 0x45, 0x9a, 0x4f, 0x79,
-	0x94, 0x28, 0xb9, 0xeb, 0xed, 0x7b, 0x07, 0x2e, 0xb1, 0x08, 0x1f, 0xc0, 0xa0, 0x3a, 0x8a, 0x68,
-	0x07, 0xbc, 0x98, 0xa6, 0xb6, 0x3d, 0x0d, 0x5f, 0x1f, 0x69, 0x02, 0x03, 0x74, 0x26, 0x34, 0x7d,
-	0x3b, 0x5f, 0x26, 0xb7, 0xb8, 0x0b, 0x6d, 0x5b, 0x38, 0x7e, 0x03, 0xdd, 0x31, 0x4d, 0x42, 0x39,
-	0xa7, 0xb7, 0x66, 0x36, 0xcc, 0x34, 0xda, 0x17, 0x9e, 0x81, 0xbf, 0xad, 0x99, 0xa3, 0x00, 0xe0,
-	0x92, 0xc6, 0xec, 0xc6, 0xac, 0x5e, 0xf4, 0x02, 0xe0, 0x92, 0xa9, 0x8f, 0x8c, 0x0a, 0xfd, 0x87,
-	0xb5, 0x05, 0xbb, 0x57, 0xdf, 0x1a, 0xe8, 0x39, 0x34, 0xcd, 0xd0, 0xa1, 0xea, 0x4e, 0xdd, 0xab,
-	0x2d, 0x89, 0x51, 0xfb, 0x6b, 0xd3, 0x3f, 0x13, 0x69, 0x30, 0x6d, 0x99, 0xdd, 0x7e, 0xfc, 0x3b,
-	0x00, 0x00, 0xff, 0xff, 0x1b, 0x42, 0xdd, 0xbb, 0xeb, 0x05, 0x00, 0x00,
+	// 805 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x55, 0xd1, 0x6e, 0xdb, 0x36,
+	0x14, 0x8d, 0x24, 0xcb, 0xb6, 0x6e, 0xec, 0x74, 0xb9, 0x2b, 0x5c, 0xcf, 0x18, 0xb0, 0x80, 0xd8,
+	0x06, 0x77, 0xc0, 0xf4, 0x90, 0x74, 0xc5, 0x86, 0x60, 0x2f, 0x8e, 0xbb, 0xb8, 0x58, 0xdd, 0x75,
+	0x2c, 0x36, 0x0c, 0x7b, 0x63, 0x25, 0xc2, 0xd6, 0x2a, 0x8b, 0x9a, 0x44, 0x27, 0x75, 0xff, 0x68,
+	0x7f, 0xb1, 0x5f, 0xc8, 0x1f, 0x0d, 0xa4, 0x28, 0x45, 0x92, 0xe3, 0xbd, 0xe9, 0x1c, 0xde, 0xc3,
+	0x7b, 0xc5, 0x73, 0x79, 0x09, 0x83, 0x9c, 0x67, 0x37, 0x3c, 0xf3, 0xd3, 0x4c, 0x48, 0x41, 0xee,
+	0x2c, 0xe8, 0x51, 0xfe, 0xf7, 0x96, 0xe7, 0x12, 0x9f, 0xc3, 0x70, 0xc5, 0xe5, 0x92, 0xa5, 0x86,
+	0x18, 0x5b, 0x67, 0xd6, 0xf4, 0xf8, 0xfc, 0xc4, 0xbf, 0xae, 0xb3, 0x8b, 0x23, 0xda, 0x0c, 0xc3,
+	0x0b, 0x18, 0xc4, 0x62, 0x15, 0x25, 0xa5, 0xcc, 0xd6, 0xb2, 0xa1, 0xff, 0xaa, 0x46, 0x2e, 0x8e,
+	0x68, 0x23, 0x08, 0x7f, 0x85, 0x51, 0xce, 0x63, 0x1e, 0xc8, 0xab, 0x35, 0xcb, 0x58, 0x20, 0x79,
+	0x56, 0xca, 0x1d, 0x2d, 0x7f, 0xe2, 0xbf, 0x7d, 0x70, 0x79, 0x71, 0x44, 0x0f, 0x08, 0x67, 0x5d,
+	0xe8, 0x84, 0x4c, 0x32, 0xf2, 0x1c, 0x86, 0x8d, 0x8a, 0xf1, 0x2b, 0xe8, 0xc7, 0x22, 0x60, 0x32,
+	0x12, 0x89, 0xf9, 0x27, 0xcf, 0xff, 0x9d, 0x07, 0x52, 0x64, 0x17, 0x73, 0x5a, 0x2d, 0x91, 0x9f,
+	0x60, 0x50, 0x2f, 0x19, 0x27, 0xd0, 0xdf, 0xe6, 0x3c, 0x4b, 0xd8, 0x86, 0x6b, 0x99, 0x47, 0x2b,
+	0xac, 0xd6, 0x52, 0x96, 0xe7, 0xb7, 0x22, 0x0b, 0xf5, 0xff, 0x7a, 0xb4, 0xc2, 0xe4, 0x0f, 0x18,
+	0x3d, 0x5c, 0x3b, 0x7e, 0x0e, 0x1e, 0x0b, 0x02, 0xb1, 0x4d, 0xe4, 0xcb, 0xb9, 0xde, 0xd2, 0xa5,
+	0xf7, 0x04, 0x9e, 0xc1, 0x71, 0x50, 0x2a, 0x5e, 0xce, 0xf5, 0xb6, 0x2e, 0xad, 0x53, 0xe4, 0xce,
+	0x86, 0x3e, 0xe5, 0x79, 0x2a, 0x92, 0x9c, 0x2b, 0xbb, 0x78, 0x96, 0x89, 0xac, 0x24, 0x2a, 0xbb,
+	0x5e, 0xd4, 0x59, 0x65, 0x57, 0x23, 0x0c, 0x7f, 0x80, 0x93, 0xd2, 0x3f, 0x23, 0x2c, 0x0c, 0x7b,
+	0x54, 0xf9, 0x5c, 0x29, 0x5b, 0x81, 0x2a, 0xa5, 0x31, 0xd1, 0x28, 0x1d, 0x93, 0xf2, 0x55, 0x9d,
+	0x55, 0x29, 0x1b, 0x61, 0x38, 0x83, 0xd3, 0xcd, 0x36, 0x96, 0x51, 0xca, 0x32, 0x59, 0x69, 0x3b,
+	0x5a, 0x8b, 0xfe, 0xb2, 0xbd, 0xb2, 0x38, 0xa2, 0xfb, 0xe1, 0xf8, 0x1a, 0x1e, 0xaf, 0x78, 0xfd,
+	0x48, 0xcd, 0x36, 0xae, 0xde, 0x66, 0xbc, 0xdf, 0x2e, 0xd5, 0x66, 0x0f, 0xea, 0xaa, 0x6e, 0x79,
+	0x0a, 0xa7, 0x7b, 0x15, 0xe0, 0x63, 0x70, 0x15, 0xce, 0xf5, 0x99, 0x3a, 0xb4, 0x00, 0xe4, 0x12,
+	0x86, 0x8d, 0x1f, 0xc5, 0x6f, 0x00, 0x2a, 0x7b, 0x54, 0xac, 0x33, 0x3d, 0x3e, 0x07, 0xff, 0x3e,
+	0x57, 0x6d, 0x95, 0x3c, 0x85, 0x61, 0xc3, 0x18, 0x1c, 0x43, 0x6f, 0xc3, 0xf3, 0x9c, 0xad, 0xca,
+	0xee, 0x2a, 0x21, 0xf9, 0x0c, 0x9e, 0x1c, 0xf8, 0x1b, 0xf2, 0xaf, 0x05, 0xee, 0x8b, 0x1b, 0x9e,
+	0x48, 0xfc, 0x1e, 0x06, 0xe2, 0xdd, 0x5f, 0x3c, 0x90, 0x6f, 0x62, 0x16, 0xf0, 0xd0, 0xb8, 0x8f,
+	0xfe, 0x2f, 0x35, 0x52, 0x47, 0xaa, 0xab, 0x57, 0x8f, 0xc4, 0x4b, 0x18, 0x16, 0x98, 0xf2, 0x8d,
+	0xb8, 0xe1, 0xa1, 0xf1, 0xff, 0x53, 0x23, 0x35, 0x6c, 0xa9, 0x6d, 0xc6, 0xe2, 0x77, 0x70, 0x9c,
+	0xc6, 0x6c, 0xc7, 0xb3, 0xa5, 0x96, 0x16, 0x0d, 0x70, 0xea, 0xbf, 0xb9, 0xe7, 0x4a, 0x61, 0x3d,
+	0x6e, 0xe6, 0x41, 0x2f, 0x65, 0xbb, 0x58, 0xb0, 0x90, 0x3c, 0x83, 0xd3, 0xbd, 0x1a, 0xf1, 0x0b,
+	0xe8, 0x16, 0x79, 0xcc, 0x7f, 0xf4, 0xca, 0x62, 0x0c, 0x4d, 0xbe, 0x04, 0xdc, 0x2f, 0x0f, 0x4f,
+	0xc0, 0x8e, 0x42, 0x63, 0x92, 0x1d, 0x85, 0xe4, 0x37, 0xf8, 0xa4, 0x5d, 0x89, 0xbe, 0xaa, 0x9a,
+	0x33, 0x77, 0xce, 0xa1, 0x15, 0x6e, 0x4c, 0x06, 0xfb, 0xf0, 0x64, 0xd8, 0x40, 0xb7, 0x48, 0xde,
+	0x4e, 0xa8, 0x4c, 0x14, 0xb7, 0x49, 0x75, 0x5f, 0x1d, 0x5a, 0x42, 0x44, 0xe8, 0xe8, 0xc9, 0xe1,
+	0x68, 0x6f, 0xf5, 0x77, 0x23, 0x5d, 0xe7, 0x70, 0xba, 0x67, 0xd0, 0x2f, 0x59, 0x1c, 0x80, 0xf5,
+	0x41, 0xe7, 0xb3, 0xa9, 0xf5, 0x41, 0xa1, 0x9d, 0x4e, 0x64, 0x53, 0x6b, 0xa7, 0xd0, 0x47, 0xbd,
+	0xbf, 0x4d, 0xad, 0x8f, 0xe4, 0x67, 0x70, 0x96, 0x2c, 0x55, 0xad, 0x7b, 0x1b, 0x85, 0x72, 0x6d,
+	0xe6, 0x4b, 0x01, 0x70, 0x04, 0xdd, 0x35, 0x8f, 0x56, 0x6b, 0x69, 0xc6, 0x8a, 0x41, 0x8a, 0x4f,
+	0x45, 0x94, 0xc8, 0x7c, 0xec, 0x9c, 0x39, 0x53, 0x9b, 0x1a, 0x44, 0xa6, 0x70, 0xd2, 0x9c, 0x06,
+	0x38, 0x02, 0x67, 0xc3, 0x52, 0x63, 0x4f, 0xc7, 0x57, 0x4b, 0x8a, 0x20, 0x00, 0xfd, 0x25, 0x4b,
+	0xaf, 0xd6, 0xdb, 0xe4, 0x3d, 0xf1, 0xa0, 0x67, 0x0a, 0x27, 0x3f, 0x82, 0xb7, 0x60, 0x49, 0x98,
+	0xaf, 0xd9, 0x7b, 0x7d, 0x9d, 0xf4, 0x40, 0x30, 0x8d, 0x5e, 0x80, 0xff, 0x9d, 0xa1, 0x57, 0xe0,
+	0x55, 0xcd, 0x5f, 0x3b, 0x74, 0x57, 0x1f, 0x7a, 0x79, 0xb4, 0x76, 0xed, 0x68, 0x11, 0x3a, 0x2b,
+	0x11, 0x17, 0x0d, 0xd9, 0xa1, 0xfa, 0xfb, 0xfc, 0x1f, 0x0b, 0xe0, 0x9a, 0x6d, 0xf8, 0x5b, 0xfd,
+	0xe2, 0xe1, 0xb7, 0x00, 0xd7, 0x5c, 0xbe, 0xe6, 0x2c, 0x53, 0xe7, 0xd4, 0x7a, 0xd6, 0x26, 0xed,
+	0xf1, 0x87, 0x5f, 0x83, 0xab, 0x6f, 0x3b, 0x36, 0x5f, 0xb2, 0x49, 0x6b, 0xda, 0xe1, 0x1c, 0x1e,
+	0xb5, 0x6e, 0x2b, 0x1e, 0x7a, 0xbc, 0x26, 0x07, 0xc7, 0xd4, 0xac, 0xf7, 0xa7, 0xeb, 0x5f, 0x66,
+	0x69, 0xf0, 0xae, 0xab, 0x1f, 0xe6, 0x8b, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0x96, 0x6e, 0xfd,
+	0xe5, 0xa8, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1073,6 +1224,7 @@ type GameServerClient interface {
 	// Returns the map around the specific location
 	GetNearMap(ctx context.Context, in *GetMapRequest, opts ...grpc.CallOption) (*GetMapResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	SelectCharacter(ctx context.Context, in *SelectCharacterRequest, opts ...grpc.CallOption) (*SelectCharacterResponse, error)
 }
 
 type gameServerClient struct {
@@ -1101,11 +1253,21 @@ func (c *gameServerClient) Login(ctx context.Context, in *LoginRequest, opts ...
 	return out, nil
 }
 
+func (c *gameServerClient) SelectCharacter(ctx context.Context, in *SelectCharacterRequest, opts ...grpc.CallOption) (*SelectCharacterResponse, error) {
+	out := new(SelectCharacterResponse)
+	err := c.cc.Invoke(ctx, "/GameServer/SelectCharacter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameServerServer is the server API for GameServer service.
 type GameServerServer interface {
 	// Returns the map around the specific location
 	GetNearMap(context.Context, *GetMapRequest) (*GetMapResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	SelectCharacter(context.Context, *SelectCharacterRequest) (*SelectCharacterResponse, error)
 }
 
 // UnimplementedGameServerServer can be embedded to have forward compatible implementations.
@@ -1117,6 +1279,9 @@ func (*UnimplementedGameServerServer) GetNearMap(ctx context.Context, req *GetMa
 }
 func (*UnimplementedGameServerServer) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+}
+func (*UnimplementedGameServerServer) SelectCharacter(ctx context.Context, req *SelectCharacterRequest) (*SelectCharacterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelectCharacter not implemented")
 }
 
 func RegisterGameServerServer(s *grpc.Server, srv GameServerServer) {
@@ -1159,6 +1324,24 @@ func _GameServer_Login_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameServer_SelectCharacter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SelectCharacterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServerServer).SelectCharacter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/GameServer/SelectCharacter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServerServer).SelectCharacter(ctx, req.(*SelectCharacterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _GameServer_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "GameServer",
 	HandlerType: (*GameServerServer)(nil),
@@ -1170,6 +1353,10 @@ var _GameServer_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _GameServer_Login_Handler,
+		},
+		{
+			MethodName: "SelectCharacter",
+			Handler:    _GameServer_SelectCharacter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

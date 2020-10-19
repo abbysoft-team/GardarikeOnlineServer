@@ -33,6 +33,10 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 		loginResponse, err := p.logic.Login(request.GetLoginRequest())
 		requestErr = err
 		response.Data = &rpc.Response_LoginResponse{LoginResponse: loginResponse}
+	} else if request.GetSelectCharacterRequest() != nil {
+		selectCharResponse, err := p.logic.SelectCharacter(request.GetSelectCharacterRequest())
+		requestErr = err
+		response.Data = &rpc.Response_GetCharacterResponse{GetCharacterResponse: selectCharResponse}
 	}
 
 	if requestErr != nil {
