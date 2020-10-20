@@ -6,8 +6,8 @@ CREATE TABLE characters (
 
 CREATE TABLE accounts (
     id serial PRIMARY KEY,
-    login varchar(25) NOT NULL,
-    password varchar(25) NOT NULL,
+    login varchar(25) UNIQUE NOT NULL,
+    password varchar(32) NOT NULL,
     salt varchar(10) NOT NULL
 )
 

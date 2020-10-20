@@ -22,12 +22,12 @@ WHERE account_id = 1;`)
 }
 
 func (d *Database) GetAccount(login string) (result model.Account, err error) {
-	err = d.db.Select(&result, "SELECT * from accounts WHERE login = $1", login)
+	err = d.db.Get(&result, "SELECT * from accounts WHERE login = $1", login)
 	return
 }
 
 func (d *Database) GetCharacter(id int) (result model.Character, err error) {
-	err = d.db.Select(&result, "SELECT * FROM characters WHERE id = $1", id)
+	err = d.db.Get(&result, "SELECT * FROM characters WHERE id = $1", id)
 	return
 }
 

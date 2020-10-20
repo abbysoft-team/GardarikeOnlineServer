@@ -25,18 +25,18 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 	var requestErr error
 	var response rpc.Response
 
-	if request.GetGetMapRequest() != nil {
-		getMapResponse, err := p.logic.GetMap(request.GetGetMapRequest())
-		requestErr = err
-		response.Data = &rpc.Response_GetMapResponse{GetMapResponse: getMapResponse}
-	} else if request.GetLoginRequest() != nil {
+	if request.GetLoginRequest() != nil {
 		loginResponse, err := p.logic.Login(request.GetLoginRequest())
 		requestErr = err
 		response.Data = &rpc.Response_LoginResponse{LoginResponse: loginResponse}
+	} else if request.GetGetMapRequest() != nil {
+		getMapResponse, err := p.logic.GetMap(request.GetGetMapRequest())
+		requestErr = err
+		response.Data = &rpc.Response_GetMapResponse{GetMapResponse: getMapResponse}
 	} else if request.GetSelectCharacterRequest() != nil {
 		selectCharResponse, err := p.logic.SelectCharacter(request.GetSelectCharacterRequest())
 		requestErr = err
-		response.Data = &rpc.Response_GetCharacterResponse{GetCharacterResponse: selectCharResponse}
+		response.Data = &rpc.Response_SelectCharacterResponse{SelectCharacterResponse: selectCharResponse}
 	}
 
 	if requestErr != nil {
