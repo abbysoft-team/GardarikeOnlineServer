@@ -33,7 +33,7 @@ func NewLogic(generator TerrainGenerator) (*SimpleLogic, error) {
 		Port:      5432,
 		Host:      "localhost",
 		User:      "admin",
-		Password:  "k5j5p9Ts",
+		Password:  "admin",
 		DBName:    "game",
 		EnableSSL: false,
 	})
