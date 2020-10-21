@@ -38,7 +38,7 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 
 	var rpcChars []*rpc.Character
 	for _, char := range chars {
-		rpcChars = append(rpcChars, model.ToRPCCharacter(char))
+		rpcChars = append(rpcChars, char.ToRPC())
 	}
 
 	session := NewPlayerSession()

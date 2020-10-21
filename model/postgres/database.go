@@ -11,6 +11,28 @@ type Database struct {
 	db *sqlx.DB
 }
 
+func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
+	_, err := d.db.NamedExec(
+		`INSERT INTO buildinglocations (building_id, owner_id, location)
+VALUES (:building_id, :owner_id, :location)`, buildingLoc)
+	return err
+}
+
+func (d *Database) GetBuildingOnLocation(location [3]float32) (result model.Building, err error) {
+	err = d.db.Get(&result, "SELECT * FROM buildinglocations WHERE location=$1", location)
+	return
+}
+
+func (d *Database) GetBuildings() (result []model.Building, err error) {
+	err = d.db.Select(&result, "SELECT * FROM buildings")
+	return
+}
+
+func (d *Database) GetBuildingLocations() (result []model.BuildingLocation, err error) {
+	err = d.db.Select(&result, "SELECT * FROM buildinglocations")
+	return
+}
+
 func (d *Database) GetCharacters(accountID int) (result []model.Character, err error) {
 	err = d.db.Select(&result,
 		`SELECT id, name, gold FROM accountcharacters as a
@@ -50,7 +72,7 @@ type Config struct {
 	EnableSSL bool
 }
 
-func NewDatabase(config Config) (*Database, error) {
+func NewDatabase(config Config) (model.Database, error) {
 	var sslMode string
 	if config.EnableSSL {
 		sslMode = "verify-full"

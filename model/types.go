@@ -15,10 +15,34 @@ type Character struct {
 	Gold uint64 `db:"gold"`
 }
 
-func ToRPCCharacter(char Character) *rpc.Character {
+type Building struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+	Cost int    `db:"cost"`
+}
+
+type BuildingLocation struct {
+	BuildingID int        `db:"building_id"`
+	OwnerID    int        `db:"owner_id"`
+	Location   [3]float32 `db:"location"`
+}
+
+func (char Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
 		Id:   int32(char.ID),
 		Name: char.Name,
 		Gold: char.Gold,
+	}
+}
+
+func (building BuildingLocation) ToRPC() *rpc.Building {
+	return &rpc.Building{
+		Id:      int64(building.BuildingID),
+		OwnerID: int64(building.OwnerID),
+		Location: &rpc.Vector3D{
+			X: building.Location[0],
+			Y: building.Location[1],
+			Z: building.Location[2],
+		},
 	}
 }

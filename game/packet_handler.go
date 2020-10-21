@@ -38,6 +38,10 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 		selectCharResponse, err := p.logic.SelectCharacter(request.GetSelectCharacterRequest())
 		requestErr = err
 		response.Data = &rpc.Response_SelectCharacterResponse{SelectCharacterResponse: selectCharResponse}
+	} else if request.GetPlaceBuildingRequest() != nil {
+		placeBuildingResponse, err := p.logic.PlaceBuilding(request.GetPlaceBuildingRequest())
+		requestErr = err
+		response.Data = &rpc.Response_PlaceBuildingResponse{PlaceBuildingResponse: placeBuildingResponse}
 	}
 
 	if requestErr != nil {

@@ -11,7 +11,15 @@ type AccountDatabase interface {
 	GetAccount(login string) (Account, error)
 }
 
+type WorldDatabase interface {
+	GetBuildingLocations() ([]BuildingLocation, error)
+	GetBuildings() ([]Building, error)
+	GetBuildingOnLocation(location [3]float32) (Building, error)
+	AddBuildingLocation(buildingLoc BuildingLocation) error
+}
+
 type Database interface {
 	CharacterDatabase
 	AccountDatabase
+	WorldDatabase
 }

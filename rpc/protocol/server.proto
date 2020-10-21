@@ -124,7 +124,6 @@ message Map {
 
 message Building {
   int64 id = 1;
-  string name = 2;
   int64 ownerID = 3;
   Vector3D location = 4;
 }

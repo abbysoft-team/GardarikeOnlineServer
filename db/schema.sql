@@ -15,3 +15,16 @@ CREATE TABLE accountCharacters (
     account_id int NOT NULL,
     character_id int NOT NULL
 )
+
+CREATE TABLE buildings (
+    id serial PRIMARY KEY,
+    name varchar(25) NOT NULL,
+    cost int NOT NULL,
+)
+
+CREATE TABLE buildingLocations (
+    building_id int NOT NULL,
+    owner_id int NOT NULL,
+    location real ARRAY[3],
+    UNIQUE (location)
+)
