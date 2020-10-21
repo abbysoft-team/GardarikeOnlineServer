@@ -1,7 +1,10 @@
-# ProjectXServer
-Project XXX
+# GardarikeOnline server
+Server for GardarikeOnline game. 
+GardarikeOnline is an online mmo RTS game.
 
 [![CircleCI](https://circleci.com/gh/abbysoft-team/ProjectXServer.svg?style=svg)](https://app.circleci.com/pipelines/github/abbysoft-team/ProjectXServer)
+
+You can find client code here: https://github.com/abbysoft-team/ProjectXClient 
 
 ## Install
 
