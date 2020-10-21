@@ -10,17 +10,15 @@ import (
 	rpc "projectx-server/rpc/generated"
 )
 
-var ErrInternalServerError = errors.New("internal server error")
-var ErrInvalidUserPassword = errors.New("invalid username/password combination")
-
-func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, error) {
+func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error) {
 	s.log.WithField("login", request.GetUsername()).Debug("Login request")
 
 	acc, err := s.db.GetAccount(request.GetUsername())
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrInvalidUserPassword
+		return nil, model.ErrInvalidUserPassword
 	} else if err != nil {
-		return nil, ErrInternalServerError
+		s.log.WithError(err).Error("Failed to get account from the database")
+		return nil, model.ErrInternalServerError
 	}
 
 	hashedPass := md5.Sum([]byte(request.Password))
@@ -28,12 +26,14 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, erro
 	finalPass := md5.Sum([]byte(saltedHash))
 
 	if fmt.Sprintf("%x", string(finalPass[:])) != acc.Password {
-		return nil, ErrInvalidUserPassword
+		return nil, model.ErrInvalidUserPassword
 	}
 
 	chars, err := s.db.GetCharacters(acc.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get account characters: %w", err)
+		s.log.WithError(err).WithField("accID", acc.ID).
+			Error("Failed to get characters for account", err)
+		return nil, model.ErrInternalServerError
 	}
 
 	var rpcChars []*rpc.Character

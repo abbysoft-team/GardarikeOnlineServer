@@ -15,7 +15,7 @@ type SimplexTerrainGenerator struct {
 	persistence float64
 }
 
-func NewSimplexMapGenerator(octaves int, persistence float64) SimplexTerrainGenerator {
+func NewSimplexTerrainGenerator(octaves int, persistence float64) SimplexTerrainGenerator {
 	return SimplexTerrainGenerator{
 		octaves:     octaves,
 		persistence: persistence,

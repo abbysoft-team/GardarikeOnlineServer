@@ -33,7 +33,7 @@ func main() {
 		Endpoint: os.Args[1],
 	}
 
-	gameLogic, err := game.NewLogic(game.NewSimplexMapGenerator(5, 1.5))
+	gameLogic, err := game.NewLogic(game.NewSimplexTerrainGenerator(5, 1.5))
 	if err != nil {
 		log.Fatalf("Failed to init game logic: %v", err)
 	}

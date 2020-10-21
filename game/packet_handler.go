@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"projectx-server/model"
 	rpc "projectx-server/rpc/generated"
 )
 
@@ -22,7 +23,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 		return nil, fmt.Errorf("failed to unmarshal packet: %w", err)
 	}
 
-	var requestErr error
+	var requestErr model.Error
 	var response rpc.Response
 
 	if request.GetLoginRequest() != nil {
@@ -41,7 +42,10 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 
 	if requestErr != nil {
 		response.Data = &rpc.Response_ErrorResponse{
-			ErrorResponse: &rpc.ErrorResponse{Message: requestErr.Error()},
+			ErrorResponse: &rpc.ErrorResponse{
+				Message: requestErr.GetMessage(),
+				Code:    int64(requestErr.GetCode()),
+			},
 		}
 	}
 

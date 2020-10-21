@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"projectx-server/model"
@@ -13,12 +12,10 @@ const (
 	mapChunkSize = 100
 )
 
-var ErrNotAuthorized = errors.New("user not authorized")
-
 type Logic interface {
-	GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, error)
-	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, error)
-	SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, error)
+	GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error)
+	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error)
+	SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
 }
 
 type SimpleLogic struct {
@@ -57,32 +54,32 @@ func NewLogic(generator TerrainGenerator) (*SimpleLogic, error) {
 	}, nil
 }
 
-func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, error) {
+func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Debugf("GetMap request")
 
 	_, authorized := s.sessions[request.GetSessionID()]
 	if !authorized {
-		return nil, ErrNotAuthorized
+		return nil, model.ErrNotAuthorized
 	}
 
 	return &rpc.GetMapResponse{Map: &s.gameMap}, nil
 }
 
-func (s *SimpleLogic) SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, error) {
+func (s *SimpleLogic) SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error) {
 	s.log.WithField("characterID", request.GetCharacterID()).
 		WithField("sessionID", request.GetSessionID()).
 		Debugf("SelectCharacter request")
 
 	session, authorized := s.sessions[request.GetSessionID()]
 	if !authorized {
-		return nil, ErrNotAuthorized
+		return nil, model.ErrNotAuthorized
 	}
 
 	char, err := s.db.GetCharacter(int(request.GetCharacterID()))
 	if err != nil {
-		return nil, fmt.Errorf("character not found")
+		return nil, model.ErrCharacterNotFound
 	}
 
 	session.SelectedCharacter = &char
