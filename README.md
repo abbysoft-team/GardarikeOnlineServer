@@ -2,9 +2,9 @@
 Server for GardarikeOnline game. 
 GardarikeOnline is an online mmo RTS game.
 
-[![CircleCI](https://circleci.com/gh/abbysoft-team/ProjectXServer.svg?style=svg)](https://app.circleci.com/pipelines/github/abbysoft-team/ProjectXServer)
+[![CircleCI](https://circleci.com/gh/abbysoft-team/GardarikeOnlineServer.svg?style=svg)](https://app.circleci.com/pipelines/github/abbysoft-team/GardarikeOnlineServer)
 
-You can find client code here: https://github.com/abbysoft-team/ProjectXClient 
+You can find client code here: https://github.com/abbysoft-team/GardarikeOnlineClient 
 
 ## Install
 
