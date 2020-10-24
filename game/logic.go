@@ -81,8 +81,8 @@ func (s *SimpleLogic) load() error {
 
 	s.gameMap.Buildings = rpcBuildings
 
-	s.log.Info("Loaded %d buildings on the map", len(s.gameMap.Buildings))
-	s.log.Info("Loading buildings list...")
+	s.log.Infof("Loaded %d buildings on the map", len(s.gameMap.Buildings))
+	s.log.Infof("Loading buildings list...")
 
 	// Load buildingLocations
 	buildings, err := s.db.GetBuildings()
@@ -94,7 +94,7 @@ func (s *SimpleLogic) load() error {
 		s.buildings[building.ID] = building
 	}
 
-	s.log.Info("Loaded %d buildings", len(s.buildings))
+	s.log.Infof("Loaded %d buildings", len(s.buildings))
 	return nil
 }
 
