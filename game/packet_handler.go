@@ -29,8 +29,8 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 
 		response.Data = &rpc.Response_ErrorResponse{
 			ErrorResponse: &rpc.ErrorResponse{
-				Message: model.ErrInternalServerError.GetMessage(),
-				Code:    int64(model.ErrInternalServerError.GetCode()),
+				Message: model.ErrBadRequest.GetMessage(),
+				Code:    int64(model.ErrBadRequest.GetCode()),
 			},
 		}
 

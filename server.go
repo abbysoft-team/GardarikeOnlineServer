@@ -68,6 +68,8 @@ func (s *Server) Serve() error {
 			continue
 		}
 
+		s.log.Infof("Sending %T response to the client (%d bytes)", resp.Data, len(respBytes))
+
 		if _, err := s.socket.Send(string(respBytes), 0); err != nil {
 			s.log.Errorf("Failed to send answer to the client: %v", err)
 		}
