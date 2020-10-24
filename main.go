@@ -4,11 +4,10 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"projectx-server/game"
 )
 
 const (
-	version = "0.1.1a"
+	version = "0.1.2"
 )
 
 func initLogging() {
@@ -16,32 +15,31 @@ func initLogging() {
 	log.SetLevel(log.DebugLevel)
 }
 
-func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("Please, specify listen address in first argument")
-	}
+func printUsage() {
+	fmt.Printf("Usage: gardarike requestEndpoint eventEndpoint")
+}
 
-	if os.Args[1] == "--version" {
+func main() {
+	if len(os.Args) == 2 && os.Args[1] == "--version" {
 		fmt.Println(version)
 		os.Exit(0)
+	}
+
+	if len(os.Args) < 3 {
+		printUsage()
+		os.Exit(1)
 	}
 
 	initLogging()
 	log.Printf("ProjectX UDPServer v%s", version)
 
 	config := Config{
-		Endpoint: os.Args[1],
+		RequestEndpoint: os.Args[1],
+		EventEndpoint:   os.Args[2],
 	}
-
-	gameLogic, err := game.NewLogic(game.NewSimplexTerrainGenerator(5, 1.5))
-	if err != nil {
-		log.Fatalf("Failed to init game logic: %v", err)
-	}
-
-	handler := game.NewPacketHandler(gameLogic)
 
 	//server, err := NewUDPServer(config, game, )
-	server, err := NewServer(config, gameLogic, handler)
+	server, err := NewServer(config)
 	if err != nil {
 		log.WithError(err).Fatalf("Failed to start server on %s", os.Args[1])
 	}

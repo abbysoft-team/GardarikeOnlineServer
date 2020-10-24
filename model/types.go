@@ -46,3 +46,15 @@ func (building BuildingLocation) ToRPC() *rpc.Building {
 		},
 	}
 }
+
+func NewPlaceBuildingEvent(buildingID int, ownerID int, location *rpc.Vector3D) *rpc.Event {
+	return &rpc.Event{
+		Payload: &rpc.Event_BuildingPlacedEvent{
+			BuildingPlacedEvent: &rpc.BuildingPlacedEvent{
+				BuildingID: int64(buildingID),
+				OwnerID:    int64(ownerID),
+				Location:   location,
+			},
+		},
+	}
+}

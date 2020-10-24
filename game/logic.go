@@ -20,14 +20,15 @@ type Logic interface {
 }
 
 type SimpleLogic struct {
-	gameMap   rpc.Map
-	buildings map[int]model.Building
-	db        model.Database
-	log       *logrus.Entry
-	sessions  map[string]*PlayerSession
+	gameMap    rpc.Map
+	buildings  map[int]model.Building
+	db         model.Database
+	log        *logrus.Entry
+	sessions   map[string]*PlayerSession
+	eventsChan chan *rpc.Event
 }
 
-func NewLogic(generator TerrainGenerator) (*SimpleLogic, error) {
+func NewLogic(generator TerrainGenerator, eventsChan chan *rpc.Event) (*SimpleLogic, error) {
 	width := mapChunkSize
 	height := mapChunkSize
 
@@ -50,10 +51,11 @@ func NewLogic(generator TerrainGenerator) (*SimpleLogic, error) {
 			Height: int32(height),
 			Points: terrain,
 		},
-		buildings: make(map[int]model.Building),
-		db:        database,
-		log:       logrus.WithField("module", "logic"),
-		sessions:  make(map[string]*PlayerSession),
+		buildings:  make(map[int]model.Building),
+		db:         database,
+		log:        logrus.WithField("module", "logic"),
+		sessions:   make(map[string]*PlayerSession),
+		eventsChan: eventsChan,
 	}
 
 	logic.log.Info("Loading data from the database")

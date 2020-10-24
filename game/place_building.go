@@ -49,6 +49,8 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 		return nil, model.ErrInternalServerError
 	}
 
+	s.eventsChan <- model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location)
+
 	session.SelectedCharacter.Gold -= uint64(building.Cost)
 	if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
 		s.log.WithError(err).Error("Failed to decrease character's gold")
