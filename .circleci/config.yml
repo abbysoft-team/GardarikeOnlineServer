@@ -11,7 +11,8 @@ jobs:
       - run: mkdir bin
       - run: go build -ldflags "-s -w" -o bin/projectx-server-linux64
       - run: ./bin/projectx-server-linux64 --version > version.txt
-      - run: mv bin/projectx-server-linux64 bin/projectx-server-$(cat version.txt)-${CIRCLE_BRANCH}-linux64
+      - run: mv bin/projectx-server-linux64 bin/projectx-server-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
+      - run: chmod +x bin/projectx-server-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
       - store_artifacts:
           path: bin
 workflows:
