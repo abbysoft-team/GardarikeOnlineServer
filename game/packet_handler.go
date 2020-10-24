@@ -1,30 +1,41 @@
 package game
 
 import (
-	"fmt"
 	"github.com/golang/protobuf/proto"
+	"github.com/sirupsen/logrus"
 	"projectx-server/model"
 	rpc "projectx-server/rpc/generated"
 )
 
 type PacketHandler struct {
 	logic Logic
+	log   *logrus.Entry
 }
 
 func NewPacketHandler(logic Logic) PacketHandler {
 	return PacketHandler{
 		logic: logic,
+		log:   logrus.WithField("module", "packet_handler"),
 	}
 }
 
-func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
+func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	var request rpc.Request
-	if err := proto.Unmarshal(data, &request); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal packet: %w", err)
-	}
-
 	var requestErr model.Error
 	var response rpc.Response
+
+	if err := proto.Unmarshal(data, &request); err != nil {
+		p.log.WithError(err).Error("Failed to serialize client request")
+
+		response.Data = &rpc.Response_ErrorResponse{
+			ErrorResponse: &rpc.ErrorResponse{
+				Message: model.ErrInternalServerError.GetMessage(),
+				Code:    int64(model.ErrInternalServerError.GetCode()),
+			},
+		}
+
+		return &response
+	}
 
 	if request.GetLoginRequest() != nil {
 		loginResponse, err := p.logic.Login(request.GetLoginRequest())
@@ -53,5 +64,5 @@ func (p *PacketHandler) HandleClientPacket(data []byte) (*rpc.Response, error) {
 		}
 	}
 
-	return &response, nil
+	return &response
 }

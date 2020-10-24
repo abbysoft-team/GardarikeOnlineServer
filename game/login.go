@@ -11,7 +11,7 @@ import (
 )
 
 func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error) {
-	s.log.WithField("login", request.GetUsername()).Debug("Login request")
+	s.log.WithField("login", request.GetUsername()).Info("Login request")
 
 	acc, err := s.db.GetAccount(request.GetUsername())
 	if err != nil && errors.Is(err, sql.ErrNoRows) {

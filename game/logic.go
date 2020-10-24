@@ -101,7 +101,7 @@ func (s *SimpleLogic) load() error {
 func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
-		Debugf("GetMap request")
+		Infof("GetMap request")
 
 	_, authorized := s.sessions[request.GetSessionID()]
 	if !authorized {
@@ -114,7 +114,7 @@ func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, m
 func (s *SimpleLogic) SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error) {
 	s.log.WithField("characterID", request.GetCharacterID()).
 		WithField("sessionID", request.GetSessionID()).
-		Debugf("SelectCharacter request")
+		Infof("SelectCharacter request")
 
 	session, authorized := s.sessions[request.GetSessionID()]
 	if !authorized {

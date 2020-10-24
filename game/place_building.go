@@ -11,7 +11,7 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 	s.log.WithField("buildingID", request.GetBuildingID()).
 		WithField("sessionID", request.GetSessionID()).
 		WithField("location", *request.GetLocation()).
-		Debugf("PlaceBuilding request")
+		Infof("PlaceBuilding request")
 
 	session, authorized := s.sessions[request.GetSessionID()]
 	if !authorized {

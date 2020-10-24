@@ -60,11 +60,7 @@ func (s *Server) Serve() error {
 
 		s.log.Debugf("Read %d bytes from client", len(packet))
 
-		resp, err := s.handler.HandleClientPacket([]byte(packet))
-		if err != nil {
-			s.log.Errorf("Failed to process client packet: %v", err)
-			continue
-		}
+		resp := s.handler.HandleClientPacket([]byte(packet))
 
 		respBytes, err := proto.Marshal(resp)
 		if err != nil {
