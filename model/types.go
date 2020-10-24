@@ -40,9 +40,9 @@ func (building BuildingLocation) ToRPC() *rpc.Building {
 		Id:      int64(building.BuildingID),
 		OwnerID: int64(building.OwnerID),
 		Location: &rpc.Vector3D{
-			X: building.Location[0],
-			Y: building.Location[1],
-			Z: building.Location[2],
+			X: float32(building.Location[0]),
+			Y: float32(building.Location[1]),
+			Z: float32(building.Location[2]),
 		},
 	}
 }

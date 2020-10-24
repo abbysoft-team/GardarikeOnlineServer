@@ -3,7 +3,7 @@ package postgres
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	pg "github.com/lib/pq"
 	"projectx-server/model"
 )
 
@@ -11,15 +11,30 @@ type Database struct {
 	db *sqlx.DB
 }
 
-func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
-	_, err := d.db.NamedExec(
-		`INSERT INTO buildinglocations (building_id, owner_id, location)
-VALUES (:building_id, :owner_id, :location)`, buildingLoc)
+func (d *Database) UpdateCharacter(character model.Character) error {
+	_, err := d.db.NamedExec("UPDATE characters SET name=:name, gold=:gold WHERE id=:id", &character)
 	return err
 }
 
-func (d *Database) GetBuildingOnLocation(location [3]float32) (result model.Building, err error) {
-	err = d.db.Get(&result, "SELECT * FROM buildinglocations WHERE location=$1", location)
+func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
+	_, err := d.db.Exec(
+		`INSERT INTO buildinglocations (building_id, owner_id, location)
+VALUES ($1, $2, $3)`, buildingLoc.BuildingID, buildingLoc.OwnerID, pg.Array(buildingLoc.Location))
+
+	return err
+}
+
+func (d *Database) GetBuildingLocation(location [3]float32) (result model.BuildingLocation, err error) {
+	row := d.db.QueryRow("SELECT * FROM buildinglocations WHERE location=$1", pg.Array(location))
+
+	var locationArr []float64
+	err = row.Scan(&result.BuildingID, &result.OwnerID, pg.Array(&locationArr))
+	if err == nil {
+		result.Location[0] = float32(locationArr[0])
+		result.Location[1] = float32(locationArr[1])
+		result.Location[2] = float32(locationArr[2])
+	}
+
 	return
 }
 
@@ -29,7 +44,27 @@ func (d *Database) GetBuildings() (result []model.Building, err error) {
 }
 
 func (d *Database) GetBuildingLocations() (result []model.BuildingLocation, err error) {
-	err = d.db.Select(&result, "SELECT * FROM buildinglocations")
+	rows, err := d.db.Query("SELECT * FROM buildinglocations")
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var location model.BuildingLocation
+		var locationArr []float64
+		err = rows.Scan(&location.BuildingID, &location.OwnerID, pg.Array(&locationArr))
+		if err != nil {
+			return
+		}
+
+		location.Location[0] = float32(locationArr[0])
+		location.Location[1] = float32(locationArr[1])
+		location.Location[2] = float32(locationArr[2])
+		result = append(result, location)
+	}
+
+	err = rows.Err()
 	return
 }
 

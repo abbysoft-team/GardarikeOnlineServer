@@ -32,7 +32,7 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 	location[1] = request.Location.Y
 	location[2] = request.Location.Z
 
-	_, err := s.db.GetBuildingOnLocation(location)
+	_, err := s.db.GetBuildingLocation(location)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		s.log.WithError(err).Error("Failed to get building on location")
 		return nil, model.ErrInternalServerError
@@ -46,6 +46,12 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 		Location:   location,
 	}); err != nil {
 		s.log.WithError(err).Error("Failed to add building location")
+		return nil, model.ErrInternalServerError
+	}
+
+	session.SelectedCharacter.Gold -= uint64(building.Cost)
+	if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
+		s.log.WithError(err).Error("Failed to decrease character's gold")
 		return nil, model.ErrInternalServerError
 	}
 

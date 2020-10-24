@@ -24,7 +24,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	var requestErr model.Error
 	var response rpc.Response
 
-	if err := proto.Unmarshal(data, &request); err != nil {
+	if err := proto.Unmarshal(data, &request); err != nil || len(data) == 0 {
 		p.log.WithError(err).Error("Failed to serialize client request")
 
 		response.Data = &rpc.Response_ErrorResponse{

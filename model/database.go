@@ -5,6 +5,7 @@ type CharacterDatabase interface {
 	AddCharacter(character Character) error
 	DeleteCharacter(id int) error
 	GetCharacters(accountID int) ([]Character, error)
+	UpdateCharacter(character Character) error
 }
 
 type AccountDatabase interface {
@@ -14,7 +15,7 @@ type AccountDatabase interface {
 type WorldDatabase interface {
 	GetBuildingLocations() ([]BuildingLocation, error)
 	GetBuildings() ([]Building, error)
-	GetBuildingOnLocation(location [3]float32) (Building, error)
+	GetBuildingLocation(location [3]float32) (BuildingLocation, error)
 	AddBuildingLocation(buildingLoc BuildingLocation) error
 }
 
