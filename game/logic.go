@@ -28,19 +28,12 @@ type SimpleLogic struct {
 	eventsChan chan *rpc.Event
 }
 
-func NewLogic(generator TerrainGenerator, eventsChan chan *rpc.Event) (*SimpleLogic, error) {
+func NewLogic(generator TerrainGenerator, eventsChan chan *rpc.Event, dbConfig postgres.Config) (*SimpleLogic, error) {
 	width := mapChunkSize
 	height := mapChunkSize
 
 	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
-	database, err := postgres.NewDatabase(postgres.Config{
-		Port:      5432,
-		Host:      "localhost",
-		User:      "admin",
-		Password:  "admin",
-		DBName:    "game",
-		EnableSSL: false,
-	})
+	database, err := postgres.NewDatabase(dbConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init db: %w", err)
 	}

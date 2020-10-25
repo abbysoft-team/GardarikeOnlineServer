@@ -6,6 +6,7 @@ import (
 	zmq "github.com/pebbe/zmq4"
 	log "github.com/sirupsen/logrus"
 	"projectx-server/game"
+	"projectx-server/model/postgres"
 	rpc "projectx-server/rpc/generated"
 )
 
@@ -25,7 +26,7 @@ type Config struct {
 	EventEndpoint   string // Publish events on this endpoint
 }
 
-func NewServer(config Config) (*Server, error) {
+func NewServer(config Config, dbConfig postgres.Config) (*Server, error) {
 	context, err := zmq.NewContext()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create zmq context: %w", err)
@@ -44,7 +45,11 @@ func NewServer(config Config) (*Server, error) {
 	logger := log.WithField("module", "server")
 
 	eventsChan := make(chan *rpc.Event, 10)
-	gameLogic, err := game.NewLogic(game.NewSimplexTerrainGenerator(5, 1.5), eventsChan)
+	gameLogic, err := game.NewLogic(
+		game.NewSimplexTerrainGenerator(5, 1.5),
+		eventsChan,
+		dbConfig)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to init game logic: %w", err)
 	}

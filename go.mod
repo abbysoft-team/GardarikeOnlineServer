@@ -10,5 +10,6 @@ require (
 	github.com/ojrac/opensimplex-go v1.0.1
 	github.com/pebbe/zmq4 v1.2.1
 	github.com/sirupsen/logrus v1.6.0
+	github.com/spf13/viper v1.7.1
 	google.golang.org/grpc v1.32.0
 )

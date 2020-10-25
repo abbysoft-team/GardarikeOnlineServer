@@ -1,0 +1,11 @@
+[server]
+RequestEndpoint = "tcp://*:8500"
+EventEndpoint = "tcp://*:8501"
+
+[db]
+Port = 5432
+Host = "localhost"
+User = ""
+Password = ""
+DBName = "game"
+EnableSSL = false
