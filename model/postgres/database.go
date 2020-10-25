@@ -73,7 +73,7 @@ func (d *Database) GetCharacters(accountID int) (result []model.Character, err e
 		`SELECT id, name, gold FROM accountcharacters as a
     INNER JOIN characters as c
         ON c.id = a.character_id
-WHERE account_id = 1;`)
+WHERE account_id = $1`, accountID)
 
 	return
 }
