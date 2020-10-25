@@ -2,6 +2,7 @@ package game
 
 import (
 	simplex "github.com/ojrac/opensimplex-go"
+	log "github.com/sirupsen/logrus"
 	"math"
 	"time"
 )
@@ -11,14 +12,22 @@ type TerrainGenerator interface {
 }
 
 type SimplexTerrainGenerator struct {
-	octaves     int
-	persistence float64
+	config TerrainGeneratorConfig
 }
 
-func NewSimplexTerrainGenerator(octaves int, persistence float64) SimplexTerrainGenerator {
+type TerrainGeneratorConfig struct {
+	Octaves     int
+	Persistence float64
+	ScaleFactor float64
+}
+
+func NewSimplexTerrainGenerator(config TerrainGeneratorConfig) SimplexTerrainGenerator {
+	log.WithField("module", "terrain_generator").
+		WithField("config", config).
+		Info("Simplex terrain generator initialized")
+
 	return SimplexTerrainGenerator{
-		octaves:     octaves,
-		persistence: persistence,
+		config: config,
 	}
 }
 
@@ -37,12 +46,12 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 			noise := 0.0
 			freq := 1.0
 
-			for octave := 1; octave <= s.octaves; octave++ {
+			for octave := 1; octave <= s.config.Octaves; octave++ {
 				nx := float64(x) / float64(width)
 				ny := float64(y) / float64(height)
 
 				noise += (1 / float64(octave)) * generator.Eval2(nx*freq, ny*freq)
-				freq *= 2.0
+				freq = math.Pow(2, float64(octave))
 			}
 
 			pixels[x][y] = noise
@@ -54,9 +63,9 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			normalized := (pixels[x][y] - minNoise) / (maxNoise - minNoise)
-			normalized = math.Pow(normalized, s.persistence)
+			normalized = math.Pow(normalized, s.config.Persistence)
 
-			result = append(result, float32(normalized))
+			result = append(result, float32(normalized*s.config.ScaleFactor))
 		}
 	}
 

@@ -9,3 +9,8 @@ User = ""
 Password = ""
 DBName = "game"
 EnableSSL = false
+
+[generator]
+octaves = 7
+persistence = 2
+scaleFactor = 5

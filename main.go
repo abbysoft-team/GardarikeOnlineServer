@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"projectx-server/game"
 	"projectx-server/model/postgres"
 )
 
@@ -27,6 +28,10 @@ func setupConfig() error {
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("configs/")
+
+	viper.SetDefault("generator.octaves", 7)
+	viper.SetDefault("generator.persistence", 2)
+	viper.SetDefault("generator.scaleFactor", 1)
 
 	return viper.ReadInConfig()
 }
@@ -68,6 +73,18 @@ func parseServerConfig(config *viper.Viper) (result Config, err error) {
 	return
 }
 
+func parseGeneratorConfig(config *viper.Viper) (result game.TerrainGeneratorConfig, err error) {
+	if config == nil {
+		return result, fmt.Errorf("missing [generator] section in the configuration")
+	}
+
+	if err := config.Unmarshal(&result); err != nil {
+		return result, fmt.Errorf("failed to parse [generator] config section")
+	}
+
+	return
+}
+
 func main() {
 	setupFlags()
 
@@ -93,7 +110,12 @@ func main() {
 		log.WithError(err).Fatal("Failed to parse db config")
 	}
 
-	server, err := NewServer(serverConfig, dbConfig)
+	generatorConfig, err := parseGeneratorConfig(viper.Sub("generator"))
+	if err != nil {
+		log.WithError(err).Fatal("Failed to parse generator config")
+	}
+
+	server, err := NewServer(serverConfig, dbConfig, generatorConfig)
 	if err != nil {
 		log.WithError(err).Fatalf("Failed to start server on %s", os.Args[1])
 	}
