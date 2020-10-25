@@ -13,9 +13,9 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 		WithField("location", *request.GetLocation()).
 		Infof("PlaceBuilding request")
 
-	session, authorized := s.sessions[request.GetSessionID()]
-	if !authorized {
-		return nil, model.ErrNotAuthorized
+	session, authErr := s.checkAuthorization(request.SessionID)
+	if authErr != nil {
+		return nil, authErr
 	}
 
 	building, found := s.buildings[int(request.BuildingID)]

@@ -100,14 +100,26 @@ func (s *SimpleLogic) load() error {
 	return nil
 }
 
+func (s *SimpleLogic) checkAuthorization(sessionID string) (*PlayerSession, model.Error) {
+	session, authorized := s.sessions[sessionID]
+	if !authorized {
+		return nil, model.ErrNotAuthorized
+	}
+
+	if session.SelectedCharacter == nil {
+		return nil, model.ErrCharacterNotSelected
+	}
+
+	return session, nil
+}
+
 func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("GetMap request")
 
-	_, authorized := s.sessions[request.GetSessionID()]
-	if !authorized {
-		return nil, model.ErrNotAuthorized
+	if _, err := s.checkAuthorization(request.SessionID); err != nil {
+		return nil, err
 	}
 
 	return &rpc.GetMapResponse{Map: &s.gameMap}, nil
