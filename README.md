@@ -27,3 +27,6 @@ Run in project folder
 make generate
 go build .
 ```
+
+## LICENSE NOTICE
+Feel free to use this code for non-profit goals. If you wan't to use it as part of commercial product contact us via contact@abbysoft.org. Usage without our (maintainers of this repo) permission is prohibited.
