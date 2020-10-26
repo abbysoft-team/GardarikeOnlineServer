@@ -10,6 +10,7 @@ service GameServer {
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc SelectCharacter(SelectCharacterRequest) returns (SelectCharacterResponse);
   rpc PlaceBuilding(PlaceBuildingRequest) returns (PlaceBuildingResponse);
+  rpc SendChatMessage(SendChatMessageRequest) returns (SendChatMessageResponse);
 }
 
 // Requests
@@ -19,7 +20,13 @@ message Request {
     LoginRequest loginRequest = 2;
     SelectCharacterRequest selectCharacterRequest = 3;
     PlaceBuildingRequest placeBuildingRequest = 4;
+    SendChatMessageRequest sendChatMessageRequest = 5;
   }
+}
+
+message SendChatMessageRequest {
+  string sessionID = 1;
+  ChatMessage message = 2;
 }
 
 message PlaceBuildingRequest {
@@ -52,7 +59,12 @@ message Response {
     MultipartResponse multipartResponse = 4;
     SelectCharacterResponse selectCharacterResponse = 5;
     PlaceBuildingResponse placeBuildingResponse = 6;
+    SendChatMessageResponse sendChatMessageResponse = 7;
   }
+}
+
+message SendChatMessageResponse {
+  int64 messageID = 1;
 }
 
 message PlaceBuildingResponse {
