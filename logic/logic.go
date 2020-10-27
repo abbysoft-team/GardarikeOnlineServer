@@ -19,6 +19,7 @@ type Logic interface {
 	SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
 	PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error)
 	SendChatMessage(request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
+	GetChatHistory(request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error)
 }
 
 type SimpleLogic struct {
@@ -137,7 +138,7 @@ func (s *SimpleLogic) SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc
 
 	session.SelectedCharacter = &char
 	s.log.WithFields(logrus.Fields{
-		"accountID": request.GetSessionID(),
+		"sessionID": request.GetSessionID(),
 		"character": char,
 	}).Info("User selected character")
 

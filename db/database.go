@@ -20,6 +20,7 @@ type WorldDatabase interface {
 	GetBuildingLocation(location [3]float32) (model.BuildingLocation, error)
 	AddBuildingLocation(buildingLoc model.BuildingLocation) error
 	AddChatMessage(message model.ChatMessage) (int64, error)
+	GetChatMessages(offset int, count int) ([]model.ChatMessage, error)
 }
 
 type Database interface {

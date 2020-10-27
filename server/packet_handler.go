@@ -58,6 +58,12 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		sendChatMessageResponse, err := p.logic.SendChatMessage(request.GetSendChatMessageRequest())
 		requestErr = err
 		response.Data = &rpc.Response_SendChatMessageResponse{SendChatMessageResponse: sendChatMessageResponse}
+	} else if request.GetGetChatHistoryRequest() != nil {
+		getChatHistoryResponse, err := p.logic.GetChatHistory(request.GetGetChatHistoryRequest())
+		requestErr = err
+		response.Data = &rpc.Response_GetChatHistoryResponse{GetChatHistoryResponse: getChatHistoryResponse}
+	} else {
+		requestErr = model.ErrBadRequest
 	}
 
 	if requestErr != nil {

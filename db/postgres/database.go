@@ -12,6 +12,13 @@ type Database struct {
 	db *sqlx.DB
 }
 
+func (d *Database) GetChatMessages(offset int, count int) (result []model.ChatMessage, err error) {
+	err = d.db.Select(&result,
+		"SELECT * FROM chatmessages ORDER BY message_id DESC OFFSET $1 LIMIT $2",
+		offset, count)
+	return
+}
+
 func (d *Database) AddChatMessage(message model.ChatMessage) (id int64, err error) {
 	err = d.db.Get(&id,
 		"INSERT INTO chatmessages (sender_name, text) VALUES ($1, $2) RETURNING message_id",
