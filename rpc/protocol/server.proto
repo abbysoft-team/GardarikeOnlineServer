@@ -23,7 +23,13 @@ message Request {
     PlaceBuildingRequest placeBuildingRequest = 4;
     SendChatMessageRequest sendChatMessageRequest = 5;
     GetChatHistoryRequest getChatHistoryRequest = 6;
+    PublishChatMessageRequest publishChatMessageRequest = 7;
   }
+}
+
+message PublishChatMessageRequest {
+  string sessionID = 1;
+  string text = 2;
 }
 
 // Get 'count' chat messages starting from some message 'lastMessageID'
@@ -71,7 +77,11 @@ message Response {
     PlaceBuildingResponse placeBuildingResponse = 6;
     SendChatMessageResponse sendChatMessageResponse = 7;
     GetChatHistoryResponse getChatHistoryResponse = 8;
+    ChatMessagePublishResponse chatMessagePublishResponse = 9;
   }
+}
+
+message ChatMessagePublishResponse {
 }
 
 message GetChatHistoryResponse {
@@ -109,13 +119,14 @@ message SelectCharacterResponse {
 
 message ChatMessage {
   int64 id = 1;
-  int64 owner = 2;
+  string owner = 2;
   string text = 3;
 }
 
 message Event {
   oneof payload {
     BuildingPlacedEvent buildingPlacedEvent = 1;
+    NewChatMessageEvent chatMessageEvent = 2;
   }
 }
 
@@ -123,6 +134,10 @@ message BuildingPlacedEvent {
   int64 buildingID = 1;
   int64 ownerID = 2;
   Vector3D location = 3;
+}
+
+message NewChatMessageEvent {
+  ChatMessage message = 1;
 }
 
 message Vector3D {
