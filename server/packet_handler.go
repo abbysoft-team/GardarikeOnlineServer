@@ -54,6 +54,10 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		placeBuildingResponse, err := p.logic.PlaceBuilding(request.GetPlaceBuildingRequest())
 		requestErr = err
 		response.Data = &rpc.Response_PlaceBuildingResponse{PlaceBuildingResponse: placeBuildingResponse}
+	} else if request.GetSendChatMessageRequest() != nil {
+		sendChatMessageResponse, err := p.logic.SendChatMessage(request.GetSendChatMessageRequest())
+		requestErr = err
+		response.Data = &rpc.Response_SendChatMessageResponse{SendChatMessageResponse: sendChatMessageResponse}
 	}
 
 	if requestErr != nil {

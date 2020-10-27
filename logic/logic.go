@@ -18,6 +18,7 @@ type Logic interface {
 	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error)
 	SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
 	PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error)
+	SendChatMessage(request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
 }
 
 type SimpleLogic struct {

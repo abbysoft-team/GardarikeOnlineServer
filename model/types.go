@@ -27,6 +27,12 @@ type BuildingLocation struct {
 	Location   [3]float32 `db:"location"`
 }
 
+type ChatMessage struct {
+	MessageID  int    `db:"message_id"`
+	SenderName string `db:"sender_name"`
+	Text       string `db:"text"`
+}
+
 func (char Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
 		Id:   int32(char.ID),
@@ -47,6 +53,14 @@ func (building BuildingLocation) ToRPC() *rpc.Building {
 	}
 }
 
+func (message ChatMessage) ToRPC() *rpc.ChatMessage {
+	return &rpc.ChatMessage{
+		Id:     int64(message.MessageID),
+		Sender: message.SenderName,
+		Text:   message.Text,
+	}
+}
+
 func NewPlaceBuildingEvent(buildingID int, ownerID int, location *rpc.Vector3D) *rpc.Event {
 	return &rpc.Event{
 		Payload: &rpc.Event_BuildingPlacedEvent{
@@ -54,6 +68,16 @@ func NewPlaceBuildingEvent(buildingID int, ownerID int, location *rpc.Vector3D) 
 				BuildingID: int64(buildingID),
 				OwnerID:    int64(ownerID),
 				Location:   location,
+			},
+		},
+	}
+}
+
+func NewChatMessageEvent(message ChatMessage) *rpc.Event {
+	return &rpc.Event{
+		Payload: &rpc.Event_ChatMessageEvent{
+			ChatMessageEvent: &rpc.NewChatMessageEvent{
+				Message: message.ToRPC(),
 			},
 		},
 	}

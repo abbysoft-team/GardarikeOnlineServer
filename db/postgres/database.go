@@ -12,6 +12,13 @@ type Database struct {
 	db *sqlx.DB
 }
 
+func (d *Database) AddChatMessage(message model.ChatMessage) (id int64, err error) {
+	err = d.db.Get(&id,
+		"INSERT INTO chatmessages (sender_name, text) VALUES ($1, $2) RETURNING message_id",
+		message.SenderName, message.Text)
+	return
+}
+
 func (d *Database) UpdateCharacter(character model.Character) error {
 	_, err := d.db.NamedExec("UPDATE characters SET name=:name, gold=:gold WHERE id=:id", &character)
 	return err

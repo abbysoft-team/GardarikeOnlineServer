@@ -29,5 +29,9 @@ CREATE TABLE buildingLocations (
     UNIQUE (location)
 );
 
-CREATE TABLE chatMessages )
+CREATE TABLE chatMessages (
+    message_id serial PRIMARY KEY,
+    sender_name varchar(25) NOT NULL,
+    text varchar(200) NOT NULL
+);
 
