@@ -1,10 +1,10 @@
-package game
+package logic
 
 import (
+	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"database/sql"
 	"errors"
-	"projectx-server/model"
-	rpc "projectx-server/rpc/generated"
 )
 
 func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error) {

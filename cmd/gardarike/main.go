@@ -1,13 +1,14 @@
 package main
 
 import (
+	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/logic"
+	"abbysoft/gardarike-online/server"
 	"flag"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
-	"projectx-server/game"
-	"projectx-server/model/postgres"
 )
 
 const (
@@ -54,7 +55,7 @@ func parseDBConfig(config *viper.Viper) (result postgres.Config, err error) {
 	return
 }
 
-func parseServerConfig(config *viper.Viper) (result Config, err error) {
+func parseServerConfig(config *viper.Viper) (result server.Config, err error) {
 	if config == nil {
 		return result, fmt.Errorf("missing [server] section in the configuration")
 	}
@@ -73,7 +74,7 @@ func parseServerConfig(config *viper.Viper) (result Config, err error) {
 	return
 }
 
-func parseGeneratorConfig(config *viper.Viper) (result game.TerrainGeneratorConfig, err error) {
+func parseGeneratorConfig(config *viper.Viper) (result logic.TerrainGeneratorConfig, err error) {
 	if config == nil {
 		return result, fmt.Errorf("missing [generator] section in the configuration")
 	}
@@ -115,10 +116,10 @@ func main() {
 		log.WithError(err).Fatal("Failed to parse generator config")
 	}
 
-	server, err := NewServer(serverConfig, dbConfig, generatorConfig)
+	s, err := server.NewServer(serverConfig, dbConfig, generatorConfig)
 	if err != nil {
-		log.WithError(err).Fatalf("Failed to start server on %s", os.Args[1])
+		log.WithError(err).Fatalf("Failed to start server")
 	}
 
-	log.Fatal(server.Serve())
+	log.Fatal(s.Serve())
 }

@@ -2,17 +2,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: jorgenpo/projectx-server
+      - image: jorgenpo/abbysoft/gardarike-online
     working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
     steps:
       - checkout
 
       - run: make generate
       - run: mkdir bin
-      - run: go build -ldflags "-s -w" -o bin/projectx-server-linux64
-      - run: ./bin/projectx-server-linux64 --version > version.txt
-      - run: mv bin/projectx-server-linux64 bin/projectx-server-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
-      - run: chmod +x bin/projectx-server-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
+      - run: go build -ldflags "-s -w" -o bin/abbysoft/gardarike-online-linux64
+      - run: ./bin/abbysoft/gardarike-online-linux64 --version > version.txt
+      - run: mv bin/abbysoft/gardarike-online-linux64 bin/abbysoft/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
+      - run: chmod +x bin/abbysoft/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
       - store_artifacts:
           path: bin
 workflows:

@@ -1,13 +1,13 @@
-package game
+package logic
 
 import (
+	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"crypto/md5"
 	"database/sql"
 	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"projectx-server/model"
-	rpc "projectx-server/rpc/generated"
 )
 
 func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error) {

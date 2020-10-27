@@ -1,8 +1,8 @@
-package game
+package logic
 
 import (
+	"abbysoft/gardarike-online/model"
 	"github.com/google/uuid"
-	"projectx-server/model"
 )
 
 type PlayerSession struct {

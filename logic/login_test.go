@@ -1,16 +1,36 @@
-package game
+package logic
 
 import (
+	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"projectx-server/model"
-	rpc "projectx-server/rpc/generated"
 	"testing"
 )
 
 type databaseMock struct {
 	getCharacterInvocations int
 	getAccountInvocations   int
+}
+
+func (d *databaseMock) UpdateCharacter(character model.Character) error {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetBuildingLocations() ([]model.BuildingLocation, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetBuildings() ([]model.Building, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetBuildingLocation(location [3]float32) (model.BuildingLocation, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
+	panic("implement me")
 }
 
 func (d *databaseMock) GetCharactersInvocations() int {

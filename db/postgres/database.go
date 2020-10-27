@@ -1,10 +1,11 @@
 package postgres
 
 import (
+	"abbysoft/gardarike-online/db"
+	"abbysoft/gardarike-online/model"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	pg "github.com/lib/pq"
-	"projectx-server/model"
 )
 
 type Database struct {
@@ -107,7 +108,7 @@ type Config struct {
 	EnableSSL bool
 }
 
-func NewDatabase(config Config) (model.Database, error) {
+func NewDatabase(config Config) (db.Database, error) {
 	var sslMode string
 	if config.EnableSSL {
 		sslMode = "verify-full"

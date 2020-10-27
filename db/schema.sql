@@ -28,3 +28,6 @@ CREATE TABLE buildingLocations (
     location real ARRAY[3],
     UNIQUE (location)
 );
+
+CREATE TABLE chatMessages )
+

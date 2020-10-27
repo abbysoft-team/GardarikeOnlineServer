@@ -1,4 +1,4 @@
-package game
+package logic
 
 import (
 	simplex "github.com/ojrac/opensimplex-go"

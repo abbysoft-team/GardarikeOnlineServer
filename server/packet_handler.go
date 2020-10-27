@@ -1,18 +1,19 @@
-package game
+package server
 
 import (
+	logic2 "abbysoft/gardarike-online/logic"
+	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
-	"projectx-server/model"
-	rpc "projectx-server/rpc/generated"
 )
 
 type PacketHandler struct {
-	logic Logic
+	logic logic2.Logic
 	log   *logrus.Entry
 }
 
-func NewPacketHandler(logic Logic) PacketHandler {
+func NewPacketHandler(logic logic2.Logic) PacketHandler {
 	return PacketHandler{
 		logic: logic,
 		log:   logrus.WithField("module", "packet_handler"),

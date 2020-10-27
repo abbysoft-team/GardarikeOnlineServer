@@ -1,6 +1,6 @@
 package model
 
-import rpc "projectx-server/rpc/generated"
+import rpc "abbysoft/gardarike-online/rpc/generated"
 
 type Account struct {
 	ID       int    `db:"id"`

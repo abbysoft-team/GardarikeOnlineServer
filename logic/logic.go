@@ -1,11 +1,12 @@
-package game
+package logic
 
 import (
+	db2 "abbysoft/gardarike-online/db"
+	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"projectx-server/model"
-	"projectx-server/model/postgres"
-	rpc "projectx-server/rpc/generated"
 )
 
 const (
@@ -22,7 +23,7 @@ type Logic interface {
 type SimpleLogic struct {
 	gameMap    rpc.Map
 	buildings  map[int]model.Building
-	db         model.Database
+	db         db2.Database
 	log        *logrus.Entry
 	sessions   map[string]*PlayerSession
 	eventsChan chan *rpc.Event

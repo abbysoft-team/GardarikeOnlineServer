@@ -1,13 +1,13 @@
-package main
+package server
 
 import (
+	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/logic"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	zmq "github.com/pebbe/zmq4"
 	log "github.com/sirupsen/logrus"
-	"projectx-server/game"
-	"projectx-server/model/postgres"
-	rpc "projectx-server/rpc/generated"
 )
 
 type Server struct {
@@ -16,8 +16,8 @@ type Server struct {
 	eventSock   *zmq.Socket
 	config      Config
 	log         *log.Entry
-	logic       game.Logic
-	handler     game.PacketHandler
+	logic       logic.Logic
+	handler     PacketHandler
 	eventsChan  chan *rpc.Event
 }
 
@@ -26,7 +26,7 @@ type Config struct {
 	EventEndpoint   string // Publish events on this endpoint
 }
 
-func NewServer(config Config, dbConfig postgres.Config, generatorConfig game.TerrainGeneratorConfig) (*Server, error) {
+func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.TerrainGeneratorConfig) (*Server, error) {
 	context, err := zmq.NewContext()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create zmq context: %w", err)
@@ -45,8 +45,8 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig game.Ter
 	logger := log.WithField("module", "server")
 
 	eventsChan := make(chan *rpc.Event, 10)
-	gameLogic, err := game.NewLogic(
-		game.NewSimplexTerrainGenerator(generatorConfig),
+	gameLogic, err := logic.NewLogic(
+		logic.NewSimplexTerrainGenerator(generatorConfig),
 		eventsChan,
 		dbConfig)
 
@@ -54,7 +54,7 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig game.Ter
 		return nil, fmt.Errorf("failed to init game logic: %w", err)
 	}
 
-	handler := game.NewPacketHandler(gameLogic)
+	handler := NewPacketHandler(gameLogic)
 
 	return &Server{
 		requestSock: sock,

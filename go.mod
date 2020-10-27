@@ -1,4 +1,4 @@
-module projectx-server
+module abbysoft/gardarike-online
 
 go 1.15
 

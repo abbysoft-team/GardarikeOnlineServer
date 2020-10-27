@@ -113,7 +113,7 @@ message SelectCharacterResponse {
 
 message ChatMessage {
   int64 id = 1;
-  string owner = 2;
+  string sender = 2;
   string text = 3;
 }
 
