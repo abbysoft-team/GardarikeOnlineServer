@@ -19,6 +19,7 @@ type TerrainGeneratorConfig struct {
 	Octaves     int
 	Persistence float64
 	ScaleFactor float64
+	Normalize   bool
 }
 
 func NewSimplexTerrainGenerator(config TerrainGeneratorConfig) SimplexTerrainGenerator {
@@ -62,7 +63,12 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
-			normalized := (pixels[x][y] - minNoise) / (maxNoise - minNoise)
+			var normalized float64
+			if s.config.Normalize {
+				normalized = (pixels[x][y] - minNoise) / (maxNoise - minNoise)
+			} else {
+				normalized = pixels[x][y]
+			}
 			normalized = math.Pow(normalized, s.config.Persistence)
 
 			result = append(result, float32(normalized*s.config.ScaleFactor))

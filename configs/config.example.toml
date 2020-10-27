@@ -14,3 +14,4 @@ EnableSSL = false
 octaves = 7
 persistence = 2
 scaleFactor = 5
+normilize = true
