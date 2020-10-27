@@ -23,13 +23,7 @@ message Request {
     PlaceBuildingRequest placeBuildingRequest = 4;
     SendChatMessageRequest sendChatMessageRequest = 5;
     GetChatHistoryRequest getChatHistoryRequest = 6;
-    PublishChatMessageRequest publishChatMessageRequest = 7;
   }
-}
-
-message PublishChatMessageRequest {
-  string sessionID = 1;
-  string text = 2;
 }
 
 // Get 'count' chat messages starting from some message 'lastMessageID'
