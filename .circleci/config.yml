@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: jorgenpo/gardarike-online
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /build
     steps:
       - checkout
 
