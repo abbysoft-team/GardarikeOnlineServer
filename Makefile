@@ -1,5 +1,5 @@
 build:
-	go build -ldflags "-s -w"
+	go build -ldflags "-s -w" -o gardarike-online abbysoft/gardarike-online/cmd/gardarike
 
 generate:
 	mkdir -p ./rpc/generated

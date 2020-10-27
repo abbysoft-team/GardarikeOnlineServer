@@ -3,13 +3,13 @@ jobs:
   build:
     docker:
       - image: jorgenpo/gardarike-online
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /build
     steps:
       - checkout
 
       - run: make generate
       - run: mkdir bin
-      - run: go build -ldflags "-s -w" -o bin/gardarike-online-linux64
+      - run: make build && mv gardarike-online bin/gardarike-online-linux64
       - run: ./bin/gardarike-online-linux64 --version > version.txt
       - run: mv bin/gardarike-online-linux64 bin/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
       - run: chmod +x bin/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
