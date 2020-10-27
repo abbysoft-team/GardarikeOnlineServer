@@ -9,7 +9,7 @@ jobs:
 
       - run: make generate
       - run: mkdir bin
-      - run: make build
+      - run: make build && mv gardarike-online bin/gardarike-online-linux64
       - run: ./bin/gardarike-online-linux64 --version > version.txt
       - run: mv bin/gardarike-online-linux64 bin/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
       - run: chmod +x bin/gardarike-online-$(cat version.txt)-b${CIRCLE_BUILD_NUM}-linux64
