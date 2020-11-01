@@ -12,10 +12,12 @@ type EventWrapper struct {
 }
 
 type Account struct {
-	ID       int    `db:"id"`
-	Login    string `db:"login"`
-	Password string `db:"password"`
-	Salt     string `db:"salt"`
+	ID            int    `db:"id"`
+	Login         string `db:"login"`
+	Password      string `db:"password"`
+	Salt          string `db:"salt"`
+	IsOnline      bool   `db:"is_online"`
+	LastSessionID string `db:"last_session_id"`
 }
 
 type Character struct {

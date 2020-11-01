@@ -6,6 +6,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
 	"regexp"
+	"time"
 )
 
 type PacketHandler struct {
@@ -113,6 +114,10 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	if len(sessionSubmatch) == 2 {
 		sessionID = sessionSubmatch[1]
 		session, authorized = p.logic.sessions[sessionID]
+
+		if session != nil {
+			session.LastRequestTime = time.Now()
+		}
 	}
 
 	if !authorized && authorizationRequired {

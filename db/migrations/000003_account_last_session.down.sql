@@ -1,0 +1,3 @@
+ALTER TABLE IF EXISTS accounts
+DROP COLUMN IF EXISTS is_online,
+DROP COLUMN IF EXISTS last_session_id

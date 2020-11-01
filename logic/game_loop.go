@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	gameLoopTps = 1.0
-
+	gameLoopTps                = 1.0
+	afkTimeout                 = 1 * time.Minute
 	populationGrownEventChance = 2.0
 )
 
@@ -87,6 +87,12 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 }
 
 func (s *SimpleLogic) updateSession(session *PlayerSession) {
+	if time.Now().Sub(session.LastRequestTime) > afkTimeout {
+		s.log.WithField("sessionID", session.SessionID).
+			Info("Session AFK timeout, delete session")
+		delete(s.sessions, session.SessionID)
+	}
+
 	populationGrownEvent := checkRandomEventHappened(populationGrownEventChance)
 	if populationGrownEvent {
 		s.characterPopulationGrownEvent(session)
