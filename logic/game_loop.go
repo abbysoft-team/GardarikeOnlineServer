@@ -31,33 +31,25 @@ func (s *SimpleLogic) gameLoop() {
 	sleepDuration := time.Duration(1000.0/gameLoopTps) * time.Millisecond
 
 	for {
-		s.log.Debug("Tick")
-
 		sessionsCount := len(s.sessions)
 		finishChan := make(chan bool, sessionsCount)
 
 		for _, session := range s.sessions {
 			session := session
 
-			s.log.Debugf("session %s", session.SessionID)
-
 			go func() {
 				if session.SelectedCharacter == nil {
 					finishChan <- true
-					s.log.Debugf("session char is null")
 					return
 				}
 
-				s.log.Debug("run update session")
 				s.updateSession(session)
-				s.log.Debug("update finished")
 				finishChan <- true
 			}()
 		}
 
 		for i := 0; i < sessionsCount; i++ {
 			<-finishChan
-			s.log.Debugf("%d of %d sessions finished", i+1, sessionsCount)
 		}
 
 		time.Sleep(sleepDuration)
