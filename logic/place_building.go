@@ -7,23 +7,18 @@ import (
 	"errors"
 )
 
-func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error) {
+func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error) {
 	s.log.WithField("buildingID", request.GetBuildingID()).
 		WithField("sessionID", request.GetSessionID()).
 		WithField("location", *request.GetLocation()).
 		Infof("PlaceBuilding request")
-
-	session, authErr := s.checkAuthorization(request.SessionID)
-	if authErr != nil {
-		return nil, authErr
-	}
 
 	building, found := s.buildings[int(request.BuildingID)]
 	if !found {
 		return nil, model.ErrBuildingNotFound
 	}
 
-	if uint64(building.Cost) > session.SelectedCharacter.Gold {
+	if building.Cost > session.SelectedCharacter.Gold {
 		return nil, model.ErrNoEnoughMoney
 	}
 
@@ -51,7 +46,9 @@ func (s *SimpleLogic) PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.Pla
 
 	s.eventsChan <- model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location)
 
-	session.SelectedCharacter.Gold -= uint64(building.Cost)
+	session.SelectedCharacter.Gold -= building.Cost
+	session.SelectedCharacter.MaxPopulation += building.PopulationBonus
+
 	if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
 		s.log.WithError(err).Error("Failed to decrease character's gold")
 		return nil, model.ErrInternalServerError

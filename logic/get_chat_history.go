@@ -14,17 +14,12 @@ func toRpcMessages(messages []model.ChatMessage) (result []*rpc.ChatMessage) {
 	return
 }
 
-func (s *SimpleLogic) GetChatHistory(request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error) {
+func (s *SimpleLogic) GetChatHistory(session *PlayerSession, request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error) {
 	s.log.WithFields(logrus.Fields{
 		"sessionID": request.SessionID,
 		"offset":    request.Offset,
 		"count":     request.Count,
 	}).Info("GetChatHistory")
-
-	_, err := s.checkAuthorization(request.SessionID)
-	if err != nil {
-		return nil, model.ErrNotAuthorized
-	}
 
 	offset := 0
 	limit := 10

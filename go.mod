@@ -3,6 +3,7 @@ module abbysoft/gardarike-online
 go 1.15
 
 require (
+	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/jmoiron/sqlx v1.2.0

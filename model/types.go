@@ -1,6 +1,8 @@
 package model
 
-import rpc "abbysoft/gardarike-online/rpc/generated"
+import (
+	rpc "abbysoft/gardarike-online/rpc/generated"
+)
 
 type Account struct {
 	ID       int    `db:"id"`
@@ -10,15 +12,18 @@ type Account struct {
 }
 
 type Character struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
-	Gold uint64 `db:"gold"`
+	ID                int    `db:"id"`
+	Name              string `db:"name"`
+	Gold              uint64 `db:"gold"`
+	MaxPopulation     uint64 `db:"max_population"`
+	CurrentPopulation uint64 `db:"current_population"`
 }
 
 type Building struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
-	Cost int    `db:"cost"`
+	ID              int    `db:"id"`
+	Name            string `db:"name"`
+	Cost            uint64 `db:"cost"`
+	PopulationBonus uint64 `db:"population_bonus"`
 }
 
 type BuildingLocation struct {
@@ -33,11 +38,11 @@ type ChatMessage struct {
 	Text       string `db:"text"`
 }
 
-func (char Character) ToRPC() *rpc.Character {
+func (c *Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
-		Id:   int32(char.ID),
-		Name: char.Name,
-		Gold: char.Gold,
+		Id:   int32(c.ID),
+		Name: c.Name,
+		Gold: c.Gold,
 	}
 }
 
@@ -46,9 +51,9 @@ func (building BuildingLocation) ToRPC() *rpc.Building {
 		Id:      int64(building.BuildingID),
 		OwnerID: int64(building.OwnerID),
 		Location: &rpc.Vector3D{
-			X: float32(building.Location[0]),
-			Y: float32(building.Location[1]),
-			Z: float32(building.Location[2]),
+			X: building.Location[0],
+			Y: building.Location[1],
+			Z: building.Location[2],
 		},
 	}
 }

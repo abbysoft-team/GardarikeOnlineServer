@@ -27,7 +27,10 @@ func (d *Database) AddChatMessage(message model.ChatMessage) (id int64, err erro
 }
 
 func (d *Database) UpdateCharacter(character model.Character) error {
-	_, err := d.db.NamedExec("UPDATE characters SET name=:name, gold=:gold WHERE id=:id", &character)
+	_, err := d.db.NamedExec(
+		`UPDATE characters SET 
+                      name=:name, gold=:gold, max_population=:max_population, current_population=:current_population
+			   WHERE id=:id`, &character)
 	return err
 }
 

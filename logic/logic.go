@@ -14,12 +14,12 @@ const (
 )
 
 type Logic interface {
-	GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error)
+	GetMap(session *PlayerSession, request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error)
 	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error)
-	SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
-	PlaceBuilding(request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error)
-	SendChatMessage(request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
-	GetChatHistory(request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error)
+	SelectCharacter(session *PlayerSession, request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
+	PlaceBuilding(session *PlayerSession, request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error)
+	SendChatMessage(session *PlayerSession, request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
+	GetChatHistory(session *PlayerSession, request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error)
 }
 
 type SimpleLogic struct {
@@ -60,6 +60,9 @@ func NewLogic(generator TerrainGenerator, eventsChan chan *rpc.Event, dbConfig p
 	}
 	logic.log.Info("Logic initialization is done")
 
+	logic.log.Info("Running game loop")
+	go logic.gameLoop()
+
 	return logic, nil
 }
 
@@ -96,40 +99,18 @@ func (s *SimpleLogic) load() error {
 	return nil
 }
 
-func (s *SimpleLogic) checkAuthorization(sessionID string) (*PlayerSession, model.Error) {
-	session, authorized := s.sessions[sessionID]
-	if !authorized {
-		return nil, model.ErrNotAuthorized
-	}
-
-	if session.SelectedCharacter == nil {
-		return nil, model.ErrCharacterNotSelected
-	}
-
-	return session, nil
-}
-
-func (s *SimpleLogic) GetMap(request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
+func (s *SimpleLogic) GetMap(_ *PlayerSession, request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("GetMap request")
 
-	if _, err := s.checkAuthorization(request.SessionID); err != nil {
-		return nil, err
-	}
-
 	return &rpc.GetMapResponse{Map: &s.gameMap}, nil
 }
 
-func (s *SimpleLogic) SelectCharacter(request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error) {
+func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error) {
 	s.log.WithField("characterID", request.GetCharacterID()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("SelectCharacter request")
-
-	session, authorized := s.sessions[request.GetSessionID()]
-	if !authorized {
-		return nil, model.ErrNotAuthorized
-	}
 
 	char, err := s.db.GetCharacter(int(request.GetCharacterID()))
 	if err != nil {

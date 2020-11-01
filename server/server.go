@@ -17,7 +17,7 @@ type Server struct {
 	config      Config
 	log         *log.Entry
 	logic       logic.Logic
-	handler     PacketHandler
+	handler     logic.PacketHandler
 	eventsChan  chan *rpc.Event
 }
 
@@ -54,7 +54,7 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.Te
 		return nil, fmt.Errorf("failed to init game logic: %w", err)
 	}
 
-	handler := NewPacketHandler(gameLogic)
+	handler := logic.NewPacketHandler(gameLogic)
 
 	return &Server{
 		requestSock: sock,
