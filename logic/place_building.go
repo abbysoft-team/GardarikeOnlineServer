@@ -44,7 +44,10 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		return nil, model.ErrInternalServerError
 	}
 
-	s.eventsChan <- model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location)
+	s.eventsChan <- model.EventWrapper{
+		Topic: model.GlobalTopic,
+		Event: model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location),
+	}
 
 	session.SelectedCharacter.Gold -= building.Cost
 	session.SelectedCharacter.MaxPopulation += building.PopulationBonus
@@ -52,6 +55,11 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 	if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
 		s.log.WithError(err).Error("Failed to decrease character's gold")
 		return nil, model.ErrInternalServerError
+	}
+
+	s.eventsChan <- model.EventWrapper{
+		Topic: session.SessionID,
+		Event: model.NewCharacterUpdatedEvent(session.SelectedCharacter),
 	}
 
 	return &rpc.PlaceBuildingResponse{}, nil

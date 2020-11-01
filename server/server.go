@@ -3,7 +3,7 @@ package server
 import (
 	"abbysoft/gardarike-online/db/postgres"
 	"abbysoft/gardarike-online/logic"
-	rpc "abbysoft/gardarike-online/rpc/generated"
+	"abbysoft/gardarike-online/model"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	zmq "github.com/pebbe/zmq4"
@@ -18,7 +18,7 @@ type Server struct {
 	log         *log.Entry
 	logic       logic.Logic
 	handler     logic.PacketHandler
-	eventsChan  chan *rpc.Event
+	eventsChan  chan model.EventWrapper
 }
 
 type Config struct {
@@ -44,7 +44,7 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.Te
 
 	logger := log.WithField("module", "server")
 
-	eventsChan := make(chan *rpc.Event, 10)
+	eventsChan := make(chan model.EventWrapper, 10)
 	gameLogic, err := logic.NewLogic(
 		logic.NewSimplexTerrainGenerator(generatorConfig),
 		eventsChan,
@@ -68,19 +68,21 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.Te
 	}, nil
 }
 
-func (s *Server) publishEvent(event *rpc.Event) {
-	logger := s.log.WithField("event", fmt.Sprintf("%T", event.Payload))
+func (s *Server) publishEvent(event model.EventWrapper) {
+	logger := s.log.
+		WithField("event", fmt.Sprintf("%T", event.Event.Payload)).
+		WithField("topic", event.Topic)
 
-	bytes, err := proto.Marshal(event)
+	bytes, err := proto.Marshal(event.Event)
 	if err != nil {
 		logger.Errorf("Failed to marshal server event: %v", err)
 		return
 	}
 
-	if _, err := s.eventSock.Send(string(bytes), zmq.DONTWAIT); err != nil {
+	if _, err := s.eventSock.SendMessageDontwait(event.Topic, string(bytes)); err != nil {
 		logger.WithError(err).Error("Failed to push server event: %v", err)
 	} else {
-		logger.WithField("payload", event.Payload).Info("Event published to the clients")
+		logger.WithField("payload", event.Event).Info("EventWrapper published to the clients")
 	}
 }
 

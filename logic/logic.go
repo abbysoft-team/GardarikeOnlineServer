@@ -28,10 +28,10 @@ type SimpleLogic struct {
 	db         db2.Database
 	log        *logrus.Entry
 	sessions   map[string]*PlayerSession
-	eventsChan chan *rpc.Event
+	eventsChan chan model.EventWrapper
 }
 
-func NewLogic(generator TerrainGenerator, eventsChan chan *rpc.Event, dbConfig postgres.Config) (*SimpleLogic, error) {
+func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config) (*SimpleLogic, error) {
 	width := mapChunkSize
 	height := mapChunkSize
 

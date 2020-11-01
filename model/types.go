@@ -4,6 +4,13 @@ import (
 	rpc "abbysoft/gardarike-online/rpc/generated"
 )
 
+const GlobalTopic = "GLOBAL"
+
+type EventWrapper struct {
+	Topic string
+	Event *rpc.Event
+}
+
 type Account struct {
 	ID       int    `db:"id"`
 	Login    string `db:"login"`
@@ -40,9 +47,11 @@ type ChatMessage struct {
 
 func (c *Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
-		Id:   int32(c.ID),
-		Name: c.Name,
-		Gold: c.Gold,
+		Id:                int32(c.ID),
+		Name:              c.Name,
+		Gold:              c.Gold,
+		MaxPopulation:     c.MaxPopulation,
+		CurrentPopulation: c.CurrentPopulation,
 	}
 }
 
@@ -83,6 +92,16 @@ func NewChatMessageEvent(message ChatMessage) *rpc.Event {
 		Payload: &rpc.Event_ChatMessageEvent{
 			ChatMessageEvent: &rpc.NewChatMessageEvent{
 				Message: message.ToRPC(),
+			},
+		},
+	}
+}
+
+func NewCharacterUpdatedEvent(char *Character) *rpc.Event {
+	return &rpc.Event{
+		Payload: &rpc.Event_CharacterUpdatedEvent{
+			CharacterUpdatedEvent: &rpc.CharacterUpdatedEvent{
+				NewState: char.ToRPC(),
 			},
 		},
 	}

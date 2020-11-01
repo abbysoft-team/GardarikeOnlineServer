@@ -25,7 +25,10 @@ func (s *SimpleLogic) SendChatMessage(session *PlayerSession, request *rpc.SendC
 		message.MessageID = int(insertedID)
 	}
 
-	s.eventsChan <- model.NewChatMessageEvent(message)
+	s.eventsChan <- model.EventWrapper{
+		Topic: model.GlobalTopic,
+		Event: model.NewChatMessageEvent(message),
+	}
 
 	return &rpc.SendChatMessageResponse{
 		MessageID: int64(message.MessageID),
