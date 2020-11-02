@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"time"
 )
 
 const (
@@ -33,7 +34,7 @@ func setupConfig() error {
 	viper.SetDefault("generator.octaves", 7)
 	viper.SetDefault("generator.persistence", 2)
 	viper.SetDefault("generator.scaleFactor", 1)
-
+	viper.SetDefault("logic.afkTimeout", time.Minute*10)
 	return viper.ReadInConfig()
 }
 
@@ -61,7 +62,7 @@ func parseServerConfig(config *viper.Viper) (result server.Config, err error) {
 	}
 
 	if err := config.Unmarshal(&result); err != nil {
-		return result, fmt.Errorf("failed to parse [server] config section")
+		return result, fmt.Errorf("failed to parse [server] config section: %w", err)
 	}
 
 	if len(result.RequestEndpoint) == 0 {
@@ -80,7 +81,19 @@ func parseGeneratorConfig(config *viper.Viper) (result logic.TerrainGeneratorCon
 	}
 
 	if err := config.Unmarshal(&result); err != nil {
-		return result, fmt.Errorf("failed to parse [generator] config section")
+		return result, fmt.Errorf("failed to parse [generator] config section: %w", err)
+	}
+
+	return
+}
+
+func parseLogicConfig(config *viper.Viper) (result logic.Config, err error) {
+	if config == nil {
+		return result, fmt.Errorf("missing [logic] section in the configuration")
+	}
+
+	if err := config.Unmarshal(&result); err != nil {
+		return result, fmt.Errorf("failed to parse [logic] config section: %w", err)
 	}
 
 	return
@@ -116,7 +129,12 @@ func main() {
 		log.WithError(err).Fatal("Failed to parse generator config")
 	}
 
-	s, err := server.NewServer(serverConfig, dbConfig, generatorConfig)
+	logicConfig, err := parseLogicConfig(viper.Sub("logic"))
+	if err != nil {
+		log.WithError(err).Fatal("Failed to parse logic config")
+	}
+
+	s, err := server.NewServer(serverConfig, logicConfig, dbConfig, generatorConfig)
 	if err != nil {
 		log.WithError(err).Fatalf("Failed to start server")
 	}

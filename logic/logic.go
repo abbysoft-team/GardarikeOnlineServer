@@ -7,6 +7,7 @@ import (
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
@@ -29,9 +30,14 @@ type SimpleLogic struct {
 	log        *logrus.Entry
 	sessions   map[string]*PlayerSession
 	eventsChan chan model.EventWrapper
+	config     Config
 }
 
-func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config) (*SimpleLogic, error) {
+type Config struct {
+	AFKTimeout time.Duration
+}
+
+func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
 	width := mapChunkSize
 	height := mapChunkSize
 
@@ -52,6 +58,7 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 		log:        logrus.WithField("module", "logic"),
 		sessions:   make(map[string]*PlayerSession),
 		eventsChan: eventsChan,
+		config:     config,
 	}
 
 	logic.log.Info("Loading data from the database")

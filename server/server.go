@@ -26,7 +26,11 @@ type Config struct {
 	EventEndpoint   string // Publish events on this endpoint
 }
 
-func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.TerrainGeneratorConfig) (*Server, error) {
+func NewServer(
+	config Config,
+	logicConfig logic.Config,
+	dbConfig postgres.Config,
+	generatorConfig logic.TerrainGeneratorConfig) (*Server, error) {
 	context, err := zmq.NewContext()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create zmq context: %w", err)
@@ -48,7 +52,8 @@ func NewServer(config Config, dbConfig postgres.Config, generatorConfig logic.Te
 	gameLogic, err := logic.NewLogic(
 		logic.NewSimplexTerrainGenerator(generatorConfig),
 		eventsChan,
-		dbConfig)
+		dbConfig,
+		logicConfig)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to init game logic: %w", err)

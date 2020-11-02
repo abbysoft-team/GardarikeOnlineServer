@@ -15,3 +15,6 @@ octaves = 7
 persistence = 2
 scaleFactor = 5
 normilize = true
+
+[logic]
+afkTimeout = "15m"
