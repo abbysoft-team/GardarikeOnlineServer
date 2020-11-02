@@ -35,6 +35,8 @@ func setupConfig() error {
 	viper.SetDefault("generator.persistence", 2)
 	viper.SetDefault("generator.scaleFactor", 1)
 	viper.SetDefault("logic.afkTimeout", time.Minute*10)
+	viper.SetDefault("logic.chatMessageMaxLength", 200)
+
 	return viper.ReadInConfig()
 }
 

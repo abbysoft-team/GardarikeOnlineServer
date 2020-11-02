@@ -34,7 +34,8 @@ type SimpleLogic struct {
 }
 
 type Config struct {
-	AFKTimeout time.Duration
+	AFKTimeout           time.Duration
+	ChatMessageMaxLength int
 }
 
 func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
