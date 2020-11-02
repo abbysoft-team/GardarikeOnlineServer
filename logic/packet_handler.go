@@ -142,6 +142,8 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	}
 
 	if requestErr != nil {
+		p.log.Info("Sending error response: %v", requestErr.Error())
+
 		response = rpc.Response{
 			Data: &rpc.Response_ErrorResponse{
 				ErrorResponse: &rpc.ErrorResponse{
