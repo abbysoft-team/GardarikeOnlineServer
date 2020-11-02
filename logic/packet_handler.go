@@ -109,7 +109,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	var session *PlayerSession
 
 	// Check session
-	sessionRegexp, _ := regexp.Compile("sessionID:\"(.*)\"")
+	sessionRegexp, _ := regexp.Compile("sessionID:\"([^\"]*)\"")
 	sessionSubmatch := sessionRegexp.FindStringSubmatch(request.String())
 	if len(sessionSubmatch) == 2 {
 		sessionID = sessionSubmatch[1]
