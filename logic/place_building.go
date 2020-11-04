@@ -49,6 +49,12 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		Event: model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location),
 	}
 
+	s.gameMap.Buildings = append(s.gameMap.Buildings, &rpc.Building{
+		Id:       request.BuildingID,
+		OwnerID:  int64(session.SelectedCharacter.ID),
+		Location: request.Location,
+	})
+
 	session.SelectedCharacter.Gold -= building.Cost
 	session.SelectedCharacter.MaxPopulation += building.PopulationBonus
 
