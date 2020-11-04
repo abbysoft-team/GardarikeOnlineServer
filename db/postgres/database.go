@@ -88,7 +88,7 @@ func (d *Database) GetBuildingLocations() (result []model.BuildingLocation, err 
 
 func (d *Database) GetCharacters(accountID int) (result []model.Character, err error) {
 	err = d.db.Select(&result,
-		`SELECT id, name, gold FROM accountcharacters as a
+		`SELECT c.* FROM accountcharacters as a
     INNER JOIN characters as c
         ON c.id = a.character_id
 WHERE account_id = $1`, accountID)
