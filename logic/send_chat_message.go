@@ -12,7 +12,7 @@ func (s *SimpleLogic) SendChatMessage(session *PlayerSession, request *rpc.SendC
 		"text":      request.Text,
 	}).Info("SendChatMessage")
 
-	if len(request.Text) < s.config.ChatMessageMaxLength {
+	if len(request.Text) > s.config.ChatMessageMaxLength {
 		return nil, model.ErrMessageTooLong
 	}
 
