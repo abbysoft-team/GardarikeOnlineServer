@@ -11,10 +11,11 @@ DBName = "game"
 EnableSSL = false
 
 [generator]
-octaves = 7
-persistence = 2
-scaleFactor = 5
-normilize = true
+Octaves = 7
+Persistence = 2
+ScaleFactor = 5
+Normalize = false
 
 [logic]
-afkTimeout = "15m"
+#AfkTimeout = "15m"
+#ChatMessageMaxLength = 200

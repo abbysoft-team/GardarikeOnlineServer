@@ -31,12 +31,6 @@ func setupConfig() error {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("configs/")
 
-	viper.SetDefault("generator.octaves", 7)
-	viper.SetDefault("generator.persistence", 2)
-	viper.SetDefault("generator.scaleFactor", 1)
-	viper.SetDefault("logic.afkTimeout", time.Minute*10)
-	viper.SetDefault("logic.chatMessageMaxLength", 200)
-
 	return viper.ReadInConfig()
 }
 
@@ -82,6 +76,10 @@ func parseGeneratorConfig(config *viper.Viper) (result logic.TerrainGeneratorCon
 		return result, fmt.Errorf("missing [generator] section in the configuration")
 	}
 
+	config.SetDefault("Octaves", 7)
+	config.SetDefault("Persistence", 2)
+	config.SetDefault("ScaleFactor", 1)
+
 	if err := config.Unmarshal(&result); err != nil {
 		return result, fmt.Errorf("failed to parse [generator] config section: %w", err)
 	}
@@ -93,6 +91,9 @@ func parseLogicConfig(config *viper.Viper) (result logic.Config, err error) {
 	if config == nil {
 		return result, fmt.Errorf("missing [logic] section in the configuration")
 	}
+
+	config.SetDefault("AFKTimeout", time.Minute*10)
+	config.SetDefault("ChatMessageMaxLength", 200)
 
 	if err := config.Unmarshal(&result); err != nil {
 		return result, fmt.Errorf("failed to parse [logic] config section: %w", err)
