@@ -13,6 +13,14 @@ type databaseMock struct {
 	getAccountInvocations   int
 }
 
+func (d *databaseMock) AddChatMessage(message model.ChatMessage) (int64, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetChatMessages(offset int, count int) ([]model.ChatMessage, error) {
+	panic("implement me")
+}
+
 func (d *databaseMock) UpdateCharacter(character model.Character) error {
 	panic("implement me")
 }
@@ -65,9 +73,9 @@ func (d *databaseMock) GetCharacters(accountID int) ([]model.Character, error) {
 	d.getCharacterInvocations++
 
 	return []model.Character{
-		{ID: 1, Name: "jack", Gold: 100},
-		{2, "lenny", 100},
-		{3, "michel", 100},
+		{ID: 1, Name: "jack", Gold: 100, MaxPopulation: 10, CurrentPopulation: 10},
+		{2, "lenny", 100, 10, 10},
+		{3, "michel", 100, 10, 10},
 	}, nil
 }
 
