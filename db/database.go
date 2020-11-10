@@ -21,6 +21,8 @@ type WorldDatabase interface {
 	AddBuildingLocation(buildingLoc model.BuildingLocation) error
 	AddChatMessage(message model.ChatMessage) (int64, error)
 	GetChatMessages(offset int, count int) ([]model.ChatMessage, error)
+	GetMapChunk(x, y int64) (model.MapChunk, error)
+	SaveOrUpdate(chunk model.MapChunk) error
 }
 
 type Database interface {

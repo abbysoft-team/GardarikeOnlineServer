@@ -2,9 +2,13 @@ package model
 
 import (
 	rpc "abbysoft/gardarike-online/rpc/generated"
+	"bytes"
+	"encoding/gob"
+	"fmt"
 )
 
 const GlobalTopic = "GLOBAL"
+const MapChunkSize = 200
 
 type EventWrapper struct {
 	Topic string
@@ -107,4 +111,46 @@ func NewCharacterUpdatedEvent(char *Character) *rpc.Event {
 			},
 		},
 	}
+}
+
+type MapChunk struct {
+	X          int64  `db:"x"`
+	Y          int64  `db:"y"`
+	Terrain    []byte `db:"data"`
+	TreesCount int64  `db:"trees_count"`
+}
+
+func (t MapChunk) ToRPC() (*rpc.Map, error) {
+	var terrain []float32
+	decoder := gob.NewDecoder(bytes.NewBuffer(t.Terrain))
+	if err := decoder.Decode(&terrain); err != nil {
+		return nil, fmt.Errorf("failed to decode terrain data: %w", err)
+	}
+
+	return &rpc.Map{
+		Width:      MapChunkSize,
+		Height:     MapChunkSize,
+		Points:     terrain,
+		Buildings:  nil,
+		TreesCount: t.TreesCount,
+	}, nil
+}
+
+func NewMapChunkFrom(rpcMap rpc.Map) (MapChunk, error) {
+	var terrain []byte
+	result := MapChunk{
+		X:          0,
+		Y:          0,
+		TreesCount: rpcMap.TreesCount,
+	}
+
+	buffer := bytes.NewBuffer(terrain)
+	encoder := gob.NewEncoder(buffer)
+
+	if err := encoder.Encode(&rpcMap.Points); err != nil {
+		return MapChunk{}, fmt.Errorf("failed to encode map chunk: %w", err)
+	}
+
+	result.Terrain = buffer.Bytes()
+	return result, nil
 }

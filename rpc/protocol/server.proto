@@ -151,6 +151,7 @@ message Map {
   int32 height = 2;
   repeated float points = 3;
   repeated Building buildings = 4;
+  int64 treesCount = 5;
 }
 
 message Building {

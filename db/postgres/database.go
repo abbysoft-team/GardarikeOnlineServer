@@ -12,6 +12,22 @@ type Database struct {
 	db *sqlx.DB
 }
 
+func (d *Database) SaveOrUpdate(chunk model.MapChunk) error {
+	_, err := d.db.NamedExec(
+		"INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)",
+		chunk)
+
+	return err
+}
+
+func (d *Database) GetMapChunk(x, y int64) (result model.MapChunk, err error) {
+	err = d.db.Get(
+		&result,
+		"SELECT * FROM chunks WHERE x=$1 AND y=$2",
+		x, y)
+	return
+}
+
 func (d *Database) GetChatMessages(offset int, count int) (result []model.ChatMessage, err error) {
 	err = d.db.Select(&result,
 		"SELECT * FROM chatmessages ORDER BY message_id DESC OFFSET $1 LIMIT $2",

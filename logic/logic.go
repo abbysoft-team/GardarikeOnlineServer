@@ -5,8 +5,11 @@ import (
 	"abbysoft/gardarike-online/db/postgres"
 	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"sync"
 	"time"
 )
 
@@ -24,13 +27,14 @@ type Logic interface {
 }
 
 type SimpleLogic struct {
-	gameMap    rpc.Map
-	buildings  map[int]model.Building
-	db         db2.Database
-	log        *logrus.Entry
-	sessions   map[string]*PlayerSession
-	eventsChan chan model.EventWrapper
-	config     Config
+	gameMap      rpc.Map
+	gameMapMutex sync.Mutex
+	buildings    map[int]model.Building
+	db           db2.Database
+	log          *logrus.Entry
+	sessions     map[string]*PlayerSession
+	eventsChan   chan model.EventWrapper
+	config       Config
 }
 
 type Config struct {
@@ -39,21 +43,12 @@ type Config struct {
 }
 
 func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
-	width := mapChunkSize
-	height := mapChunkSize
-
-	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
 	database, err := postgres.NewDatabase(dbConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init db: %w", err)
 	}
 
 	logic := &SimpleLogic{
-		gameMap: rpc.Map{
-			Width:  int32(width),
-			Height: int32(height),
-			Points: terrain,
-		},
 		buildings:  make(map[int]model.Building),
 		db:         database,
 		log:        logrus.WithField("module", "logic"),
@@ -62,9 +57,9 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 		config:     config,
 	}
 
-	logic.log.Info("Loading data from the database")
-	if err := logic.load(); err != nil {
-		return nil, fmt.Errorf("failed to load data from the DB: %w", err)
+	logic.log.Info("Initialize logic...")
+	if err := logic.init(generator); err != nil {
+		return nil, fmt.Errorf("failed to init data from the DB: %w", err)
 	}
 	logic.log.Info("Logic initialization is done")
 
@@ -74,13 +69,71 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 	return logic, nil
 }
 
-func (s *SimpleLogic) load() error {
+func (s *SimpleLogic) saveGameMap() error {
+	s.gameMapMutex.Lock()
+	defer s.gameMapMutex.Unlock()
+
+	modelMap, err := model.NewMapChunkFrom(s.gameMap)
+	if err != nil {
+		return fmt.Errorf("failed to create new map chunk: %w", err)
+	}
+
+	return s.db.SaveOrUpdate(modelMap)
+}
+
+func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {
+	s.log.Info("Map not found, generating it...")
+
+	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
+	s.gameMap = rpc.Map{
+		Width:      model.MapChunkSize,
+		Height:     model.MapChunkSize,
+		Points:     terrain,
+		Buildings:  nil,
+		TreesCount: 0,
+	}
+
+	if err := s.saveGameMap(); err != nil {
+		return fmt.Errorf("failed to save game map: %w", err)
+	}
+
+	return nil
+}
+
+func (s *SimpleLogic) loadOrGenerateGameMap(generator TerrainGenerator) error {
+	mapChunk, err := s.db.GetMapChunk(0, 0)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("failed to load stored map: %w", err)
+	} else if err != nil {
+		return s.generateGameMap(generator)
+	}
+
+	gameMap, err := mapChunk.ToRPC()
+	if err != nil {
+		return fmt.Errorf("failed to serialize map chunk: %w", err)
+	}
+
+	s.gameMap = *gameMap
+	return nil
+}
+
+func (s *SimpleLogic) init(generator TerrainGenerator) error {
+	s.log.Info("Initializing game map")
+	if err := s.loadOrGenerateGameMap(generator); err != nil {
+		return fmt.Errorf("failed to init game map: %w", err)
+	}
+
+	s.log.
+		WithField("points", len(s.gameMap.Points)).
+		WithField("treesCount", s.gameMap.TreesCount).
+		Info("Game map initialized")
+
 	s.log.Info("Loading building locations...")
 
 	// Load building locations
 	buildingLocations, err := s.db.GetBuildingLocations()
 	if err != nil {
-		return fmt.Errorf("failed to load building locations: %w", err)
+		return fmt.Errorf("failed to init building locations: %w", err)
 	}
 
 	var rpcBuildings []*rpc.Building
@@ -96,7 +149,7 @@ func (s *SimpleLogic) load() error {
 	// Load buildingLocations
 	buildings, err := s.db.GetBuildings()
 	if err != nil {
-		return fmt.Errorf("failed to load buildings: %w", err)
+		return fmt.Errorf("failed to init buildings: %w", err)
 	}
 
 	for _, building := range buildings {
