@@ -10,6 +10,29 @@ import (
 
 type Database struct {
 	db *sqlx.DB
+	tx *sqlx.Tx
+}
+
+func (d *Database) BeginTransaction() error {
+	tx, err := d.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	d.tx = tx
+	return nil
+}
+
+func (d *Database) EndTransaction() error {
+	if d.tx != nil {
+		if err := d.tx.Commit(); err != nil {
+			return err
+		}
+
+		d.tx = nil
+	}
+
+	return nil
 }
 
 func (d *Database) SaveOrUpdate(chunk model.MapChunk) error {

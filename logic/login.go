@@ -42,6 +42,7 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 	}
 
 	session := NewPlayerSession()
+
 	s.sessions[session.SessionID] = session
 
 	s.log.WithFields(log.Fields{

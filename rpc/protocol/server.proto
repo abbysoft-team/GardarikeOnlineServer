@@ -23,7 +23,12 @@ message Request {
     PlaceBuildingRequest placeBuildingRequest = 4;
     SendChatMessageRequest sendChatMessageRequest = 5;
     GetChatHistoryRequest getChatHistoryRequest = 6;
+    GetWorkDistributionRequest getWorkDistributionRequest = 7;
   }
+}
+
+message GetWorkDistributionRequest {
+  string sessionID = 1;
 }
 
 // Get 'count' chat messages starting from some message 'lastMessageID'
@@ -72,7 +77,13 @@ message Response {
     SendChatMessageResponse sendChatMessageResponse = 7;
     GetChatHistoryResponse getChatHistoryResponse = 8;
     ChatMessagePublishResponse chatMessagePublishResponse = 9;
+    GetWorkDistributionResponse getWorkDistributionResponse = 10;
   }
+}
+
+message GetWorkDistributionResponse {
+  int64 idleCount = 1;
+  int64 woodcutterCount = 2;
 }
 
 message ChatMessagePublishResponse {

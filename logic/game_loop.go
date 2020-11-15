@@ -21,6 +21,9 @@ func (s *SimpleLogic) gameLoop() {
 			session := session
 
 			go func() {
+				session.Mutex.Lock()
+				defer session.Mutex.Unlock()
+
 				if session.SelectedCharacter == nil {
 					finishChan <- true
 					return
@@ -42,11 +45,9 @@ func (s *SimpleLogic) gameLoop() {
 }
 
 func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
-	session.Mutex.Lock()
-	defer session.Mutex.Unlock()
-
 	if session.SelectedCharacter.MaxPopulation != session.SelectedCharacter.CurrentPopulation {
 		session.SelectedCharacter.CurrentPopulation++
+		session.WorkDistribution.IdleCount++
 
 		s.log.WithField("sessionID", session.SessionID).
 			WithField("character", session.SelectedCharacter.Name).
@@ -68,6 +69,7 @@ func (s *SimpleLogic) updateSession(session *PlayerSession) {
 		s.log.WithField("sessionID", session.SessionID).
 			Info("Session AFK timeout, delete session")
 		delete(s.sessions, session.SessionID)
+		return
 	}
 
 	populationGrownEvent := CheckRandomEventHappened(PopulationGrownEventChance)

@@ -100,6 +100,15 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 				},
 			}, err
 		}
+	} else if request.GetGetWorkDistributionRequest() != nil {
+		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetWorkDistribution(s, request.GetGetWorkDistributionRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetWorkDistributionResponse{
+					GetWorkDistributionResponse: response,
+				},
+			}, err
+		}
 	} else {
 		requestErr = model.ErrBadRequest
 	}

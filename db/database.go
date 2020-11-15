@@ -3,6 +3,8 @@ package db
 import "abbysoft/gardarike-online/model"
 
 type CharacterDatabase interface {
+	BeginTransaction() error
+	EndTransaction() error
 	GetCharacter(id int) (model.Character, error)
 	AddCharacter(character model.Character) error
 	DeleteCharacter(id int) error
