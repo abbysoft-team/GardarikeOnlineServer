@@ -2,28 +2,12 @@ package logic
 
 import (
 	"abbysoft/gardarike-online/model"
-	"math/rand"
 	"time"
 )
 
 const (
-	gameLoopTps                = 1.0
-	populationGrownEventChance = 2.0
+	gameLoopTps = 1.0
 )
-
-// checkRandomEventHappened - check if the random event of 'chance' percent freq has happened
-// returns true if the event has happened and false otherwise
-func checkRandomEventHappened(chance int) bool {
-	rand.Seed(time.Now().UnixNano())
-	n := rand.Int63n(10e10)
-	chance *= 10e8
-
-	if n >= int64(chance) {
-		return false
-	}
-
-	return true
-}
 
 // gameLoop - runs endless game loop
 func (s *SimpleLogic) gameLoop() {
@@ -51,6 +35,8 @@ func (s *SimpleLogic) gameLoop() {
 			<-finishChan
 		}
 
+		s.resourceManager.Update()
+
 		time.Sleep(sleepDuration)
 	}
 }
@@ -69,7 +55,7 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 		if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
 			s.log.WithError(err).Error("Failed to update character")
 		} else {
-			s.eventsChan <- model.EventWrapper{
+			s.EventsChan <- model.EventWrapper{
 				Topic: session.SessionID,
 				Event: model.NewCharacterUpdatedEvent(session.SelectedCharacter),
 			}
@@ -84,7 +70,7 @@ func (s *SimpleLogic) updateSession(session *PlayerSession) {
 		delete(s.sessions, session.SessionID)
 	}
 
-	populationGrownEvent := checkRandomEventHappened(populationGrownEventChance)
+	populationGrownEvent := CheckRandomEventHappened(PopulationGrownEventChance)
 	if populationGrownEvent {
 		s.characterPopulationGrownEvent(session)
 	}

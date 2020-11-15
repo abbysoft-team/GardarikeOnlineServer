@@ -14,7 +14,9 @@ type Database struct {
 
 func (d *Database) SaveOrUpdate(chunk model.MapChunk) error {
 	_, err := d.db.NamedExec(
-		"INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)",
+		`INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)
+			   ON CONFLICT (x, y) DO UPDATE 
+			   SET trees_count = :trees_count`,
 		chunk)
 
 	return err

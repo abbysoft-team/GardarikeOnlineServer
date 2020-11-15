@@ -122,7 +122,12 @@ message Event {
     BuildingPlacedEvent buildingPlacedEvent = 1;
     NewChatMessageEvent chatMessageEvent = 2;
     CharacterUpdatedEvent characterUpdatedEvent = 3;
+    ResourceUpdatedEvent resourceUpdatedEvent = 4;
   }
+}
+
+message ResourceUpdatedEvent {
+  int64 treesCount = 1;
 }
 
 message CharacterUpdatedEvent {

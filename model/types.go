@@ -113,6 +113,16 @@ func NewCharacterUpdatedEvent(char *Character) *rpc.Event {
 	}
 }
 
+func NewResourceUpdatedEvent(trees int64) *rpc.Event {
+	return &rpc.Event{
+		Payload: &rpc.Event_ResourceUpdatedEvent{
+			ResourceUpdatedEvent: &rpc.ResourceUpdatedEvent{
+				TreesCount: trees,
+			},
+		},
+	}
+}
+
 type MapChunk struct {
 	X          int64  `db:"x"`
 	Y          int64  `db:"y"`

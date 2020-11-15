@@ -44,12 +44,12 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		return nil, model.ErrInternalServerError
 	}
 
-	s.eventsChan <- model.EventWrapper{
+	s.EventsChan <- model.EventWrapper{
 		Topic: model.GlobalTopic,
 		Event: model.NewPlaceBuildingEvent(building.ID, session.SelectedCharacter.ID, request.Location),
 	}
 
-	s.gameMap.Buildings = append(s.gameMap.Buildings, &rpc.Building{
+	s.GameMap.Buildings = append(s.GameMap.Buildings, &rpc.Building{
 		Id:       request.BuildingID,
 		OwnerID:  int64(session.SelectedCharacter.ID),
 		Location: request.Location,
@@ -63,7 +63,7 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		return nil, model.ErrInternalServerError
 	}
 
-	s.eventsChan <- model.EventWrapper{
+	s.EventsChan <- model.EventWrapper{
 		Topic: session.SessionID,
 		Event: model.NewCharacterUpdatedEvent(session.SelectedCharacter),
 	}
