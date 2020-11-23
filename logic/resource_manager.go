@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"abbysoft/gardarike-online/model"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -29,10 +28,5 @@ func (r *ResourceManager) Update() {
 		}
 
 		r.logger.WithField("treesCount", r.logic.GameMap.TreesCount).Info("Trees incremented on the map")
-
-		r.logic.EventsChan <- model.EventWrapper{
-			Topic: model.GlobalTopic,
-			Event: model.NewResourceUpdatedEvent(r.logic.GameMap.TreesCount),
-		}
 	}
 }

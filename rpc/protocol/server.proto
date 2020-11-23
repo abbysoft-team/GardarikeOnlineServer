@@ -130,25 +130,8 @@ message ChatMessage {
 
 message Event {
   oneof payload {
-    BuildingPlacedEvent buildingPlacedEvent = 1;
-    NewChatMessageEvent chatMessageEvent = 2;
-    CharacterUpdatedEvent characterUpdatedEvent = 3;
-    ResourceUpdatedEvent resourceUpdatedEvent = 4;
+    NewChatMessageEvent chatMessageEvent = 1;
   }
-}
-
-message ResourceUpdatedEvent {
-  int64 treesCount = 1;
-}
-
-message CharacterUpdatedEvent {
-  Character newState = 1;
-}
-
-message BuildingPlacedEvent {
-  int64 buildingID = 1;
-  int64 ownerID = 2;
-  Vector3D location = 3;
 }
 
 message NewChatMessageEvent {
@@ -195,7 +178,6 @@ message Handshake {
 message Character {
   int32 id = 1;
   string name = 2;
-  uint64 gold = 3;
-  uint64 maxPopulation = 4;
-  uint64 currentPopulation = 5;
+  uint64 maxPopulation = 3;
+  uint64 currentPopulation = 4;
 }

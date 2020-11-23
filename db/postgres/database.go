@@ -98,7 +98,7 @@ func (d *Database) UpdateCharacter(character model.Character, commit bool) error
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := d.db.NamedExec(
 			`UPDATE characters SET 
-                      name=:name, gold=:gold, max_population=:max_population, current_population=:current_population
+                      name=:name, max_population=:max_population, current_population=:current_population
 			   WHERE id=:id`, &character)
 		return err
 	}, commit)
@@ -180,7 +180,7 @@ func (d *Database) GetCharacter(id int) (result model.Character, err error) {
 
 func (d *Database) AddCharacter(character model.Character, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
-		_, err := d.db.NamedExec("INSERT INTO characters VALUES (DEFAULT, :name, :gold)", character)
+		_, err := d.db.NamedExec("INSERT INTO characters VALUES (DEFAULT, :name, DEFAULT, DEFAULT)", character)
 		return err
 	}, commit)
 }

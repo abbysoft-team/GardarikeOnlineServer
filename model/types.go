@@ -27,7 +27,6 @@ type Account struct {
 type Character struct {
 	ID                int    `db:"id"`
 	Name              string `db:"name"`
-	Gold              uint64 `db:"gold"`
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`
 }
@@ -55,7 +54,6 @@ func (c *Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
 		Id:                int32(c.ID),
 		Name:              c.Name,
-		Gold:              c.Gold,
 		MaxPopulation:     c.MaxPopulation,
 		CurrentPopulation: c.CurrentPopulation,
 	}
@@ -81,43 +79,11 @@ func (message ChatMessage) ToRPC() *rpc.ChatMessage {
 	}
 }
 
-func NewPlaceBuildingEvent(buildingID int, ownerID int, location *rpc.Vector3D) *rpc.Event {
-	return &rpc.Event{
-		Payload: &rpc.Event_BuildingPlacedEvent{
-			BuildingPlacedEvent: &rpc.BuildingPlacedEvent{
-				BuildingID: int64(buildingID),
-				OwnerID:    int64(ownerID),
-				Location:   location,
-			},
-		},
-	}
-}
-
 func NewChatMessageEvent(message ChatMessage) *rpc.Event {
 	return &rpc.Event{
 		Payload: &rpc.Event_ChatMessageEvent{
 			ChatMessageEvent: &rpc.NewChatMessageEvent{
 				Message: message.ToRPC(),
-			},
-		},
-	}
-}
-
-func NewCharacterUpdatedEvent(char *Character) *rpc.Event {
-	return &rpc.Event{
-		Payload: &rpc.Event_CharacterUpdatedEvent{
-			CharacterUpdatedEvent: &rpc.CharacterUpdatedEvent{
-				NewState: char.ToRPC(),
-			},
-		},
-	}
-}
-
-func NewResourceUpdatedEvent(trees int64) *rpc.Event {
-	return &rpc.Event{
-		Payload: &rpc.Event_ResourceUpdatedEvent{
-			ResourceUpdatedEvent: &rpc.ResourceUpdatedEvent{
-				TreesCount: trees,
 			},
 		},
 	}

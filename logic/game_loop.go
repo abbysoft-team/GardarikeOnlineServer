@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"abbysoft/gardarike-online/model"
 	"time"
 )
 
@@ -55,11 +54,6 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 
 		if err := s.db.UpdateCharacter(*session.SelectedCharacter, true); err != nil {
 			s.log.WithError(err).Error("Failed to update character")
-		} else {
-			s.EventsChan <- model.EventWrapper{
-				Topic: session.SessionID,
-				Event: model.NewCharacterUpdatedEvent(session.SelectedCharacter),
-			}
 		}
 	}
 }

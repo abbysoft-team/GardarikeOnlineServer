@@ -1,0 +1,5 @@
+ALTER TABLE characters
+ADD COLUMN IF NOT EXISTS gold bigint NOT NULL DEFAULT 0;
+
+DROP TABLE IF EXISTS resources;
+
