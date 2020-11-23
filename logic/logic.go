@@ -79,7 +79,7 @@ func (s *SimpleLogic) SaveGameMap() error {
 		return fmt.Errorf("failed to create new map chunk: %w", err)
 	}
 
-	return s.db.SaveOrUpdate(modelMap)
+	return s.db.SaveOrUpdate(modelMap, true)
 }
 
 func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {

@@ -39,7 +39,7 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		BuildingID: int(request.BuildingID),
 		OwnerID:    session.SelectedCharacter.ID,
 		Location:   location,
-	}); err != nil {
+	}, true); err != nil {
 		s.log.WithError(err).Error("Failed to add building location")
 		return nil, model.ErrInternalServerError
 	}
@@ -58,7 +58,7 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 	session.SelectedCharacter.Gold -= building.Cost
 	session.SelectedCharacter.MaxPopulation += building.PopulationBonus
 
-	if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
+	if err := s.db.UpdateCharacter(*session.SelectedCharacter, true); err != nil {
 		s.log.WithError(err).Error("Failed to decrease character's gold")
 		return nil, model.ErrInternalServerError
 	}

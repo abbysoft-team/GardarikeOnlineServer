@@ -53,7 +53,7 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 			WithField("character", session.SelectedCharacter.Name).
 			Debugf("Player's population grows")
 
-		if err := s.db.UpdateCharacter(*session.SelectedCharacter); err != nil {
+		if err := s.db.UpdateCharacter(*session.SelectedCharacter, true); err != nil {
 			s.log.WithError(err).Error("Failed to update character")
 		} else {
 			s.EventsChan <- model.EventWrapper{

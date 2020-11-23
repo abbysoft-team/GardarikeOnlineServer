@@ -7,7 +7,7 @@ import (
 
 const (
 	PopulationGrownEventChance = 2.0
-	TreeGrownEventChance       = 1.0
+	TreeGrownEventChance       = 2.0
 )
 
 // checkRandomEventHappened - check if the random event of 'chance' percent freq has happened

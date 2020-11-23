@@ -13,20 +13,20 @@ type Database struct {
 	tx *sqlx.Tx
 }
 
-func (d *Database) BeginTransaction() error {
+func (d *Database) beginTransaction() error {
 	tx, err := d.db.Beginx()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
 	d.tx = tx
 	return nil
 }
 
-func (d *Database) EndTransaction() error {
+func (d *Database) endTransaction() error {
 	if d.tx != nil {
 		if err := d.tx.Commit(); err != nil {
-			return err
+			return fmt.Errorf("failed to end transaction: %w", err)
 		}
 
 		d.tx = nil
@@ -35,14 +35,41 @@ func (d *Database) EndTransaction() error {
 	return nil
 }
 
-func (d *Database) SaveOrUpdate(chunk model.MapChunk) error {
-	_, err := d.db.NamedExec(
-		`INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)
+type transactionFunc func(t *sqlx.Tx) error
+
+func (d *Database) WithTransaction(function transactionFunc, commit bool) error {
+	if d.tx == nil {
+		if err := d.beginTransaction(); err != nil {
+			return err
+		}
+	}
+
+	if err := function(d.tx); err != nil {
+		if rollbackErr := d.tx.Rollback(); rollbackErr != nil {
+			return fmt.Errorf("%w: (and failed to rollback: %v)", err, rollbackErr)
+		}
+		return err
+	}
+
+	if commit {
+		if err := d.endTransaction(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d *Database) SaveOrUpdate(chunk model.MapChunk, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.NamedExec(
+			`INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)
 			   ON CONFLICT (x, y) DO UPDATE 
 			   SET trees_count = :trees_count`,
-		chunk)
+			chunk)
 
-	return err
+		return err
+	}, commit)
 }
 
 func (d *Database) GetMapChunk(x, y int64) (result model.MapChunk, err error) {
@@ -67,20 +94,24 @@ func (d *Database) AddChatMessage(message model.ChatMessage) (id int64, err erro
 	return
 }
 
-func (d *Database) UpdateCharacter(character model.Character) error {
-	_, err := d.db.NamedExec(
-		`UPDATE characters SET 
+func (d *Database) UpdateCharacter(character model.Character, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := d.db.NamedExec(
+			`UPDATE characters SET 
                       name=:name, gold=:gold, max_population=:max_population, current_population=:current_population
 			   WHERE id=:id`, &character)
-	return err
+		return err
+	}, commit)
 }
 
-func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
-	_, err := d.db.Exec(
-		`INSERT INTO buildinglocations (building_id, owner_id, location)
-VALUES ($1, $2, $3)`, buildingLoc.BuildingID, buildingLoc.OwnerID, pg.Array(buildingLoc.Location))
+func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.Exec(
+			`INSERT INTO buildinglocations (building_id, owner_id, location)
+				VALUES ($1, $2, $3)`, buildingLoc.BuildingID, buildingLoc.OwnerID, pg.Array(buildingLoc.Location))
 
-	return err
+		return err
+	}, commit)
 }
 
 func (d *Database) GetBuildingLocation(location [3]float32) (result model.BuildingLocation, err error) {
@@ -147,14 +178,18 @@ func (d *Database) GetCharacter(id int) (result model.Character, err error) {
 	return
 }
 
-func (d *Database) AddCharacter(character model.Character) error {
-	_, err := d.db.NamedExec("INSERT INTO characters VALUES (DEFAULT, :name, :gold)", character)
-	return err
+func (d *Database) AddCharacter(character model.Character, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := d.db.NamedExec("INSERT INTO characters VALUES (DEFAULT, :name, :gold)", character)
+		return err
+	}, commit)
 }
 
-func (d *Database) DeleteCharacter(id int) error {
-	_, err := d.db.Exec("DELETE FROM characters WHERE id = $1", id)
-	return err
+func (d *Database) DeleteCharacter(id int, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := d.db.Exec("DELETE FROM characters WHERE id = $1", id)
+		return err
+	}, commit)
 }
 
 type Config struct {
@@ -174,7 +209,7 @@ func NewDatabase(config Config) (db.Database, error) {
 		sslMode = "disable"
 	}
 
-	db, err := sqlx.Connect("postgres",
+	database, err := sqlx.Connect("postgres",
 		fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%d sslmode=%s",
 			config.DBName,
 			config.User,
@@ -187,6 +222,6 @@ func NewDatabase(config Config) (db.Database, error) {
 	}
 
 	return &Database{
-		db: db,
+		db: database,
 	}, nil
 }
