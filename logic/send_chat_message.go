@@ -17,24 +17,24 @@ func (s *SimpleLogic) SendChatMessage(session *PlayerSession, request *rpc.SendC
 	}
 
 	message := model.ChatMessage{
-		MessageID:  0,
-		SenderName: session.SelectedCharacter.Name,
-		Text:       request.Text,
+		ID:     0,
+		Sender: session.SelectedCharacter.Name,
+		Text:   request.Text,
 	}
 
 	if insertedID, err := s.db.AddChatMessage(message); err != nil {
 		s.log.WithError(err).Error("Failed to SendChatMessage")
 		return nil, model.ErrInternalServerError
 	} else {
-		message.MessageID = int(insertedID)
+		message.ID = insertedID
 	}
 
 	s.EventsChan <- model.EventWrapper{
 		Topic: model.GlobalTopic,
-		Event: model.NewChatMessageEvent(message),
+		Event: model.NewChatMessageEvent(*message.ToRPC()),
 	}
 
 	return &rpc.SendChatMessageResponse{
-		MessageID: int64(message.MessageID),
+		MessageID: message.ID,
 	}, nil
 }

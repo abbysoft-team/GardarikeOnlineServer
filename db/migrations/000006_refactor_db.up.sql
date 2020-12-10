@@ -1,0 +1,32 @@
+DROP TABLE IF EXISTS buildinglocations;
+DROP TABLE IF EXISTS buildings;
+
+ALTER TABLE IF EXISTS accountcharacters
+    RENAME TO account_characters;
+ALTER TABLE IF EXISTS chatmessages
+    RENAME TO chat_messages;
+
+CREATE TABLE IF NOT EXISTS towns
+(
+    x          int         NOT NULL,
+    y          int         NOT NULL,
+    owner_name varchar(25) NOT NULL,
+    population int         NOT NULL DEFAULT 0,
+
+    UNIQUE (x, y)
+);
+
+DROP TABLE IF EXISTS chunks;
+CREATE TABLE chunk
+(
+    x           int NOT NULL,
+    y           int NOT NULL,
+    data        bytea        DEFAULT NULL,
+    trees int NOT NULL DEFAULT 0,
+    stones int NOT NULL DEFAULT 0,
+    animals int NOT NULL DEFAULT 0,
+    plants int NOT NULL DEFAULT 0,
+
+    UNIQUE (x, y)
+);
+

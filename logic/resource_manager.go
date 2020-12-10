@@ -22,11 +22,11 @@ func (r *ResourceManager) Update() {
 		r.logic.GameMapMutex.Lock()
 		defer r.logic.GameMapMutex.Unlock()
 
-		r.logic.GameMap.TreesCount++
+		r.logic.GameMap.Trees++
 		if err := r.logic.SaveGameMap(); err != nil {
 			r.logger.WithError(err).Error("Failed to update resources: failed to save game map")
 		}
 
-		r.logger.WithField("treesCount", r.logic.GameMap.TreesCount).Info("Trees incremented on the map")
+		r.logger.WithField("treesCount", r.logic.GameMap.Trees).Info("Trees incremented on the map")
 	}
 }

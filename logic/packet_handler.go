@@ -54,12 +54,12 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		}
 		authorizationRequired = false
 		characterRequired = false
-	} else if request.GetGetMapRequest() != nil {
+	} else if request.GetGetWorldMapRequest() != nil {
 		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.GetMap(s, request.GetGetMapRequest())
+			response, err := p.logic.GetWorldMap(s, request.GetGetWorldMapRequest())
 			return rpc.Response{
-				Data: &rpc.Response_GetMapResponse{
-					GetMapResponse: response,
+				Data: &rpc.Response_GetWorldMapResponse{
+					GetWorldMapResponse: response,
 				},
 			}, err
 		}
@@ -73,15 +73,6 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 			}, err
 		}
 		characterRequired = false
-	} else if request.GetPlaceBuildingRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.PlaceBuilding(s, request.GetPlaceBuildingRequest())
-			return rpc.Response{
-				Data: &rpc.Response_PlaceBuildingResponse{
-					PlaceBuildingResponse: response,
-				},
-			}, err
-		}
 	} else if request.GetSendChatMessageRequest() != nil {
 		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
 			response, err := p.logic.SendChatMessage(s, request.GetSendChatMessageRequest())

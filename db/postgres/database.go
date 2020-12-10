@@ -5,7 +5,8 @@ import (
 	"abbysoft/gardarike-online/model"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	pg "github.com/lib/pq"
+
+	_ "github.com/lib/pq"
 )
 
 type Database struct {
@@ -60,37 +61,38 @@ func (d *Database) WithTransaction(function transactionFunc, commit bool) error 
 	return nil
 }
 
-func (d *Database) SaveOrUpdate(chunk model.MapChunk, commit bool) error {
+func (d *Database) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
-		_, err := t.NamedExec(
-			`INSERT INTO chunks (x, y, data, trees_count) VALUES (:x, :y, :data, :trees_count)
+		_, err := t.NamedQuery(
+			`INSERT INTO chunks (x, y, data, trees, stones, animals, plants) VALUES 
+                                      (:x, :y, :data, :trees, :stones, :animals, :plants)
 			   ON CONFLICT (x, y) DO UPDATE 
-			   SET trees_count = :trees_count`,
-			chunk)
+			   SET trees = :trees,
+			   stones = :stones,
+			   animals = :animals,
+			   plants = :plants`, chunk)
 
 		return err
 	}, commit)
 }
 
-func (d *Database) GetMapChunk(x, y int64) (result model.MapChunk, err error) {
-	err = d.db.Get(
-		&result,
-		"SELECT * FROM chunks WHERE x=$1 AND y=$2",
-		x, y)
+func (d *Database) GetMapChunk(x, y int64) (result model.WorldMapChunk, err error) {
+	err = d.db.Get(&result, "SELECT * FROM chunks WHERE x=$1 AND y=$2", x, y)
+
 	return
 }
 
 func (d *Database) GetChatMessages(offset int, count int) (result []model.ChatMessage, err error) {
 	err = d.db.Select(&result,
-		"SELECT * FROM chatmessages ORDER BY message_id DESC OFFSET $1 LIMIT $2",
+		"SELECT * FROM chat_messages ORDER BY message_id DESC OFFSET $1 LIMIT $2",
 		offset, count)
 	return
 }
 
 func (d *Database) AddChatMessage(message model.ChatMessage) (id int64, err error) {
 	err = d.db.Get(&id,
-		"INSERT INTO chatmessages (sender_name, text) VALUES ($1, $2) RETURNING message_id",
-		message.SenderName, message.Text)
+		"INSERT INTO chat_messages (sender_name, text) VALUES ($1, $2) RETURNING message_id",
+		message.Sender, message.Text)
 	return
 }
 
@@ -98,69 +100,14 @@ func (d *Database) UpdateCharacter(character model.Character, commit bool) error
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := d.db.NamedExec(
 			`UPDATE characters SET 
-                      name=:name, max_population=:max_population, current_population=:current_population
-			   WHERE id=:id`, &character)
+                      name=:name, max_population=:maxPopulation, current_population=:currentPopulation
+			   WHERE id=:Id`, &character)
 		return err
 	}, commit)
-}
-
-func (d *Database) AddBuildingLocation(buildingLoc model.BuildingLocation, commit bool) error {
-	return d.WithTransaction(func(t *sqlx.Tx) error {
-		_, err := t.Exec(
-			`INSERT INTO buildinglocations (building_id, owner_id, location)
-				VALUES ($1, $2, $3)`, buildingLoc.BuildingID, buildingLoc.OwnerID, pg.Array(buildingLoc.Location))
-
-		return err
-	}, commit)
-}
-
-func (d *Database) GetBuildingLocation(location [3]float32) (result model.BuildingLocation, err error) {
-	row := d.db.QueryRow("SELECT * FROM buildinglocations WHERE location=$1", pg.Array(location))
-
-	var locationArr []float64
-	err = row.Scan(&result.BuildingID, &result.OwnerID, pg.Array(&locationArr))
-	if err == nil {
-		result.Location[0] = float32(locationArr[0])
-		result.Location[1] = float32(locationArr[1])
-		result.Location[2] = float32(locationArr[2])
-	}
-
-	return
-}
-
-func (d *Database) GetBuildings() (result []model.Building, err error) {
-	err = d.db.Select(&result, "SELECT * FROM buildings")
-	return
-}
-
-func (d *Database) GetBuildingLocations() (result []model.BuildingLocation, err error) {
-	rows, err := d.db.Query("SELECT * FROM buildinglocations")
-	if err != nil {
-		return
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-		var location model.BuildingLocation
-		var locationArr []float64
-		err = rows.Scan(&location.BuildingID, &location.OwnerID, pg.Array(&locationArr))
-		if err != nil {
-			return
-		}
-
-		location.Location[0] = float32(locationArr[0])
-		location.Location[1] = float32(locationArr[1])
-		location.Location[2] = float32(locationArr[2])
-		result = append(result, location)
-	}
-
-	err = rows.Err()
-	return
 }
 
 func (d *Database) GetCharacters(accountID int) (result []model.Character, err error) {
-	err = d.db.Select(&result,
-		`SELECT c.* FROM accountcharacters as a
+	err = d.db.Select(&result, `SELECT c.* FROM account_characters as a
     INNER JOIN characters as c
         ON c.id = a.character_id
 WHERE account_id = $1`, accountID)

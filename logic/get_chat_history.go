@@ -6,14 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func toRpcMessages(messages []model.ChatMessage) (result []*rpc.ChatMessage) {
-	for _, message := range messages {
-		result = append(result, message.ToRPC())
-	}
-
-	return
-}
-
 func (s *SimpleLogic) GetChatHistory(session *PlayerSession, request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error) {
 	s.log.WithFields(logrus.Fields{
 		"sessionID": request.SessionID,
@@ -36,7 +28,12 @@ func (s *SimpleLogic) GetChatHistory(session *PlayerSession, request *rpc.GetCha
 		return nil, model.ErrInternalServerError
 	}
 
+	var rpcMessages []*rpc.ChatMessage
+	for _, message := range messages {
+		rpcMessages = append(rpcMessages, message.ToRPC())
+	}
+
 	return &rpc.GetChatHistoryResponse{
-		Messages: toRpcMessages(messages),
+		Messages: rpcMessages,
 	}, nil
 }

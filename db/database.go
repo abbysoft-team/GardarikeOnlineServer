@@ -1,6 +1,8 @@
 package db
 
-import "abbysoft/gardarike-online/model"
+import (
+	"abbysoft/gardarike-online/model"
+)
 
 type CharacterDatabase interface {
 	GetCharacter(id int) (model.Character, error)
@@ -15,14 +17,10 @@ type AccountDatabase interface {
 }
 
 type WorldDatabase interface {
-	GetBuildingLocations() ([]model.BuildingLocation, error)
-	GetBuildings() ([]model.Building, error)
-	GetBuildingLocation(location [3]float32) (model.BuildingLocation, error)
-	AddBuildingLocation(buildingLoc model.BuildingLocation, commit bool) error
 	AddChatMessage(message model.ChatMessage) (int64, error)
 	GetChatMessages(offset int, count int) ([]model.ChatMessage, error)
-	GetMapChunk(x, y int64) (model.MapChunk, error)
-	SaveOrUpdate(chunk model.MapChunk, commit bool) error
+	GetMapChunk(x, y int64) (model.WorldMapChunk, error)
+	SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error
 }
 
 type Database interface {

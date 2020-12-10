@@ -18,19 +18,17 @@ const (
 )
 
 type Logic interface {
-	GetMap(session *PlayerSession, request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error)
+	GetWorldMap(session *PlayerSession, request *rpc.GetWorldMapRequest) (*rpc.GetWorldMapResponse, model.Error)
 	Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error)
 	SelectCharacter(session *PlayerSession, request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error)
-	PlaceBuilding(session *PlayerSession, request *rpc.PlaceBuildingRequest) (*rpc.PlaceBuildingResponse, model.Error)
 	SendChatMessage(session *PlayerSession, request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
 	GetChatHistory(session *PlayerSession, request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error)
 	GetWorkDistribution(session *PlayerSession, request *rpc.GetWorkDistributionRequest) (*rpc.GetWorkDistributionResponse, model.Error)
 }
 
 type SimpleLogic struct {
-	GameMap         rpc.Map
+	GameMap         rpc.WorldMapChunk
 	GameMapMutex    sync.Mutex
-	buildings       map[int]model.Building
 	db              db2.Database
 	log             *logrus.Entry
 	sessions        map[string]*PlayerSession
@@ -51,7 +49,6 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 	}
 
 	logic := &SimpleLogic{
-		buildings:  make(map[int]model.Building),
 		db:         database,
 		log:        logrus.WithField("module", "logic"),
 		sessions:   make(map[string]*PlayerSession),
@@ -74,24 +71,24 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 }
 
 func (s *SimpleLogic) SaveGameMap() error {
-	modelMap, err := model.NewMapChunkFrom(s.GameMap)
-	if err != nil {
-		return fmt.Errorf("failed to create new map chunk: %w", err)
-	}
-
-	return s.db.SaveOrUpdate(modelMap, true)
+	return s.db.SaveOrUpdate(model.NewWorldMapChunkFromRPC(s.GameMap), true)
 }
 
 func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {
 	s.log.Info("Map not found, generating it...")
 
 	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
-	s.GameMap = rpc.Map{
-		Width:      model.MapChunkSize,
-		Height:     model.MapChunkSize,
-		Points:     terrain,
-		Buildings:  nil,
-		TreesCount: 0,
+	s.GameMap = rpc.WorldMapChunk{
+		X:       1,
+		Y:       1,
+		Width:   model.MapChunkSize,
+		Height:  model.MapChunkSize,
+		Data:    terrain,
+		Towns:   []*rpc.Town{},
+		Trees:   0,
+		Stones:  0,
+		Animals: 0,
+		Plants:  0,
 	}
 
 	if err := s.SaveGameMap(); err != nil {
@@ -109,12 +106,12 @@ func (s *SimpleLogic) loadOrGenerateGameMap(generator TerrainGenerator) error {
 		return s.generateGameMap(generator)
 	}
 
-	gameMap, err := mapChunk.ToRPC()
+	rpcChunk, err := mapChunk.ToRPC()
 	if err != nil {
-		return fmt.Errorf("failed to serialize map chunk: %w", err)
+		return fmt.Errorf("failed to convert map chunk to rpc struct: %w", err)
 	}
 
-	s.GameMap = *gameMap
+	s.GameMap = *rpcChunk
 	return nil
 }
 
@@ -125,48 +122,28 @@ func (s *SimpleLogic) init(generator TerrainGenerator) error {
 	}
 
 	s.log.
-		WithField("points", len(s.GameMap.Points)).
-		WithField("treesCount", s.GameMap.TreesCount).
+		WithField("points", len(s.GameMap.Data)).
+		WithField("trees", s.GameMap.Trees).
+		WithField("stones", s.GameMap.Stones).
+		WithField("animas", s.GameMap.Animals).
+		WithField("plants", s.GameMap.Plants).
 		Info("Game map initialized")
 
-	s.log.Info("Loading building locations...")
+	s.log.Info("Loading town locations...")
 
-	// Load building locations
-	buildingLocations, err := s.db.GetBuildingLocations()
-	if err != nil {
-		return fmt.Errorf("failed to init building locations: %w", err)
-	}
+	// Load town locations
+	// TODO
 
-	var rpcBuildings []*rpc.Building
-	for _, building := range buildingLocations {
-		rpcBuildings = append(rpcBuildings, building.ToRPC())
-	}
-
-	s.GameMap.Buildings = rpcBuildings
-
-	s.log.Infof("Loaded %d buildings on the map", len(s.GameMap.Buildings))
-	s.log.Infof("Loading buildings list...")
-
-	// Load buildingLocations
-	buildings, err := s.db.GetBuildings()
-	if err != nil {
-		return fmt.Errorf("failed to init buildings: %w", err)
-	}
-
-	for _, building := range buildings {
-		s.buildings[building.ID] = building
-	}
-
-	s.log.Infof("Loaded %d buildings", len(s.buildings))
+	s.log.Infof("Loaded %d towns on the map", 0)
 	return nil
 }
 
-func (s *SimpleLogic) GetMap(_ *PlayerSession, request *rpc.GetMapRequest) (*rpc.GetMapResponse, model.Error) {
+func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequest) (*rpc.GetWorldMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("GetMap request")
 
-	return &rpc.GetMapResponse{Map: &s.GameMap}, nil
+	return &rpc.GetWorldMapResponse{Map: &s.GameMap}, nil
 }
 
 func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.SelectCharacterRequest) (*rpc.SelectCharacterResponse, model.Error) {

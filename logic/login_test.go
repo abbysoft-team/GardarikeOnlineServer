@@ -13,31 +13,50 @@ type databaseMock struct {
 	getAccountInvocations   int
 }
 
+func (d *databaseMock) GetCharacter(id int) (model.Character, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) AddCharacter(character model.Character, commit bool) error {
+	panic("implement me")
+}
+
+func (d *databaseMock) DeleteCharacter(id int, commit bool) error {
+	panic("implement me")
+}
+
+func (d *databaseMock) UpdateCharacter(character model.Character, commit bool) error {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetAccount(login string) (model.Account, error) {
+	d.getAccountInvocations++
+
+	if login != "test" {
+		return model.Account{}, fmt.Errorf("not found")
+	}
+
+	return model.Account{
+		ID:       1,
+		Login:    "test",
+		Password: "89cb1297f75457552c074c08e8e28a93",
+		Salt:     "salt",
+	}, nil
+}
+
+func (d *databaseMock) GetMapChunk(x, y int64) (model.WorldMapChunk, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error {
+	panic("implement me")
+}
+
 func (d *databaseMock) AddChatMessage(message model.ChatMessage) (int64, error) {
 	panic("implement me")
 }
 
 func (d *databaseMock) GetChatMessages(offset int, count int) ([]model.ChatMessage, error) {
-	panic("implement me")
-}
-
-func (d *databaseMock) UpdateCharacter(character model.Character) error {
-	panic("implement me")
-}
-
-func (d *databaseMock) GetBuildingLocations() ([]model.BuildingLocation, error) {
-	panic("implement me")
-}
-
-func (d *databaseMock) GetBuildings() ([]model.Building, error) {
-	panic("implement me")
-}
-
-func (d *databaseMock) GetBuildingLocation(location [3]float32) (model.BuildingLocation, error) {
-	panic("implement me")
-}
-
-func (d *databaseMock) AddBuildingLocation(buildingLoc model.BuildingLocation) error {
 	panic("implement me")
 }
 
@@ -57,40 +76,13 @@ func (d *databaseMock) GetAccountInvocations() int {
 	return d.getAccountInvocations
 }
 
-func (d *databaseMock) GetCharacter(id int) (model.Character, error) {
-	panic("implement me")
-}
-
-func (d *databaseMock) AddCharacter(character model.Character) error {
-	panic("implement me")
-}
-
-func (d *databaseMock) DeleteCharacter(id int) error {
-	panic("implement me")
-}
-
 func (d *databaseMock) GetCharacters(accountID int) ([]model.Character, error) {
 	d.getCharacterInvocations++
 
 	return []model.Character{
-		{ID: 1, Name: "jack", Gold: 100, MaxPopulation: 10, CurrentPopulation: 10},
-		{2, "lenny", 100, 10, 10},
-		{3, "michel", 100, 10, 10},
-	}, nil
-}
-
-func (d *databaseMock) GetAccount(login string) (model.Account, error) {
-	d.getAccountInvocations++
-
-	if login != "test" {
-		return model.Account{}, fmt.Errorf("not found")
-	}
-
-	return model.Account{
-		ID:       1,
-		Login:    "test",
-		Password: "89cb1297f75457552c074c08e8e28a93",
-		Salt:     "salt",
+		{ID: 1, Name: "jack", MaxPopulation: 10, CurrentPopulation: 10},
+		{2, "lenny", 100, 10},
+		{3, "michel", 100, 10},
 	}, nil
 }
 

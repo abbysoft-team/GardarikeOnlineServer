@@ -32,13 +32,8 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 	chars, err := s.db.GetCharacters(acc.ID)
 	if err != nil {
 		s.log.WithError(err).WithField("accID", acc.ID).
-			Error("Failed to get characters for account", err)
+			Error("Failed to get characters for account")
 		return nil, model.ErrInternalServerError
-	}
-
-	var rpcChars []*rpc.Character
-	for _, char := range chars {
-		rpcChars = append(rpcChars, char.ToRPC())
 	}
 
 	session := NewPlayerSession()
@@ -50,6 +45,11 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 		"login":     acc.Login,
 		"sessionID": session.SessionID,
 	}).Info("User authorized on the server")
+
+	var rpcChars []*rpc.Character
+	for _, char := range chars {
+		rpcChars = append(rpcChars, char.ToRPC())
+	}
 
 	return &rpc.LoginResponse{
 		Characters: rpcChars,

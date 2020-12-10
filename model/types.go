@@ -24,109 +24,113 @@ type Account struct {
 	LastSessionID string `db:"last_session_id"`
 }
 
+type ChatMessage struct {
+	ID     int64
+	Sender string
+	Text   string
+}
+
+func (c ChatMessage) ToRPC() *rpc.ChatMessage {
+	return &rpc.ChatMessage{
+		Id:     c.ID,
+		Sender: c.Sender,
+		Text:   c.Text,
+	}
+}
+
+type Town struct {
+	X          int64
+	Y          int64
+	OwnerName  string
+	Population uint64
+}
+
+func (t Town) ToRPC() *rpc.Town {
+	return &rpc.Town{
+		X:          t.X,
+		Y:          t.Y,
+		OwnerName:  t.OwnerName,
+		Population: t.Population,
+	}
+}
+
+type WorldMapChunk struct {
+	X       int64
+	Y       int64
+	Width   int32
+	Height  int32
+	Data    []byte
+	Towns   []Town
+	Trees   uint64
+	Stones  uint64
+	Animals uint64
+	Plants  uint64
+}
+
+func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) WorldMapChunk {
+	return WorldMapChunk{
+		X:       rpcChunk.X,
+		Y:       rpcChunk.Y,
+		Width:   rpcChunk.Width,
+		Height:  rpcChunk.Height,
+		Data:    nil,
+		Towns:   nil,
+		Trees:   rpcChunk.Trees,
+		Stones:  rpcChunk.Stones,
+		Animals: rpcChunk.Animals,
+		Plants:  rpcChunk.Plants,
+	}
+}
+
+func (w WorldMapChunk) ToRPC() (*rpc.WorldMapChunk, error) {
+	var terrain []float32
+	decoder := gob.NewDecoder(bytes.NewBuffer(w.Data))
+	if err := decoder.Decode(&terrain); err != nil {
+		return nil, fmt.Errorf("failed to decode terrain data: %w", err)
+	}
+
+	mapChunk := &rpc.WorldMapChunk{
+		X:       w.X,
+		Y:       w.Y,
+		Width:   w.Width,
+		Height:  w.Height,
+		Data:    terrain,
+		Towns:   nil,
+		Trees:   w.Trees,
+		Stones:  w.Stones,
+		Animals: w.Animals,
+		Plants:  w.Plants,
+	}
+
+	for _, town := range w.Towns {
+		mapChunk.Towns = append(mapChunk.Towns, town.ToRPC())
+	}
+
+	return mapChunk, nil
+}
+
 type Character struct {
-	ID                int    `db:"id"`
-	Name              string `db:"name"`
+	ID                int64
+	Name              string
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`
 }
 
-type Building struct {
-	ID              int    `db:"id"`
-	Name            string `db:"name"`
-	Cost            uint64 `db:"cost"`
-	PopulationBonus uint64 `db:"population_bonus"`
-}
-
-type BuildingLocation struct {
-	BuildingID int        `db:"building_id"`
-	OwnerID    int        `db:"owner_id"`
-	Location   [3]float32 `db:"location"`
-}
-
-type ChatMessage struct {
-	MessageID  int    `db:"message_id"`
-	SenderName string `db:"sender_name"`
-	Text       string `db:"text"`
-}
-
-func (c *Character) ToRPC() *rpc.Character {
+func (c Character) ToRPC() *rpc.Character {
 	return &rpc.Character{
-		Id:                int32(c.ID),
+		Id:                c.ID,
 		Name:              c.Name,
 		MaxPopulation:     c.MaxPopulation,
 		CurrentPopulation: c.CurrentPopulation,
 	}
 }
 
-func (building BuildingLocation) ToRPC() *rpc.Building {
-	return &rpc.Building{
-		Id:      int64(building.BuildingID),
-		OwnerID: int64(building.OwnerID),
-		Location: &rpc.Vector3D{
-			X: building.Location[0],
-			Y: building.Location[1],
-			Z: building.Location[2],
-		},
-	}
-}
-
-func (message ChatMessage) ToRPC() *rpc.ChatMessage {
-	return &rpc.ChatMessage{
-		Id:     int64(message.MessageID),
-		Sender: message.SenderName,
-		Text:   message.Text,
-	}
-}
-
-func NewChatMessageEvent(message ChatMessage) *rpc.Event {
+func NewChatMessageEvent(message rpc.ChatMessage) *rpc.Event {
 	return &rpc.Event{
 		Payload: &rpc.Event_ChatMessageEvent{
 			ChatMessageEvent: &rpc.NewChatMessageEvent{
-				Message: message.ToRPC(),
+				Message: &message,
 			},
 		},
 	}
-}
-
-type MapChunk struct {
-	X          int64  `db:"x"`
-	Y          int64  `db:"y"`
-	Terrain    []byte `db:"data"`
-	TreesCount int64  `db:"trees_count"`
-}
-
-func (t MapChunk) ToRPC() (*rpc.Map, error) {
-	var terrain []float32
-	decoder := gob.NewDecoder(bytes.NewBuffer(t.Terrain))
-	if err := decoder.Decode(&terrain); err != nil {
-		return nil, fmt.Errorf("failed to decode terrain data: %w", err)
-	}
-
-	return &rpc.Map{
-		Width:      MapChunkSize,
-		Height:     MapChunkSize,
-		Points:     terrain,
-		Buildings:  nil,
-		TreesCount: t.TreesCount,
-	}, nil
-}
-
-func NewMapChunkFrom(rpcMap rpc.Map) (MapChunk, error) {
-	var terrain []byte
-	result := MapChunk{
-		X:          0,
-		Y:          0,
-		TreesCount: rpcMap.TreesCount,
-	}
-
-	buffer := bytes.NewBuffer(terrain)
-	encoder := gob.NewEncoder(buffer)
-
-	if err := encoder.Encode(&rpcMap.Points); err != nil {
-		return MapChunk{}, fmt.Errorf("failed to encode map chunk: %w", err)
-	}
-
-	result.Terrain = buffer.Bytes()
-	return result, nil
 }
