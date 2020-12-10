@@ -10,7 +10,7 @@ service GameServer {
   rpc GetLocalMap(GetLocalMapRequest) returns (GetLocalMapRequest);
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc SelectCharacter(SelectCharacterRequest) returns (SelectCharacterResponse);
-  rpc PlaceBuilding(PlaceBuildingRequest) returns (PlaceBuildingResponse);
+  rpc PlaceTown(PlaceTownRequest) returns (PlaceTownResponse);
   rpc SendChatMessage(SendChatMessageRequest) returns (SendChatMessageResponse);
   rpc GetChatHistory(GetChatHistoryRequest) returns (GetChatHistoryResponse);
 }
@@ -22,11 +22,23 @@ message Request {
     GetWorldMapRequest GetWorldMapRequest = 2;
     LoginRequest loginRequest = 3;
     SelectCharacterRequest selectCharacterRequest = 4;
-    PlaceBuildingRequest placeBuildingRequest = 5;
+    PlaceTownRequest placeTownRequest = 5;
     SendChatMessageRequest sendChatMessageRequest = 6;
     GetChatHistoryRequest getChatHistoryRequest = 7;
     GetWorkDistributionRequest getWorkDistributionRequest = 8;
+    CreateAccountRequest createAccountRequest = 9;
   }
+}
+
+message CreateAccountRequest {
+  string login = 2;
+  string password = 3;
+}
+
+message PlaceTownRequest {
+  string sessionID = 1;
+  Vector2D location = 2;
+  string name = 3;
 }
 
 message GetWorkDistributionRequest {
@@ -44,12 +56,6 @@ message GetChatHistoryRequest {
 message SendChatMessageRequest {
   string sessionID = 1;
   string text = 2;
-}
-
-message PlaceBuildingRequest {
-  string sessionID = 1;
-  int64 buildingID = 2;
-  Vector3D location = 3;
 }
 
 message GetWorldMapRequest {
@@ -80,12 +86,17 @@ message Response {
     LoginResponse loginResponse = 4;
     MultipartResponse multipartResponse = 5;
     SelectCharacterResponse selectCharacterResponse = 6;
-    PlaceBuildingResponse placeBuildingResponse = 7;
+    PlaceTownResponse placeTownResponse = 7;
     SendChatMessageResponse sendChatMessageResponse = 8;
     GetChatHistoryResponse getChatHistoryResponse = 9;
     ChatMessagePublishResponse chatMessagePublishResponse = 10;
     GetWorkDistributionResponse getWorkDistributionResponse = 11;
+    CreateAccountResponse createAccountResponse = 12;
   }
+}
+
+message CreateAccountResponse {
+  int32 id = 1;
 }
 
 message GetWorkDistributionResponse {
@@ -104,7 +115,7 @@ message SendChatMessageResponse {
   int64 messageID = 1;
 }
 
-message PlaceBuildingResponse {
+message PlaceTownResponse {
 
 }
 
@@ -151,6 +162,11 @@ message Vector3D {
   float z = 3;
 }
 
+message Vector2D {
+  int64 x = 1;
+  int64 y = 2;
+}
+
 // Local map is a map of a concrete village
 message LocalMap {
   repeated Building buildings = 4;
@@ -174,6 +190,7 @@ message WorldMapChunk {
 message Town {
   int64 x = 1;
   int64 y = 2;
+  string name = 3;
   string ownerName = 4;
   uint64 population = 5;
 }

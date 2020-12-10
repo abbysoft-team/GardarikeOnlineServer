@@ -43,12 +43,14 @@ type Town struct {
 	Y          int64
 	OwnerName  string
 	Population uint64
+	Name       string
 }
 
 func (t Town) ToRPC() *rpc.Town {
 	return &rpc.Town{
 		X:          t.X,
 		Y:          t.Y,
+		Name:       t.Name,
 		OwnerName:  t.OwnerName,
 		Population: t.Population,
 	}

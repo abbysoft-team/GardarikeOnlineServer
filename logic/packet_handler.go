@@ -100,6 +100,15 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 				},
 			}, err
 		}
+	} else if request.GetCreateAccountRequest() != nil {
+		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.CreateAccount(s, request.GetCreateAccountRequest())
+			return rpc.Response{
+				Data: &rpc.Response_CreateAccountResponse{
+					CreateAccountResponse: response,
+				},
+			}, err
+		}
 	} else {
 		requestErr = model.ErrBadRequest
 	}

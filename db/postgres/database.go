@@ -38,6 +38,21 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) AddAccount(login string, password string, salt string) (id int, err error) {
+	account := model.Account{
+		ID:            0,
+		Login:         login,
+		Password:      password,
+		Salt:          "",
+		IsOnline:      false,
+		LastSessionID: "",
+	}
+
+	err = d.db.Get(&id,
+		"INSERT INTO accounts VALUES (DEFAULT, :login, :password, :salt, DEFAULT, DEFAULT) RETURNING id", account)
+	return
+}
+
 func (d *Database) WithTransaction(function transactionFunc, commit bool) error {
 	if d.tx == nil {
 		if err := d.beginTransaction(); err != nil {

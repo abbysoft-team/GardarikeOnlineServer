@@ -14,6 +14,7 @@ type CharacterDatabase interface {
 
 type AccountDatabase interface {
 	GetAccount(login string) (model.Account, error)
+	AddAccount(login string, password string, salt string) (int, error)
 }
 
 type WorldDatabase interface {
