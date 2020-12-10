@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	rpc "abbysoft/gardarike-online/rpc/generated"
+	"fmt"
+)
 
 type Error interface {
 	error
@@ -21,10 +24,10 @@ func (e SimpleError) GetCode() int {
 	return e.Code
 }
 
-func NewError(message string, code int) Error {
+func NewError(message string, code rpc.Error) Error {
 	return SimpleError{
 		Message: message,
-		Code:    code,
+		Code:    int(code),
 	}
 }
 
@@ -32,15 +35,11 @@ func (e SimpleError) Error() string {
 	return fmt.Sprintf("%s (%d)", e.Message, e.Code)
 }
 
-var ErrInternalServerError = NewError("internal server error", 1)
-var ErrInvalidUserPassword = NewError("invalid username/password combination", 2)
-var ErrNotAuthorized = NewError("user not authorized", 3)
-var ErrCharacterNotFound = NewError("character not found", 4)
-var ErrBuildingNotFound = NewError("building not found", 5)
-
-//var ErrNoEnoughMoney = NewError("no enough money", 6)
-var ErrBuildingSpotIsBusy = NewError("building spot is busy", 7)
-var ErrBadRequest = NewError("bad request", 8)
-var ErrCharacterNotSelected = NewError("character not selected", 9)
-var ErrMessageTooLong = NewError("chat message too long", 10)
-var ErrUsernameIsTaken = NewError("username is already registered", 11)
+var ErrInternalServerError = NewError("internal server error", rpc.Error_INTERNAL_SERVER_ERROR)
+var ErrInvalidUserPassword = NewError("invalid username/password combination", rpc.Error_INVALID_PASSWORD)
+var ErrNotAuthorized = NewError("user not authorized", rpc.Error_NOT_AUTHORIZED)
+var ErrCharacterNotFound = NewError("character not found", rpc.Error_CHARACTER_NOT_FOUND)
+var ErrBadRequest = NewError("bad request", rpc.Error_BAD_REQUEST)
+var ErrCharacterNotSelected = NewError("character not selected", rpc.Error_CHARACTER_NOT_SELECTED)
+var ErrMessageTooLong = NewError("chat message too long", rpc.Error_MESSAGE_TOO_LONG)
+var ErrUsernameIsTaken = NewError("username is already registered", rpc.Error_USERNAME_IS_ALREADY_TAKEN)
