@@ -34,7 +34,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		response.Data = &rpc.Response_ErrorResponse{
 			ErrorResponse: &rpc.ErrorResponse{
 				Message: model.ErrBadRequest.GetMessage(),
-				Code:    int64(model.ErrBadRequest.GetCode()),
+				Code:    rpc.Error(model.ErrBadRequest.GetCode()),
 			},
 		}
 
@@ -109,6 +109,9 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 				},
 			}, err
 		}
+
+		authorizationRequired = false
+		characterRequired = false
 	} else {
 		requestErr = model.ErrBadRequest
 	}
@@ -157,7 +160,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 			Data: &rpc.Response_ErrorResponse{
 				ErrorResponse: &rpc.ErrorResponse{
 					Message: requestErr.GetMessage(),
-					Code:    int64(requestErr.GetCode()),
+					Code:    rpc.Error(requestErr.GetCode()),
 				},
 			},
 		}

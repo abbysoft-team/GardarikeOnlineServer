@@ -116,6 +116,7 @@ type Character struct {
 	Name              string
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`
+	Towns             []Town
 }
 
 func (c Character) ToRPC() *rpc.Character {
