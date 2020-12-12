@@ -22,6 +22,7 @@ type WorldDatabase interface {
 	GetChatMessages(offset int, count int) ([]model.ChatMessage, error)
 	GetMapChunk(x, y int64) (model.WorldMapChunk, error)
 	SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error
+	GetTowns(ownerName string) ([]model.Town, error)
 }
 
 type Database interface {

@@ -72,6 +72,11 @@ func (d *Database) WithTransaction(function transactionFunc, commit bool) error 
 	return nil
 }
 
+func (d *Database) GetTowns(ownerName string) (result []model.Town, err error) {
+	err = d.db.Select(&result, "SELECT * FROM towns WHERE owner_name=$1", ownerName)
+	return
+}
+
 func (d *Database) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := t.NamedQuery(
@@ -132,7 +137,8 @@ func (d *Database) GetAccount(login string) (result model.Account, err error) {
 }
 
 func (d *Database) GetCharacter(id int64) (result model.Character, err error) {
-	err = d.db.Get(&result, "SELECT * FROM characters WHERE id = $1", id)
+	err = d.db.Get(&result,
+		"SELECT c.* FROM characters c WHERE c.id = $1", id)
 	return
 }
 

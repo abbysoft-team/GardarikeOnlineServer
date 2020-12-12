@@ -161,11 +161,23 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		return nil, model.ErrNotAuthorized
 	}
 
+	towns, err := s.db.GetTowns(char.Name)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to get character's towns")
+	} else {
+		char.Towns = towns
+	}
+
 	session.SelectedCharacter = &char
 	s.log.WithFields(logrus.Fields{
 		"sessionID": request.GetSessionID(),
 		"character": char,
 	}).Info("User selected character")
 
-	return &rpc.SelectCharacterResponse{}, nil
+	response := &rpc.SelectCharacterResponse{}
+	for _, town := range char.Towns {
+		response.Towns = append(response.Towns, town.ToRPC())
+	}
+
+	return response, nil
 }

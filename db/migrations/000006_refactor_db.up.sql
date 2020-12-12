@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS towns
 (
     x          int         NOT NULL,
     y          int         NOT NULL,
+    name       varchar(40) NOT NULL,
     owner_name varchar(25) NOT NULL,
     population int         NOT NULL DEFAULT 0,
 
