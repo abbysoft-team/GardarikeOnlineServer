@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 
-	_ "github.com/lib/pq"
+	pq "github.com/lib/pq"
 )
 
 type Database struct {
@@ -41,6 +41,11 @@ type transactionFunc func(t *sqlx.Tx) error
 func (d *Database) AddAccount(login string, password string, salt string) (id int, err error) {
 	err = d.db.Get(&id,
 		"INSERT INTO accounts VALUES (DEFAULT, $1, $2, $3, DEFAULT, DEFAULT) RETURNING id", login, password, salt)
+	if pqErr, ok := err.(*pq.Error); ok {
+		if pqErr.Code == "23505" { // Unique key constraint
+			return 0, db.ErrDuplicatedUniqueKey
+		}
+	}
 	return
 }
 

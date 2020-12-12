@@ -1,10 +1,10 @@
 package logic
 
 import (
+	"abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"errors"
-	"github.com/mattn/go-sqlite3"
 	"math/rand"
 	"time"
 )
@@ -27,7 +27,7 @@ func (s *SimpleLogic) CreateAccount(session *PlayerSession, request *rpc.CreateA
 	salt := randStringBytes(10)
 	id, err := s.db.AddAccount(request.Login, request.Password, salt)
 
-	if err != nil && errors.Is(err, sqlite3.ErrConstraint) {
+	if err != nil && errors.Is(err, db.ErrDuplicatedUniqueKey) {
 		return nil, model.ErrUsernameIsTaken
 	} else if err != nil {
 		s.log.WithError(err).Error("Failed to add new account to the db")
