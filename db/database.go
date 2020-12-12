@@ -5,10 +5,10 @@ import (
 )
 
 type CharacterDatabase interface {
-	GetCharacter(id int) (model.Character, error)
+	GetCharacter(id int64) (model.Character, error)
 	AddCharacter(character model.Character, commit bool) error
-	DeleteCharacter(id int, commit bool) error
-	GetCharacters(accountID int) ([]model.Character, error)
+	DeleteCharacter(id int64, commit bool) error
+	GetCharacters(accountID int64) ([]model.Character, error)
 	UpdateCharacter(character model.Character, commit bool) error
 }
 

@@ -3,7 +3,7 @@ package logic
 import (
 	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
-	"fmt"
+	"database/sql"
 	log "github.com/sirupsen/logrus"
 	"testing"
 )
@@ -13,7 +13,11 @@ type databaseMock struct {
 	getAccountInvocations   int
 }
 
-func (d *databaseMock) GetCharacter(id int) (model.Character, error) {
+func (d *databaseMock) AddAccount(login string, password string, salt string) (int, error) {
+	panic("implement me")
+}
+
+func (d *databaseMock) GetCharacter(id int64) (model.Character, error) {
 	panic("implement me")
 }
 
@@ -21,7 +25,7 @@ func (d *databaseMock) AddCharacter(character model.Character, commit bool) erro
 	panic("implement me")
 }
 
-func (d *databaseMock) DeleteCharacter(id int, commit bool) error {
+func (d *databaseMock) DeleteCharacter(id int64, commit bool) error {
 	panic("implement me")
 }
 
@@ -33,7 +37,7 @@ func (d *databaseMock) GetAccount(login string) (model.Account, error) {
 	d.getAccountInvocations++
 
 	if login != "test" {
-		return model.Account{}, fmt.Errorf("not found")
+		return model.Account{}, sql.ErrNoRows
 	}
 
 	return model.Account{
@@ -76,13 +80,13 @@ func (d *databaseMock) GetAccountInvocations() int {
 	return d.getAccountInvocations
 }
 
-func (d *databaseMock) GetCharacters(accountID int) ([]model.Character, error) {
+func (d *databaseMock) GetCharacters(accountID int64) ([]model.Character, error) {
 	d.getCharacterInvocations++
 
 	return []model.Character{
-		{ID: 1, Name: "jack", MaxPopulation: 10, CurrentPopulation: 10},
-		{2, "lenny", 100, 10},
-		{3, "michel", 100, 10},
+		{ID: 1, AccountID: 1, Name: "jack", MaxPopulation: 10, CurrentPopulation: 10},
+		{2, 1, "lenny", 100, 10, nil},
+		{3, 1, "michel", 100, 10, nil},
 	}, nil
 }
 
@@ -90,6 +94,8 @@ func newLogicMock() (*SimpleLogic, *databaseMock) {
 	var s SimpleLogic
 	var db databaseMock
 	s.db = &db
+	s.sessions = make(map[string]*PlayerSession)
+
 	s.log = log.WithField("module", "test")
 
 	return &s, &db
@@ -105,8 +111,8 @@ func TestSimpleLogic_Login_InvalidUsername(t *testing.T) {
 	}
 
 	_, err := logic.Login(request)
-	if err == nil || err.Error() != invalidAccError {
-		t.Fatalf("Login expected to return invalid acc error but err is %v", err)
+	if err == nil || err != model.ErrInvalidUserPassword {
+		t.Fatalf("Login expected to return ErrInvalidUserPassword error but err is %v", err)
 	}
 
 	if invocs := db.GetAccountInvocations(); invocs != 1 {
@@ -122,8 +128,8 @@ func TestSimpleLogic_Login_InvalidPassword(t *testing.T) {
 	}
 
 	_, err := logic.Login(request)
-	if err == nil || err.Error() != invalidAccError {
-		t.Fatalf("Login expected to return invalid acc error but err is %v", err)
+	if err == nil || err != model.ErrInvalidUserPassword {
+		t.Fatalf("Login expected to return ErrInvalidUserPassword error but err is %v", err)
 	}
 
 	if invocs := db.GetAccountInvocations(); invocs != 1 {

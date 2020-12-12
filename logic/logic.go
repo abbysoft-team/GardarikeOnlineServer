@@ -152,9 +152,13 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		WithField("sessionID", request.GetSessionID()).
 		Infof("SelectCharacter request")
 
-	char, err := s.db.GetCharacter(int(request.GetCharacterID()))
+	char, err := s.db.GetCharacter(request.GetCharacterID())
 	if err != nil {
 		return nil, model.ErrCharacterNotFound
+	}
+
+	if char.AccountID != session.AccountID {
+		return nil, model.ErrNotAuthorized
 	}
 
 	session.SelectedCharacter = &char

@@ -35,6 +35,6 @@ func (s *SimpleLogic) CreateAccount(session *PlayerSession, request *rpc.CreateA
 	}
 
 	return &rpc.CreateAccountResponse{
-		Id: int32(id),
+		Id: int64(id),
 	}, nil
 }

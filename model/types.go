@@ -16,7 +16,7 @@ type EventWrapper struct {
 }
 
 type Account struct {
-	ID            int    `db:"id"`
+	ID            int64  `db:"id"`
 	Login         string `db:"login"`
 	Password      string `db:"password"`
 	Salt          string `db:"salt"`
@@ -113,6 +113,7 @@ func (w WorldMapChunk) ToRPC() (*rpc.WorldMapChunk, error) {
 
 type Character struct {
 	ID                int64
+	AccountID         int64
 	Name              string
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`

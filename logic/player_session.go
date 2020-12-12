@@ -10,13 +10,14 @@ import (
 
 type PlayerSession struct {
 	SessionID         string
+	AccountID         int64
 	SelectedCharacter *model.Character
 	Mutex             sync.Mutex
 	LastRequestTime   time.Time
 	WorkDistribution  rpc.GetWorkDistributionResponse
 }
 
-func NewPlayerSession() *PlayerSession {
+func NewPlayerSession(accountID int64) *PlayerSession {
 	return &PlayerSession{
 		SessionID:         uuid.New().String(),
 		SelectedCharacter: nil,

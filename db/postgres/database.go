@@ -117,7 +117,7 @@ func (d *Database) UpdateCharacter(character model.Character, commit bool) error
 	}, commit)
 }
 
-func (d *Database) GetCharacters(accountID int) (result []model.Character, err error) {
+func (d *Database) GetCharacters(accountID int64) (result []model.Character, err error) {
 	err = d.db.Select(&result, `SELECT c.* FROM account_characters as a
     INNER JOIN characters as c
         ON c.id = a.character_id
@@ -131,7 +131,7 @@ func (d *Database) GetAccount(login string) (result model.Account, err error) {
 	return
 }
 
-func (d *Database) GetCharacter(id int) (result model.Character, err error) {
+func (d *Database) GetCharacter(id int64) (result model.Character, err error) {
 	err = d.db.Get(&result, "SELECT * FROM characters WHERE id = $1", id)
 	return
 }
@@ -143,7 +143,7 @@ func (d *Database) AddCharacter(character model.Character, commit bool) error {
 	}, commit)
 }
 
-func (d *Database) DeleteCharacter(id int, commit bool) error {
+func (d *Database) DeleteCharacter(id int64, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := d.db.Exec("DELETE FROM characters WHERE id = $1", id)
 		return err

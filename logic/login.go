@@ -36,7 +36,7 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 		return nil, model.ErrInternalServerError
 	}
 
-	session := NewPlayerSession()
+	session := NewPlayerSession(acc.ID)
 
 	s.sessions[session.SessionID] = session
 
