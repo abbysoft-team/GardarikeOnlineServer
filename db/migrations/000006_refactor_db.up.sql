@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS towns
 );
 
 DROP TABLE IF EXISTS chunks;
-CREATE TABLE chunk
+CREATE TABLE chunks
 (
     x           int NOT NULL,
     y           int NOT NULL,
