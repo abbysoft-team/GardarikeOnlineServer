@@ -10,6 +10,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func saltPassword(password, salt string) string {
+	hashedPass := md5.Sum([]byte(password))
+	saltedHash := fmt.Sprintf("%s%x%s", salt, string(hashedPass[:]), salt)
+	finalPass := md5.Sum([]byte(saltedHash))
+
+	return fmt.Sprintf("%x", string(finalPass[:]))
+}
+
 func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error) {
 	s.log.WithField("login", request.GetUsername()).Info("Login request")
 
@@ -21,11 +29,7 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 		return nil, model.ErrInternalServerError
 	}
 
-	hashedPass := md5.Sum([]byte(request.Password))
-	saltedHash := fmt.Sprintf("%s%x%s", acc.Salt, string(hashedPass[:]), acc.Salt)
-	finalPass := md5.Sum([]byte(saltedHash))
-
-	if fmt.Sprintf("%x", string(finalPass[:])) != acc.Password {
+	if saltPassword(request.Password, acc.Salt) != acc.Password {
 		return nil, model.ErrInvalidUserPassword
 	}
 

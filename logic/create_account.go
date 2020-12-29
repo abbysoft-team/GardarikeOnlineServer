@@ -25,7 +25,9 @@ func (s *SimpleLogic) CreateAccount(session *PlayerSession, request *rpc.CreateA
 	s.log.WithField("login", request.Login).Info("CreateAccount")
 
 	salt := randStringBytes(10)
-	id, err := s.db.AddAccount(request.Login, request.Password, salt)
+	saltedPass := saltPassword(request.Password, salt)
+
+	id, err := s.db.AddAccount(request.Login, saltedPass, salt)
 
 	if err != nil && errors.Is(err, db.ErrDuplicatedUniqueKey) {
 		return nil, model.ErrUsernameIsTaken
