@@ -24,7 +24,4 @@ func TestLoginSuccessful(t *testing.T) {
 	if !assert.NotNil(t, loginResponse, "Response is nil") {
 		return
 	}
-
-	assert.NotNil(t, loginResponse.Characters, "Characters is nil")
-	assert.NotZero(t, len(loginResponse.Characters), "Zero characters returned")
 }
