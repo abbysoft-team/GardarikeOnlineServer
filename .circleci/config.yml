@@ -1,5 +1,14 @@
 version: 2
 jobs:
+  test:
+    docker:
+      - image: jorgenpo/gardarike-online
+    working_directory: /test
+    steps:
+      - checkout
+
+      - run: make generate
+      - run: go test ./...
   build:
     docker:
       - image: jorgenpo/gardarike-online
@@ -19,4 +28,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      - test
+      - build:
+          requires:
+            - test
