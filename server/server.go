@@ -85,7 +85,7 @@ func (s *Server) publishEvent(event model.EventWrapper) {
 	}
 
 	if _, err := s.eventSock.SendMessageDontwait(event.Topic, string(bytes)); err != nil {
-		logger.WithError(err).Error("Failed to push server event: %v", err)
+		logger.WithError(err).Error("Failed to push server event")
 	} else {
 		logger.WithField("payload", event.Event).Info("EventWrapper published to the clients")
 	}
