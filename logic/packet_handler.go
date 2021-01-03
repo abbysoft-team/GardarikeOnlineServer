@@ -63,6 +63,8 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 				},
 			}, err
 		}
+
+		characterRequired = false
 	} else if request.GetSelectCharacterRequest() != nil {
 		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
 			response, err := p.logic.SelectCharacter(s, request.GetSelectCharacterRequest())
