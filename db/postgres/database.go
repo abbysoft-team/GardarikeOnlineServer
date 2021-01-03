@@ -38,6 +38,11 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) AddAccountCharacter(characterID, accountID int) error {
+	_, err := d.db.Exec("INSERT INTO account_characters VALUES ($1, $2)", accountID, characterID)
+	return err
+}
+
 func (d *Database) AddAccount(login string, password string, salt string) (id int, err error) {
 	err = d.db.Get(&id,
 		"INSERT INTO accounts VALUES (DEFAULT, $1, $2, $3, DEFAULT, DEFAULT) RETURNING id", login, password, salt)

@@ -159,7 +159,7 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 	}
 
 	if char.AccountID != session.AccountID {
-		return nil, model.ErrNotAuthorized
+		return nil, model.ErrForbidden
 	}
 
 	towns, err := s.db.GetTowns(char.Name)

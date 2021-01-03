@@ -13,6 +13,10 @@ type databaseMock struct {
 	getAccountInvocations   int
 }
 
+func (d *databaseMock) AddAccountCharacter(characterID, accountID int) error {
+	panic("implement me")
+}
+
 func (d *databaseMock) GetTowns(ownerName string) ([]model.Town, error) {
 	panic("implement me")
 }

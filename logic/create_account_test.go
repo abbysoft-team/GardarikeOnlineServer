@@ -9,10 +9,6 @@ import (
 	"testing"
 )
 
-type DatabaseMock struct {
-	mock.Mock
-}
-
 func TestSimpleLogic_CreateAccount(t *testing.T) {
 	logic, db, session := NewLogicMock()
 	request := &rpc.CreateAccountRequest{
@@ -31,6 +27,8 @@ func TestSimpleLogic_CreateAccount(t *testing.T) {
 	})
 
 	resp, err := logic.CreateAccount(session, request)
+	db.AssertExpectations(t)
+
 	if !assert.NoError(t, err, "request error is not nil") {
 		return
 	}
@@ -53,5 +51,7 @@ func TestSimpleLogic_CreateAccount_AlreadyExists(t *testing.T) {
 		Return(0, db2.ErrDuplicatedUniqueKey)
 
 	_, err := logic.CreateAccount(session, request)
+	db.AssertExpectations(t)
+
 	assert.EqualError(t, err, model.ErrUsernameIsTaken.Error())
 }

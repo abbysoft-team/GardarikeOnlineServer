@@ -7,6 +7,7 @@ import (
 type CharacterDatabase interface {
 	GetCharacter(id int64) (model.Character, error)
 	AddCharacter(name string) (id int, err error)
+	AddAccountCharacter(characterID, accountID int) error
 	DeleteCharacter(id int64, commit bool) error
 	GetCharacters(accountID int64) ([]model.Character, error)
 	UpdateCharacter(character model.Character, commit bool) error

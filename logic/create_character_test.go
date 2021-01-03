@@ -14,9 +14,13 @@ func TestSimpleLogic_CreateCharacter(t *testing.T) {
 		Name: "test",
 	}
 
-	db.On("AddCharacter", "test").Return(1, nil)
+	session.AccountID = 2
 
+	db.On("AddCharacter", "test").Return(1, nil)
+	db.On("AddAccountCharacter", 1, 2).Return(nil)
 	resp, err := logic.CreateCharacter(session, request)
+
+	db.AssertExpectations(t)
 
 	assert.NoError(t, err, "failed to create character")
 	if !assert.NotNil(t, resp) {
@@ -36,6 +40,7 @@ func TestSimpleLogic_CreateCharacter_Error(t *testing.T) {
 		Return(0, errors.New("some error"))
 
 	resp, err := logic.CreateCharacter(session, request)
+	db.AssertExpectations(t)
 
 	assert.EqualError(t, err, model.ErrInternalServerError.Error(), "error isn't internal error")
 	assert.Nil(t, resp)

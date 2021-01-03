@@ -3,6 +3,7 @@ package logic
 import (
 	"abbysoft/gardarike-online/model"
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/mock"
 )
 
 func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
@@ -19,8 +20,18 @@ func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
 	return &s, &db, session
 }
 
+type DatabaseMock struct {
+	mock.Mock
+}
+
+func (d *DatabaseMock) AddAccountCharacter(characterID, accountID int) error {
+	args := d.Called(characterID, accountID)
+	return args.Error(0)
+}
+
 func (d *DatabaseMock) GetCharacter(id int64) (model.Character, error) {
-	panic("implement me")
+	args := d.Called(id)
+	return args.Get(0).(model.Character), args.Error(1)
 }
 
 func (d *DatabaseMock) AddCharacter(name string) (int, error) {
@@ -33,7 +44,8 @@ func (d *DatabaseMock) DeleteCharacter(id int64, commit bool) error {
 }
 
 func (d *DatabaseMock) GetCharacters(accountID int64) ([]model.Character, error) {
-	panic("implement me")
+	args := d.Called(accountID)
+	return args.Get(0).([]model.Character), args.Error(1)
 }
 
 func (d *DatabaseMock) UpdateCharacter(character model.Character, commit bool) error {
@@ -66,5 +78,6 @@ func (d *DatabaseMock) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) erro
 }
 
 func (d *DatabaseMock) GetTowns(ownerName string) ([]model.Town, error) {
-	panic("implement me")
+	args := d.Called(ownerName)
+	return args.Get(0).([]model.Town), args.Error(1)
 }
