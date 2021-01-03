@@ -25,7 +25,7 @@ func (d *databaseMock) GetCharacter(id int64) (model.Character, error) {
 	panic("implement me")
 }
 
-func (d *databaseMock) AddCharacter(character model.Character, commit bool) error {
+func (d *databaseMock) AddCharacter(name string) (int, error) {
 	panic("implement me")
 }
 

@@ -142,11 +142,15 @@ func (d *Database) GetCharacter(id int64) (result model.Character, err error) {
 	return
 }
 
-func (d *Database) AddCharacter(character model.Character, commit bool) error {
-	return d.WithTransaction(func(t *sqlx.Tx) error {
-		_, err := d.db.NamedExec("INSERT INTO characters VALUES (DEFAULT, :name, DEFAULT, DEFAULT)", character)
-		return err
-	}, commit)
+func (d *Database) AddCharacter(name string) (id int, err error) {
+	err = d.db.Get(&id, "INSERT INTO characters VALUES (DEFAULT, $1, DEFAULT, DEFAULT) RETURNING id", name)
+	if pqErr, ok := err.(*pq.Error); ok {
+		if pqErr.Code == "23505" { // Unique key constraint
+			return 0, db.ErrDuplicatedUniqueKey
+		}
+	}
+
+	return
 }
 
 func (d *Database) DeleteCharacter(id int64, commit bool) error {

@@ -24,4 +24,10 @@ func TestLoginSuccessful(t *testing.T) {
 	if !assert.NotNil(t, loginResponse, "Response is nil") {
 		return
 	}
+
+	if !assert.NotEmpty(t, loginResponse.SessionID) {
+		return
+	}
+
+	sessionID = loginResponse.SessionID
 }

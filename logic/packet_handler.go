@@ -112,6 +112,16 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 
 		authorizationRequired = false
 		characterRequired = false
+	} else if request.GetCreateCharacterRequest() != nil {
+		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.CreateCharacter(s, request.GetCreateCharacterRequest())
+			return rpc.Response{
+				Data: &rpc.Response_CreateCharacterResponse{
+					CreateCharacterResponse: response,
+				},
+			}, err
+		}
+		characterRequired = false
 	} else {
 		requestErr = model.ErrBadRequest
 	}
