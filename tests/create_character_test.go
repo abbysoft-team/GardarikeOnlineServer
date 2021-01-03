@@ -1,3 +1,5 @@
+// +build !remote_tests
+
 package tests
 
 import (

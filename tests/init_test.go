@@ -1,3 +1,5 @@
+// +build !remote_tests
+
 package tests
 
 import (
@@ -30,5 +32,10 @@ func TestMain(m *testing.M) {
 	}
 
 	client = testClient
-	os.Exit(m.Run())
+
+	if len(os.Getenv("RUN_REMOTE_TESTS")) > 0 {
+		os.Exit(m.Run())
+	} else {
+		log.Info("Skipping remote tests because RUN_REMOTE_TESTS isn't specified")
+	}
 }
