@@ -21,16 +21,21 @@ service GameServer {
 message Request {
   oneof data {
     GetLocalMapRequest getLocalMapRequest = 1;
-    GetWorldMapRequest GetWorldMapRequest = 2;
+    GetWorldMapRequest getWorldMapRequest = 2;
     LoginRequest loginRequest = 3;
-    SelectCharacterRequest SelectCharacterRequest = 4;
+    SelectCharacterRequest selectCharacterRequest = 4;
     PlaceTownRequest placeTownRequest = 5;
     SendChatMessageRequest sendChatMessageRequest = 6;
     GetChatHistoryRequest getChatHistoryRequest = 7;
     GetWorkDistributionRequest getWorkDistributionRequest = 8;
     CreateAccountRequest createAccountRequest = 9;
     CreateCharacterRequest createCharacterRequest = 10;
+    GetResourcesRequest getResourcesRequest = 11;
   }
+}
+
+message GetResourcesRequest {
+  string sessionID = 1;
 }
 
 message CreateCharacterRequest {
@@ -101,7 +106,19 @@ message Response {
     GetWorkDistributionResponse getWorkDistributionResponse = 11;
     CreateAccountResponse createAccountResponse = 12;
     CreateCharacterResponse createCharacterResponse = 13;
+    GetResourcesResponse getResourcesResponse = 14;
   }
+}
+
+message Resources {
+  uint64 wood = 1;
+  uint64 stone = 2;
+  uint64 food = 3;
+  uint64 leather = 4;
+}
+
+message GetResourcesResponse {
+  Resources resources = 1;
 }
 
 message CreateCharacterResponse {

@@ -6,14 +6,13 @@ import (
 	"testing"
 )
 
-func TestSelectCharacter(t *testing.T) {
-	TestLoginSuccessful(t)
+func TestGetResources(t *testing.T) {
+	TestSelectCharacter(t)
 
 	var request rpc.Request
-	request.Data = &rpc.Request_SelectCharacterRequest{
-		SelectCharacterRequest: &rpc.SelectCharacterRequest{
-			CharacterID: 5,
-			SessionID:   sessionID,
+	request.Data = &rpc.Request_GetResourcesRequest{
+		GetResourcesRequest: &rpc.GetResourcesRequest{
+			SessionID: sessionID,
 		},
 	}
 
@@ -25,7 +24,7 @@ func TestSelectCharacter(t *testing.T) {
 	if !assert.NotNil(t, resp, "response is nil") {
 		return
 	}
-	if !assert.NotNil(t, resp.GetSelectCharacterResponse(), "response isn't a select character response") {
+	if !assert.NotNil(t, resp.GetGetResourcesResponse(), "response isn't a get resources response") {
 		return
 	}
 }

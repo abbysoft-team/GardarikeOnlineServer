@@ -38,6 +38,11 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) GetResources(characterID int64) (result model.Resources, err error) {
+	err = d.db.Get(&result, "SELECT * FROM resources WHERE character_id=$1", characterID)
+	return
+}
+
 func (d *Database) AddAccountCharacter(characterID, accountID int) error {
 	_, err := d.db.Exec("INSERT INTO account_characters VALUES ($1, $2)", accountID, characterID)
 	return err

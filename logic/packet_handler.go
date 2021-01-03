@@ -124,6 +124,15 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 			}, err
 		}
 		characterRequired = false
+	} else if request.GetGetResourcesRequest() != nil {
+		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetResources(s, request.GetGetResourcesRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetResourcesResponse{
+					GetResourcesResponse: response,
+				},
+			}, err
+		}
 	} else {
 		requestErr = model.ErrBadRequest
 	}

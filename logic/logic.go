@@ -26,6 +26,7 @@ type Logic interface {
 	GetWorkDistribution(session *PlayerSession, request *rpc.GetWorkDistributionRequest) (*rpc.GetWorkDistributionResponse, model.Error)
 	CreateAccount(session *PlayerSession, request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error)
 	CreateCharacter(session *PlayerSession, request *rpc.CreateCharacterRequest) (*rpc.CreateCharacterResponse, model.Error)
+	GetResources(session *PlayerSession, request *rpc.GetResourcesRequest) (*rpc.GetResourcesResponse, model.Error)
 }
 
 type SimpleLogic struct {

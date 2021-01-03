@@ -24,6 +24,7 @@ type WorldDatabase interface {
 	GetMapChunk(x, y int64) (model.WorldMapChunk, error)
 	SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error
 	GetTowns(ownerName string) ([]model.Town, error)
+	GetResources(characterID int64) (model.Resources, error)
 }
 
 type Database interface {

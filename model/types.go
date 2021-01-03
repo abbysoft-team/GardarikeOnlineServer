@@ -138,3 +138,20 @@ func NewChatMessageEvent(message rpc.ChatMessage) *rpc.Event {
 		},
 	}
 }
+
+type Resources struct {
+	CharacterID int `db:"character_id"`
+	Wood        uint64
+	Food        uint64
+	Stone       uint64
+	Leather     uint64
+}
+
+func (r Resources) ToRPC() *rpc.Resources {
+	return &rpc.Resources{
+		Wood:    r.Wood,
+		Stone:   r.Stone,
+		Food:    r.Food,
+		Leather: r.Leather,
+	}
+}
