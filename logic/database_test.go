@@ -24,12 +24,17 @@ type DatabaseMock struct {
 	mock.Mock
 }
 
+func (d *DatabaseMock) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
+	args := d.Called(resources, commit)
+	return args.Error(0)
+}
+
 func (d *DatabaseMock) GetResources(characterID int64) (model.Resources, error) {
 	args := d.Called(characterID)
 	return args.Get(0).(model.Resources), args.Error(1)
 }
 
-func (d *DatabaseMock) AddAccountCharacter(characterID, accountID int) error {
+func (d *DatabaseMock) AddAccountCharacter(characterID, accountID int, commit bool) error {
 	args := d.Called(characterID, accountID)
 	return args.Error(0)
 }
@@ -39,7 +44,7 @@ func (d *DatabaseMock) GetCharacter(id int64) (model.Character, error) {
 	return args.Get(0).(model.Character), args.Error(1)
 }
 
-func (d *DatabaseMock) AddCharacter(name string) (int, error) {
+func (d *DatabaseMock) AddCharacter(name string, commit bool) (int, error) {
 	args := d.Called(name)
 	return args.Int(0), args.Error(1)
 }

@@ -6,8 +6,8 @@ import (
 
 type CharacterDatabase interface {
 	GetCharacter(id int64) (model.Character, error)
-	AddCharacter(name string) (id int, err error)
-	AddAccountCharacter(characterID, accountID int) error
+	AddCharacter(name string, commit bool) (id int, err error)
+	AddAccountCharacter(characterID, accountID int, commit bool) error
 	DeleteCharacter(id int64, commit bool) error
 	GetCharacters(accountID int64) ([]model.Character, error)
 	UpdateCharacter(character model.Character, commit bool) error
@@ -24,6 +24,7 @@ type WorldDatabase interface {
 	GetMapChunk(x, y int64) (model.WorldMapChunk, error)
 	SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error
 	GetTowns(ownerName string) ([]model.Town, error)
+	AddResourcesOrUpdate(resources model.Resources, commit bool) error
 	GetResources(characterID int64) (model.Resources, error)
 }
 

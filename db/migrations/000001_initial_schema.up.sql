@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS accounts
 CREATE TABLE IF NOT EXISTS accountCharacters
 (
     account_id   int NOT NULL,
-    character_id int NOT NULL
+    character_id int NOT NULL,
+    UNIQUE (account_id, character_id)
 );
 
 CREATE TABLE IF NOT EXISTS buildings

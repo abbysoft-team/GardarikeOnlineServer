@@ -19,6 +19,7 @@ type PlayerSession struct {
 
 func NewPlayerSession(accountID int64) *PlayerSession {
 	return &PlayerSession{
+		AccountID:         accountID,
 		SessionID:         uuid.New().String(),
 		SelectedCharacter: nil,
 		LastRequestTime:   time.Now(),

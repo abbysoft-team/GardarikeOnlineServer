@@ -38,14 +38,27 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.NamedExec(
+			`INSERT INTO resources VALUES (:character_id, DEFAULT, DEFAULT, DEFAULT, DEFAULT) 
+ON CONFLICT (character_id) DO UPDATE SET
+stone = :stone, food = :food, leather = :leather, wood = :wood
+`, resources)
+		return err
+	}, commit)
+}
+
 func (d *Database) GetResources(characterID int64) (result model.Resources, err error) {
 	err = d.db.Get(&result, "SELECT * FROM resources WHERE character_id=$1", characterID)
 	return
 }
 
-func (d *Database) AddAccountCharacter(characterID, accountID int) error {
-	_, err := d.db.Exec("INSERT INTO account_characters VALUES ($1, $2)", accountID, characterID)
-	return err
+func (d *Database) AddAccountCharacter(characterID, accountID int, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.Exec("INSERT INTO account_characters VALUES ($1, $2)", accountID, characterID)
+		return err
+	}, commit)
 }
 
 func (d *Database) AddAccount(login string, password string, salt string) (id int, err error) {
@@ -68,8 +81,11 @@ func (d *Database) WithTransaction(function transactionFunc, commit bool) error 
 
 	if err := function(d.tx); err != nil {
 		if rollbackErr := d.tx.Rollback(); rollbackErr != nil {
+			d.tx = nil
 			return fmt.Errorf("%w: (and failed to rollback: %v)", err, rollbackErr)
 		}
+
+		d.tx = nil
 		return err
 	}
 
@@ -152,13 +168,18 @@ func (d *Database) GetCharacter(id int64) (result model.Character, err error) {
 	return
 }
 
-func (d *Database) AddCharacter(name string) (id int, err error) {
-	err = d.db.Get(&id, "INSERT INTO characters VALUES (DEFAULT, $1, DEFAULT, DEFAULT) RETURNING id", name)
-	if pqErr, ok := err.(*pq.Error); ok {
-		if pqErr.Code == "23505" { // Unique key constraint
-			return 0, db.ErrDuplicatedUniqueKey
+func (d *Database) AddCharacter(name string, commit bool) (id int, err error) {
+	err = d.WithTransaction(func(t *sqlx.Tx) error {
+		err = t.Get(&id, "INSERT INTO characters VALUES (DEFAULT, $1, DEFAULT, DEFAULT) RETURNING id", name)
+		if err != nil {
+			if pqErr, ok := err.(*pq.Error); ok {
+				if pqErr.Code == "23505" { // Unique key constraint
+					return db.ErrDuplicatedUniqueKey
+				}
+			}
 		}
-	}
+		return err
+	}, commit)
 
 	return
 }
