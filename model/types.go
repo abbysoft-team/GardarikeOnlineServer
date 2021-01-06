@@ -113,7 +113,7 @@ func (w WorldMapChunk) ToRPC() (*rpc.WorldMapChunk, error) {
 
 type Character struct {
 	ID                int64
-	AccountID         int64
+	AccountID         int64 `db:"account_id"`
 	Name              string
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`

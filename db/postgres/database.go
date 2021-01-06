@@ -164,7 +164,8 @@ func (d *Database) GetAccount(login string) (result model.Account, err error) {
 
 func (d *Database) GetCharacter(id int64) (result model.Character, err error) {
 	err = d.db.Get(&result,
-		"SELECT c.* FROM characters c WHERE c.id = $1", id)
+		`SELECT c.*, ac.account_id FROM characters c 
+    JOIN account_characters ac on c.id = ac.character_id WHERE c.id = $1`, id)
 	return
 }
 
