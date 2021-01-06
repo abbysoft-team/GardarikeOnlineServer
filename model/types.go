@@ -41,7 +41,7 @@ func (c ChatMessage) ToRPC() *rpc.ChatMessage {
 type Town struct {
 	X          int64
 	Y          int64
-	OwnerName  string
+	OwnerName  string `db:"owner_name"`
 	Population uint64
 	Name       string
 }
