@@ -24,6 +24,11 @@ type DatabaseMock struct {
 	mock.Mock
 }
 
+func (d *DatabaseMock) GetResources(characterID int64) (model.Resources, error) {
+	args := d.Called(characterID)
+	return args.Get(0).(model.Resources), args.Error(1)
+}
+
 func (d *DatabaseMock) AddAccountCharacter(characterID, accountID int) error {
 	args := d.Called(characterID, accountID)
 	return args.Error(0)
@@ -53,7 +58,8 @@ func (d *DatabaseMock) UpdateCharacter(character model.Character, commit bool) e
 }
 
 func (d *DatabaseMock) GetAccount(login string) (model.Account, error) {
-	panic("implement me")
+	args := d.Called(login)
+	return args.Get(0).(model.Account), args.Error(1)
 }
 
 func (d *DatabaseMock) AddAccount(login string, password string, salt string) (int, error) {
