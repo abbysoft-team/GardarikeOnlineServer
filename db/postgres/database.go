@@ -106,6 +106,11 @@ func (d *Database) WithTransaction(function transactionFunc, commit bool) error 
 	return nil
 }
 
+func (d *Database) GetAllTowns() (result []model.Town, err error) {
+	err = d.db.Select(&result, "SELECT * FROM towns")
+	return
+}
+
 func (d *Database) GetTowns(ownerName string) (result []model.Town, err error) {
 	err = d.db.Select(&result, "SELECT * FROM towns WHERE owner_name=$1", ownerName)
 	return

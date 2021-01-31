@@ -133,6 +133,19 @@ func (s *SimpleLogic) init(generator TerrainGenerator) error {
 		WithField("plants", s.GameMap.Plants).
 		Info("Game map initialized")
 
+	s.log.Info("Loading towns...")
+
+	towns, err := s.db.GetAllTowns()
+	if err != nil {
+		return fmt.Errorf("failed to load towns: %w", err)
+	}
+
+	for _, town := range towns {
+		s.GameMap.Towns = append(s.GameMap.Towns, town.ToRPC())
+	}
+
+	s.log.Infof("Loaded %d towns on the map", len(s.GameMap.Towns))
+
 	return nil
 }
 

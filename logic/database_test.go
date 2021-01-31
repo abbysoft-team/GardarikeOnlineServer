@@ -24,6 +24,14 @@ type DatabaseMock struct {
 	mock.Mock
 }
 
+func (d *DatabaseMock) GetAllTowns() ([]model.Town, error) {
+	panic("implement me")
+}
+
+func (d *DatabaseMock) AddTown(town model.Town, commit bool) error {
+	panic("implement me")
+}
+
 func (d *DatabaseMock) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
 	args := d.Called(resources, commit)
 	return args.Error(0)
