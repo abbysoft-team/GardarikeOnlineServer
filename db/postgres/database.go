@@ -38,6 +38,14 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) AddTown(town model.Town, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.NamedExec(
+			`INSERT INTO towns VALUES (:x, :y, :owner_name, :population, :name)`, town)
+		return err
+	}, commit)
+}
+
 func (d *Database) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := t.NamedExec(

@@ -26,6 +26,7 @@ type WorldDatabase interface {
 	GetTowns(ownerName string) ([]model.Town, error)
 	AddResourcesOrUpdate(resources model.Resources, commit bool) error
 	GetResources(characterID int64) (model.Resources, error)
+	AddTown(town model.Town, commit bool) error
 }
 
 type Database interface {

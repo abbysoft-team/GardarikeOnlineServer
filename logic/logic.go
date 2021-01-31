@@ -27,6 +27,7 @@ type Logic interface {
 	CreateAccount(session *PlayerSession, request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error)
 	CreateCharacter(session *PlayerSession, request *rpc.CreateCharacterRequest) (*rpc.CreateCharacterResponse, model.Error)
 	GetResources(session *PlayerSession, request *rpc.GetResourcesRequest) (*rpc.GetResourcesResponse, model.Error)
+	PlaceTown(session *PlayerSession, request *rpc.PlaceTownRequest) (*rpc.PlaceTownResponse, model.Error)
 }
 
 type SimpleLogic struct {
@@ -132,12 +133,6 @@ func (s *SimpleLogic) init(generator TerrainGenerator) error {
 		WithField("plants", s.GameMap.Plants).
 		Info("Game map initialized")
 
-	s.log.Info("Loading town locations...")
-
-	// Load town locations
-	// TODO
-
-	s.log.Infof("Loaded %d towns on the map", 0)
 	return nil
 }
 

@@ -133,6 +133,18 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 				},
 			}, err
 		}
+	} else if request.GetPlaceTownRequest() != nil {
+		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.PlaceTown(s, request.GetPlaceTownRequest())
+			return rpc.Response{
+				Data: &rpc.Response_PlaceTownResponse{
+					PlaceTownResponse: response,
+				},
+			}, err
+		}
+
+		characterRequired = true
+		authorizationRequired = true
 	} else {
 		requestErr = model.ErrBadRequest
 	}
