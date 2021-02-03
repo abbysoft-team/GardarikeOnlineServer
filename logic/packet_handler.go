@@ -3,9 +3,11 @@ package logic
 import (
 	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -40,6 +42,8 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 
 		return &response
 	}
+
+	requestName := strings.Split(fmt.Sprintf("%T", request.Data), "_")[1]
 
 	var handleFunc func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error)
 
@@ -187,7 +191,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	}
 
 	if requestErr != nil {
-		p.log.Infof("Sending error response: %v", requestErr.Error())
+		p.log.WithField("requestName", requestName).Infof("Sending error response: %v", requestErr.Error())
 
 		response = rpc.Response{
 			Data: &rpc.Response_ErrorResponse{
