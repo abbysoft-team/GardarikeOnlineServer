@@ -4,6 +4,7 @@ import (
 	db2 "abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/db/postgres"
 	"abbysoft/gardarike-online/model"
+	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"database/sql"
 	"errors"
@@ -85,8 +86,8 @@ func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {
 	s.GameMap = rpc.WorldMapChunk{
 		X:       1,
 		Y:       1,
-		Width:   model.MapChunkSize,
-		Height:  model.MapChunkSize,
+		Width:   consts.MapChunkSize,
+		Height:  consts.MapChunkSize,
 		Data:    terrain,
 		Towns:   []*rpc.Town{},
 		Trees:   0,
@@ -183,6 +184,8 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		"sessionID": request.GetSessionID(),
 		"character": char,
 	}).Info("User selected character")
+
+	s.EventsChan <- model.NewSystemChatMessageEvent(consts.MessageCharacterAuthorized(char.Name))
 
 	response := &rpc.SelectCharacterResponse{}
 	for _, town := range char.Towns {

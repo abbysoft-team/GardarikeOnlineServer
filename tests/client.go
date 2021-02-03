@@ -16,6 +16,7 @@ type Client struct {
 	context     *zmq.Context
 	logger      *log.Entry
 	config      ClientConfig
+	eventChan   chan *rpc.Event
 }
 
 type ClientConfig struct {
@@ -54,13 +55,53 @@ func NewClient(config ClientConfig) (*Client, error) {
 
 	logger := log.WithField("module", "Client")
 
-	return &Client{
+	if err = eventSocket.SetSubscribe("GLOB"); err != nil {
+		return nil, fmt.Errorf("failed to subscribe to GLOB channel: %w", err)
+	}
+
+	if err = eventSocket.Connect(config.ServerEventEndpoint); err != nil {
+		return nil, fmt.Errorf("failed to subscribe to the server events socket: %w", err)
+	}
+
+	client := &Client{
 		socket:      socket,
 		eventSocket: eventSocket,
 		logger:      logger,
 		config:      config,
 		context:     context,
-	}, nil
+		eventChan:   make(chan *rpc.Event, 10),
+	}
+
+	go client.pollEvents()
+
+	return client, nil
+}
+
+func (c *Client) pollEvents() {
+	for {
+		event, err := c.pollEvent()
+		if err != nil {
+			c.logger.Error("Failed to poll event: %w", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+
+		c.eventChan <- event
+	}
+}
+
+func (c *Client) pollEvent() (*rpc.Event, error) {
+	eventParts, err := c.eventSocket.RecvMessage(0)
+	if err != nil {
+		return nil, fmt.Errorf("failed to recv event: %w", err)
+	}
+
+	var event rpc.Event
+	if err = proto.Unmarshal([]byte(eventParts[1]), &event); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal event: %w", err)
+	}
+
+	return &event, nil
 }
 
 func (c *Client) SendMessage(message proto.Message) {

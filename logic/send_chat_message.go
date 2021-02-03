@@ -2,6 +2,7 @@ package logic
 
 import (
 	"abbysoft/gardarike-online/model"
+	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	log "github.com/sirupsen/logrus"
 )
@@ -30,8 +31,8 @@ func (s *SimpleLogic) SendChatMessage(session *PlayerSession, request *rpc.SendC
 	}
 
 	s.EventsChan <- model.EventWrapper{
-		Topic: model.GlobalTopic,
-		Event: model.NewChatMessageEvent(*message.ToRPC()),
+		Topic: consts.GlobalTopic,
+		Event: model.NewChatMessageEvent(message).Event,
 	}
 
 	return &rpc.SendChatMessageResponse{

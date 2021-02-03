@@ -7,9 +7,6 @@ import (
 	"fmt"
 )
 
-const GlobalTopic = "GLOBAL"
-const MapChunkSize = 200
-
 type EventWrapper struct {
 	Topic string
 	Event *rpc.Event
@@ -25,16 +22,25 @@ type Account struct {
 }
 
 type ChatMessage struct {
-	ID     int64
-	Sender string
-	Text   string
+	ID       int64
+	Sender   string
+	Text     string
+	IsSystem bool `db:"is_system"`
 }
 
 func (c ChatMessage) ToRPC() *rpc.ChatMessage {
+	var messageType rpc.ChatMessage_Type
+	if c.IsSystem {
+		messageType = rpc.ChatMessage_SYSTEM
+	} else {
+		messageType = rpc.ChatMessage_NORMAL
+	}
+
 	return &rpc.ChatMessage{
 		Id:     c.ID,
 		Sender: c.Sender,
 		Text:   c.Text,
+		Type:   messageType,
 	}
 }
 
@@ -126,16 +132,6 @@ func (c Character) ToRPC() *rpc.Character {
 		Name:              c.Name,
 		MaxPopulation:     c.MaxPopulation,
 		CurrentPopulation: c.CurrentPopulation,
-	}
-}
-
-func NewChatMessageEvent(message rpc.ChatMessage) *rpc.Event {
-	return &rpc.Event{
-		Payload: &rpc.Event_ChatMessageEvent{
-			ChatMessageEvent: &rpc.NewChatMessageEvent{
-				Message: &message,
-			},
-		},
 	}
 }
 
