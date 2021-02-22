@@ -2,8 +2,10 @@ package logic
 
 import (
 	"abbysoft/gardarike-online/model"
+	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -30,15 +32,14 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 	db.On("GetTowns", character.Name).Return(towns, nil)
 
 	resp, err := logic.SelectCharacter(session, request)
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
+	require.NotNil(t, resp)
+	require.Equal(t, 1, len(logic.EventsChan))
 
-	if !assert.NotNil(t, resp) {
-		return
-	}
+	event := <-logic.EventsChan
+	require.Equal(t, model.NewSystemChatMessageEvent(consts.MessageCharacterAuthorized(character.Name)), event)
 
-	assert.NotEmpty(t, resp.Towns)
+	require.NotEmpty(t, resp.Towns)
 }
 
 func TestSimpleLogic_SelectCharacter_WrongAccount(t *testing.T) {

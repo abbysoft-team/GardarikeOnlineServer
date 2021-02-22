@@ -2,6 +2,7 @@ package main
 
 import (
 	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/generation"
 	"abbysoft/gardarike-online/logic"
 	"abbysoft/gardarike-online/server"
 	"flag"
@@ -71,7 +72,7 @@ func parseServerConfig(config *viper.Viper) (result server.Config, err error) {
 	return
 }
 
-func parseGeneratorConfig(config *viper.Viper) (result logic.TerrainGeneratorConfig, err error) {
+func parseGeneratorConfig(config *viper.Viper) (result generation.TerrainGeneratorConfig, err error) {
 	if config == nil {
 		return result, fmt.Errorf("missing [generator] section in the configuration")
 	}

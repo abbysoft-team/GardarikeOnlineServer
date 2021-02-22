@@ -13,6 +13,7 @@ func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
 	s.sessions = make(map[string]*PlayerSession)
 
 	s.log = log.WithField("module", "test")
+	s.EventsChan = make(chan model.EventWrapper, 1)
 
 	session := NewPlayerSession(1)
 	s.sessions[session.SessionID] = session
