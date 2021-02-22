@@ -4,6 +4,7 @@ import (
 	"abbysoft/gardarike-online/db/postgres"
 	"abbysoft/gardarike-online/generation"
 	"abbysoft/gardarike-online/logic"
+	"abbysoft/gardarike-online/model/consts"
 	"abbysoft/gardarike-online/server"
 	"flag"
 	"fmt"
@@ -26,11 +27,18 @@ func setupLogging() {
 	log.SetLevel(log.DebugLevel)
 }
 
+func setupDefaults() {
+	viper.SetDefault("logic.WaterLevel", consts.DefaultWaterLevel)
+	viper.SetDefault("logic.ChunkSize", consts.DefaultMapChunkSize)
+}
+
 func setupConfig() error {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("configs/")
+
+	setupDefaults()
 
 	return viper.ReadInConfig()
 }

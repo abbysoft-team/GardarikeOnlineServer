@@ -46,6 +46,8 @@ type SimpleLogic struct {
 type Config struct {
 	AFKTimeout           time.Duration
 	ChatMessageMaxLength int
+	WaterLevel           float32
+	ChunkSize            int
 }
 
 func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
@@ -64,7 +66,8 @@ func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.Event
 
 	logic.resourceManager = NewResourceManager(logic)
 
-	logic.log.Info("Initialize logic...")
+	logic.log.WithField("config", config).Info("Initialize logic...")
+
 	if err := logic.init(generator); err != nil {
 		return nil, fmt.Errorf("failed to init data from the DB: %w", err)
 	}
@@ -88,12 +91,12 @@ func (s *SimpleLogic) SaveGameMap() error {
 func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) error {
 	s.log.Info("Map not found, generating it...")
 
-	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
+	terrain := generator.GenerateTerrain(s.config.ChunkSize, s.config.ChunkSize)
 	s.GameMap = rpc.WorldMapChunk{
 		X:       0,
 		Y:       0,
-		Width:   consts.MapChunkSize,
-		Height:  consts.MapChunkSize,
+		Width:   int32(s.config.ChunkSize),
+		Height:  int32(s.config.ChunkSize),
 		Data:    terrain,
 		Towns:   []*rpc.Town{},
 		Trees:   0,
