@@ -75,8 +75,9 @@ type WorldMapChunk struct {
 	Plants  uint64
 }
 
-func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) WorldMapChunk {
-	return WorldMapChunk{
+func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) (WorldMapChunk, error) {
+	var terrain []byte
+	result := WorldMapChunk{
 		X:       rpcChunk.X,
 		Y:       rpcChunk.Y,
 		Width:   rpcChunk.Width,
@@ -88,6 +89,17 @@ func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) WorldMapChunk {
 		Animals: rpcChunk.Animals,
 		Plants:  rpcChunk.Plants,
 	}
+
+	buffer := bytes.NewBuffer(terrain)
+	encoder := gob.NewEncoder(buffer)
+
+	if err := encoder.Encode(&rpcChunk.Data); err != nil {
+		return WorldMapChunk{}, fmt.Errorf("failed to encode map chunk: %w", err)
+	}
+
+	result.Data = buffer.Bytes()
+
+	return result, nil
 }
 
 func (w WorldMapChunk) ToRPC() (*rpc.WorldMapChunk, error) {

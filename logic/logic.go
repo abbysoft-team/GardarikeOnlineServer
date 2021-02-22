@@ -77,7 +77,12 @@ func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.Event
 }
 
 func (s *SimpleLogic) SaveGameMap() error {
-	return s.db.SaveOrUpdate(model.NewWorldMapChunkFromRPC(s.GameMap), true)
+	chunk, err := model.NewWorldMapChunkFromRPC(s.GameMap)
+	if err != nil {
+		return err
+	}
+
+	return s.db.SaveOrUpdate(chunk, true)
 }
 
 func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) error {
@@ -85,8 +90,8 @@ func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) err
 
 	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
 	s.GameMap = rpc.WorldMapChunk{
-		X:       1,
-		Y:       1,
+		X:       0,
+		Y:       0,
 		Width:   consts.MapChunkSize,
 		Height:  consts.MapChunkSize,
 		Data:    terrain,
