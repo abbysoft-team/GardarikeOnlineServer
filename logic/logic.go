@@ -41,7 +41,6 @@ type SimpleLogic struct {
 	EventsChan      chan model.EventWrapper
 	config          Config
 	resourceManager ResourceManager
-	generator       generation.TerrainGenerator
 }
 
 type Config struct {
@@ -61,13 +60,12 @@ func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.Event
 		sessions:   make(map[string]*PlayerSession),
 		EventsChan: eventsChan,
 		config:     config,
-		generator:  generator,
 	}
 
 	logic.resourceManager = NewResourceManager(logic)
 
 	logic.log.Info("Initialize logic...")
-	if err := logic.init(); err != nil {
+	if err := logic.init(generator); err != nil {
 		return nil, fmt.Errorf("failed to init data from the DB: %w", err)
 	}
 	logic.log.Info("Logic initialization is done")
@@ -82,10 +80,10 @@ func (s *SimpleLogic) SaveGameMap() error {
 	return s.db.SaveOrUpdate(model.NewWorldMapChunkFromRPC(s.GameMap), true)
 }
 
-func (s *SimpleLogic) generateGameMap() error {
+func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) error {
 	s.log.Info("Map not found, generating it...")
 
-	terrain := s.generator.GenerateTerrain(mapChunkSize, mapChunkSize)
+	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
 	s.GameMap = rpc.WorldMapChunk{
 		X:       1,
 		Y:       1,
@@ -106,12 +104,12 @@ func (s *SimpleLogic) generateGameMap() error {
 	return nil
 }
 
-func (s *SimpleLogic) loadOrGenerateGameMap() error {
+func (s *SimpleLogic) loadOrGenerateGameMap(generator generation.TerrainGenerator) error {
 	mapChunk, err := s.db.GetMapChunk(0, 0)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("failed to load stored map: %w", err)
 	} else if err != nil {
-		return s.generateGameMap()
+		return s.generateGameMap(generator)
 	}
 
 	rpcChunk, err := mapChunk.ToRPC()
@@ -123,9 +121,9 @@ func (s *SimpleLogic) loadOrGenerateGameMap() error {
 	return nil
 }
 
-func (s *SimpleLogic) init() error {
+func (s *SimpleLogic) init(generator generation.TerrainGenerator) error {
 	s.log.Info("Initializing game map")
-	if err := s.loadOrGenerateGameMap(); err != nil {
+	if err := s.loadOrGenerateGameMap(generator); err != nil {
 		return fmt.Errorf("failed to init game map: %w", err)
 	}
 
@@ -157,10 +155,6 @@ func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequ
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("GetMap request")
-
-	if err := s.generateGameMap(); err != nil {
-		return nil, model.ErrInternalServerError
-	}
 
 	return &rpc.GetWorldMapResponse{Map: &s.GameMap}, nil
 }
