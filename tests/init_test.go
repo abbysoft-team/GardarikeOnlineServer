@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	//serverEndpoint = "tcp://89.108.99.2:27015"
-	serverEndpoint = "tcp://localhost:8500"
-	//serverEventEndpoint = "tcp://89.108.99.2:27016"
-	serverEventEndpoint = "tcp://localhost:8501"
-	requestTimeout      = 1 * time.Second
+	serverEndpoint = "tcp://89.108.99.2:27015"
+	//serverEndpoint = "tcp://localhost:8500"
+	serverEventEndpoint = "tcp://89.108.99.2:27016"
+	//serverEventEndpoint = "tcp://localhost:8501"
+	requestTimeout = 1 * time.Second
 )
 
 var client *Client

@@ -1,4 +1,4 @@
-package logic
+package generation
 
 import (
 	simplex "github.com/ojrac/opensimplex-go"
@@ -45,14 +45,18 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 
 		for y := 0; y < height; y++ {
 			noise := 0.0
-			freq := 1.0
+			freq := 2.0
 
-			for octave := 1; octave <= s.config.Octaves; octave++ {
+			for octave := 0; octave < s.config.Octaves; octave++ {
+				// Freq is always growing
+				freq = math.Pow(2, float64(octave))
+				amplitude := math.Pow(s.config.Persistence, float64(octave))
+
 				nx := float64(x) / float64(width)
 				ny := float64(y) / float64(height)
 
-				noise += (1 / float64(octave)) * generator.Eval2(nx*freq, ny*freq)
-				freq = math.Pow(2, float64(octave))
+				// Multiply by amplitude and map noise value from [-1;1] to [0;1]
+				noise += amplitude * 0.5 * (generator.Eval2(nx*freq, ny*freq) + 1)
 			}
 
 			pixels[x][y] = noise
@@ -69,7 +73,7 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 			} else {
 				normalized = pixels[x][y]
 			}
-			normalized = math.Pow(normalized, s.config.Persistence)
+			//normalized = math.Pow(normalized, s.config.Persistence)
 
 			result = append(result, float32(normalized*s.config.ScaleFactor))
 		}

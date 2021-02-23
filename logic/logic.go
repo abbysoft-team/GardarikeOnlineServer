@@ -3,6 +3,7 @@ package logic
 import (
 	db2 "abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/generation"
 	"abbysoft/gardarike-online/model"
 	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
@@ -45,9 +46,11 @@ type SimpleLogic struct {
 type Config struct {
 	AFKTimeout           time.Duration
 	ChatMessageMaxLength int
+	WaterLevel           float32
+	ChunkSize            int
 }
 
-func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
+func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.EventWrapper, dbConfig postgres.Config, config Config) (*SimpleLogic, error) {
 	database, err := postgres.NewDatabase(dbConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init db: %w", err)
@@ -63,7 +66,8 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 
 	logic.resourceManager = NewResourceManager(logic)
 
-	logic.log.Info("Initialize logic...")
+	logic.log.WithField("config", config).Info("Initialize logic...")
+
 	if err := logic.init(generator); err != nil {
 		return nil, fmt.Errorf("failed to init data from the DB: %w", err)
 	}
@@ -76,18 +80,23 @@ func NewLogic(generator TerrainGenerator, eventsChan chan model.EventWrapper, db
 }
 
 func (s *SimpleLogic) SaveGameMap() error {
-	return s.db.SaveOrUpdate(model.NewWorldMapChunkFromRPC(s.GameMap), true)
+	chunk, err := model.NewWorldMapChunkFromRPC(s.GameMap)
+	if err != nil {
+		return err
+	}
+
+	return s.db.SaveOrUpdate(chunk, true)
 }
 
-func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {
+func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) error {
 	s.log.Info("Map not found, generating it...")
 
-	terrain := generator.GenerateTerrain(mapChunkSize, mapChunkSize)
+	terrain := generator.GenerateTerrain(s.config.ChunkSize, s.config.ChunkSize)
 	s.GameMap = rpc.WorldMapChunk{
-		X:       1,
-		Y:       1,
-		Width:   consts.MapChunkSize,
-		Height:  consts.MapChunkSize,
+		X:       0,
+		Y:       0,
+		Width:   int32(s.config.ChunkSize),
+		Height:  int32(s.config.ChunkSize),
 		Data:    terrain,
 		Towns:   []*rpc.Town{},
 		Trees:   0,
@@ -103,7 +112,7 @@ func (s *SimpleLogic) generateGameMap(generator TerrainGenerator) error {
 	return nil
 }
 
-func (s *SimpleLogic) loadOrGenerateGameMap(generator TerrainGenerator) error {
+func (s *SimpleLogic) loadOrGenerateGameMap(generator generation.TerrainGenerator) error {
 	mapChunk, err := s.db.GetMapChunk(0, 0)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("failed to load stored map: %w", err)
@@ -120,7 +129,7 @@ func (s *SimpleLogic) loadOrGenerateGameMap(generator TerrainGenerator) error {
 	return nil
 }
 
-func (s *SimpleLogic) init(generator TerrainGenerator) error {
+func (s *SimpleLogic) init(generator generation.TerrainGenerator) error {
 	s.log.Info("Initializing game map")
 	if err := s.loadOrGenerateGameMap(generator); err != nil {
 		return fmt.Errorf("failed to init game map: %w", err)

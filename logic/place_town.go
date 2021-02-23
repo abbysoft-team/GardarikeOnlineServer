@@ -2,7 +2,6 @@ package logic
 
 import (
 	"abbysoft/gardarike-online/model"
-	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
@@ -18,8 +17,8 @@ func (s *SimpleLogic) PlaceTown(
 
 	if request.Location == nil {
 		request.Location = &rpc.Vector2D{
-			X: rand.Float32() * consts.MapChunkSize,
-			Y: rand.Float32() * consts.MapChunkSize,
+			X: rand.Float32() * float32(s.config.ChunkSize),
+			Y: rand.Float32() * float32(s.config.ChunkSize),
 		}
 	}
 

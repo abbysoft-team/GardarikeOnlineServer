@@ -2,6 +2,7 @@ package server
 
 import (
 	"abbysoft/gardarike-online/db/postgres"
+	"abbysoft/gardarike-online/generation"
 	"abbysoft/gardarike-online/logic"
 	"abbysoft/gardarike-online/model"
 	"fmt"
@@ -30,7 +31,7 @@ func NewServer(
 	config Config,
 	logicConfig logic.Config,
 	dbConfig postgres.Config,
-	generatorConfig logic.TerrainGeneratorConfig) (*Server, error) {
+	generatorConfig generation.TerrainGeneratorConfig) (*Server, error) {
 	context, err := zmq.NewContext()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create zmq context: %w", err)
@@ -50,7 +51,7 @@ func NewServer(
 
 	eventsChan := make(chan model.EventWrapper, 10)
 	gameLogic, err := logic.NewLogic(
-		logic.NewSimplexTerrainGenerator(generatorConfig),
+		generation.NewSimplexTerrainGenerator(generatorConfig),
 		eventsChan,
 		dbConfig,
 		logicConfig)
