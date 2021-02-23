@@ -93,16 +93,17 @@ func (s *SimpleLogic) generateGameMap(generator generation.TerrainGenerator) err
 
 	terrain := generator.GenerateTerrain(s.config.ChunkSize, s.config.ChunkSize)
 	s.GameMap = rpc.WorldMapChunk{
-		X:       0,
-		Y:       0,
-		Width:   int32(s.config.ChunkSize),
-		Height:  int32(s.config.ChunkSize),
-		Data:    terrain,
-		Towns:   []*rpc.Town{},
-		Trees:   0,
-		Stones:  0,
-		Animals: 0,
-		Plants:  0,
+		X:          0,
+		Y:          0,
+		Width:      int32(s.config.ChunkSize),
+		Height:     int32(s.config.ChunkSize),
+		Data:       terrain,
+		Towns:      []*rpc.Town{},
+		Trees:      0,
+		Stones:     0,
+		Animals:    0,
+		Plants:     0,
+		WaterLevel: s.config.WaterLevel,
 	}
 
 	if err := s.SaveGameMap(); err != nil {
@@ -125,6 +126,7 @@ func (s *SimpleLogic) loadOrGenerateGameMap(generator generation.TerrainGenerato
 		return fmt.Errorf("failed to convert map chunk to rpc struct: %w", err)
 	}
 
+	rpcChunk.WaterLevel = s.config.WaterLevel
 	s.GameMap = *rpcChunk
 	return nil
 }
@@ -186,6 +188,13 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		s.log.WithError(err).Error("Failed to get character's towns")
 	} else {
 		char.Towns = towns
+	}
+
+	resources, err := s.db.GetResources(char.ID)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to get character's resources")
+	} else {
+		char.Resources = resources
 	}
 
 	session.SelectedCharacter = &char

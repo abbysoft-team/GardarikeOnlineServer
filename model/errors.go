@@ -44,3 +44,4 @@ var ErrCharacterNotSelected = NewError("character not selected", rpc.Error_CHARA
 var ErrMessageTooLong = NewError("chat message too long", rpc.Error_MESSAGE_TOO_LONG)
 var ErrUsernameIsTaken = NewError("username is already registered", rpc.Error_USERNAME_IS_ALREADY_TAKEN)
 var ErrForbidden = NewError("action is forbidden", rpc.Error_FORBIDDEN)
+var ErrNotEnoughResources = NewError("not enough resources", rpc.Error_NOT_ENOUGH_RESOURCES)

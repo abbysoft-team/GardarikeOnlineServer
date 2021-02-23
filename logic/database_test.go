@@ -30,7 +30,8 @@ func (d *DatabaseMock) GetAllTowns() ([]model.Town, error) {
 }
 
 func (d *DatabaseMock) AddTown(town model.Town, commit bool) error {
-	panic("implement me")
+	args := d.Called(town, commit)
+	return args.Error(0)
 }
 
 func (d *DatabaseMock) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
@@ -68,7 +69,8 @@ func (d *DatabaseMock) GetCharacters(accountID int64) ([]model.Character, error)
 }
 
 func (d *DatabaseMock) UpdateCharacter(character model.Character, commit bool) error {
-	panic("implement me")
+	args := d.Called(character, commit)
+	return args.Error(0)
 }
 
 func (d *DatabaseMock) GetAccount(login string) (model.Account, error) {

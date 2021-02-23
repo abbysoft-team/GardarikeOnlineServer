@@ -63,7 +63,7 @@ func TestSimpleLogic_Login(t *testing.T) {
 	}
 
 	characters := []model.Character{
-		{1, account.ID, "char", 0, 0, nil},
+		{ID: 1, AccountID: account.ID, Name: "char"},
 	}
 
 	db.On("GetAccount", "test").Return(account, nil)

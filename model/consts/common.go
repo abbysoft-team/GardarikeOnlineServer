@@ -1,6 +1,7 @@
 package consts
 
 const (
-	SystemUserName = "Server"
-	GlobalTopic    = "GLOBAL"
+	SystemUserName      = "Server"
+	GlobalTopic         = "GLOBAL"
+	TownPopulationBonus = 100
 )

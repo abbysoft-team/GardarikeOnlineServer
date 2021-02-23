@@ -225,6 +225,8 @@ message WorldMapChunk {
   uint64 stones = 8;
   uint64 animals = 9;
   uint64 plants = 10;
+
+  float waterLevel = 11;
 }
 
 message Town {
@@ -266,4 +268,5 @@ enum Error {
   MESSAGE_TOO_LONG = 7;
   USERNAME_IS_ALREADY_TAKEN = 8;
   FORBIDDEN = 9;
+  NOT_ENOUGH_RESOURCES = 10;
 }

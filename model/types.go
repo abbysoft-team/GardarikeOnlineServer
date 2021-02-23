@@ -136,6 +136,7 @@ type Character struct {
 	MaxPopulation     uint64 `db:"max_population"`
 	CurrentPopulation uint64 `db:"current_population"`
 	Towns             []Town
+	Resources         Resources
 }
 
 func (c Character) ToRPC() *rpc.Character {
@@ -162,4 +163,34 @@ func (r Resources) ToRPC() *rpc.Resources {
 		Food:    r.Food,
 		Leather: r.Leather,
 	}
+}
+
+// Subtract - decrement resources by the provided values if there is enough
+// resources or do nothing
+// return true if the resources were subtracted
+func (r *Resources) Subtract(resources Resources) bool {
+	if !r.IsEnough(resources) {
+		return false
+	}
+
+	r.Food -= resources.Food
+	r.Wood -= resources.Wood
+	r.Stone -= resources.Stone
+	r.Leather -= resources.Leather
+
+	return true
+}
+
+func (r *Resources) Add(resources Resources) {
+	r.Food += resources.Food
+	r.Wood += resources.Wood
+	r.Stone += resources.Stone
+	r.Leather += resources.Leather
+}
+
+func (r Resources) IsEnough(requested Resources) bool {
+	return r.Food >= requested.Food &&
+		r.Stone >= requested.Stone &&
+		r.Wood >= requested.Wood &&
+		r.Leather >= requested.Leather
 }
