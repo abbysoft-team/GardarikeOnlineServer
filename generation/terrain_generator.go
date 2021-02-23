@@ -47,14 +47,16 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 			noise := 0.0
 			freq := 2.0
 
-			for octave := 1; octave <= s.config.Octaves; octave++ {
-				freq = math.Pow(s.config.Persistence, float64(octave))
-				amplitude := 20.0 / freq
+			for octave := 0; octave < s.config.Octaves; octave++ {
+				// Freq is always growing
+				freq = math.Pow(2, float64(octave))
+				amplitude := math.Pow(s.config.Persistence, float64(octave))
 
 				nx := float64(x) / float64(width)
 				ny := float64(y) / float64(height)
 
-				noise += amplitude * generator.Eval2(nx*freq, ny*freq)
+				// Multiply by amplitude and map noise value from [-1;1] to [0;1]
+				noise += amplitude * 0.5 * (generator.Eval2(nx*freq, ny*freq) + 1)
 			}
 
 			pixels[x][y] = noise
@@ -63,8 +65,8 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 		}
 	}
 
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
 			var normalized float64
 			if s.config.Normalize {
 				normalized = (pixels[x][y] - minNoise) / (maxNoise - minNoise)
