@@ -7,7 +7,16 @@ import (
 
 const (
 	PopulationGrownEventChance = 2.0
-	TreeGrownEventChance       = 2.0
+	ResourceIncrementChance    = 2.0
+)
+
+type ResourceEvent int
+
+var (
+	TreeIncrementedEvent   ResourceEvent = 0
+	StoneIncrementedEvent  ResourceEvent = 1
+	AnimalIncrementedEvent ResourceEvent = 2
+	PlantsIncrementedEvent ResourceEvent = 3
 )
 
 // checkRandomEventHappened - check if the random event of 'chance' percent freq has happened
