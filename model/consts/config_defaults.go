@@ -1,6 +1,7 @@
 package consts
 
 const (
-	DefaultMapChunkSize = 500
-	DefaultWaterLevel   = 0.1
+	DefaultMapChunkSize        = 500
+	DefaultWaterLevel          = 0.1
+	DefaultAlwaysRegenerateMap = false
 )

@@ -4,15 +4,16 @@ import (
 	simplex "github.com/ojrac/opensimplex-go"
 	log "github.com/sirupsen/logrus"
 	"math"
-	"time"
 )
 
 type TerrainGenerator interface {
-	GenerateTerrain(width int, height int) []float32
+	GenerateTerrain(width int, height int, offsetX, offsetY float64) []float32
+	SetSeed(seed int64)
 }
 
 type SimplexTerrainGenerator struct {
-	config TerrainGeneratorConfig
+	config    TerrainGeneratorConfig
+	generator simplex.Noise
 }
 
 type TerrainGeneratorConfig struct {
@@ -22,20 +23,22 @@ type TerrainGeneratorConfig struct {
 	Normalize   bool
 }
 
-func NewSimplexTerrainGenerator(config TerrainGeneratorConfig) SimplexTerrainGenerator {
+func NewSimplexTerrainGenerator(config TerrainGeneratorConfig, seed int64) *SimplexTerrainGenerator {
 	log.WithField("module", "terrain_generator").
 		WithField("config", config).
 		Info("Simplex terrain generator initialized")
 
-	return SimplexTerrainGenerator{
-		config: config,
+	return &SimplexTerrainGenerator{
+		config:    config,
+		generator: simplex.New(seed),
 	}
 }
 
-func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result []float32) {
-	var generator simplex.Noise
-	generator = simplex.New(time.Now().Unix())
+func (s *SimplexTerrainGenerator) SetSeed(seed int64) {
+	s.generator = simplex.New(seed)
+}
 
+func (s SimplexTerrainGenerator) GenerateTerrain(width, height int, offsetX, offsetY float64) (result []float32) {
 	pixels := make([][]float64, width)
 	maxNoise := 0.0
 	minNoise := 0.0
@@ -52,11 +55,11 @@ func (s SimplexTerrainGenerator) GenerateTerrain(width int, height int) (result 
 				freq = math.Pow(2, float64(octave))
 				amplitude := math.Pow(s.config.Persistence, float64(octave))
 
-				nx := float64(x) / float64(width)
-				ny := float64(y) / float64(height)
+				nx := (float64(x) + offsetX) / float64(width)
+				ny := (float64(y) + offsetY) / float64(height)
 
 				// Multiply by amplitude and map noise value from [-1;1] to [0;1]
-				noise += amplitude * 0.5 * (generator.Eval2(nx*freq, ny*freq) + 1)
+				noise += amplitude * (s.generator.Eval2(nx*freq, ny*freq))
 			}
 
 			pixels[x][y] = noise
