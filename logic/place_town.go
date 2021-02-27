@@ -28,8 +28,10 @@ func (s *SimpleLogic) PlaceTown(
 		"name":      request.Name,
 	}).Info("PlaceTown")
 
+	isFirstTown := len(session.SelectedCharacter.Towns) == 0
+
 	// First town is free but other cost money
-	if len(session.SelectedCharacter.Towns) > 0 {
+	if !isFirstTown {
 		if !canPlaceTown(*session.SelectedCharacter) {
 			return nil, model.ErrNotEnoughResources
 		}
@@ -69,22 +71,25 @@ func (s *SimpleLogic) PlaceTown(
 		Name:       request.Name,
 	}
 
-	session.SelectedCharacter.MaxPopulation += consts.TownPopulationBonus
-	session.SelectedCharacter.Resources.Subtract(model.ResourcesPlaceTown)
-
 	if err := s.db.AddTown(town, false); err != nil {
 		s.log.WithError(err).Error("Failed to add town")
 		return nil, model.ErrInternalServerError
 	}
+
+	session.SelectedCharacter.MaxPopulation += consts.TownPopulationBonus
 
 	if err := s.db.UpdateCharacter(*session.SelectedCharacter, false); err != nil {
 		s.log.WithError(err).Error("Failed to update character")
 		return nil, model.ErrInternalServerError
 	}
 
-	if err := s.db.AddResourcesOrUpdate(session.SelectedCharacter.Resources, true); err != nil {
-		s.log.WithError(err).Error("Failed to update character resources")
-		return nil, model.ErrInternalServerError
+	if !isFirstTown {
+		session.SelectedCharacter.Resources.Subtract(model.ResourcesPlaceTown)
+
+		if err := s.db.AddResourcesOrUpdate(session.SelectedCharacter.Resources, true); err != nil {
+			s.log.WithError(err).Error("Failed to update character resources")
+			return nil, model.ErrInternalServerError
+		}
 	}
 
 	session.SelectedCharacter.Towns = append(session.SelectedCharacter.Towns, town)

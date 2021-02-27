@@ -30,6 +30,7 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 
 	db.On("GetCharacter", int64(2)).Return(character, nil)
 	db.On("GetTowns", character.Name).Return(towns, nil)
+	db.On("GetResources", character.ID).Return(model.Resources{}, nil)
 
 	resp, err := logic.SelectCharacter(session, request)
 	require.NoError(t, err)
