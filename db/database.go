@@ -22,9 +22,10 @@ type WorldDatabase interface {
 	AddChatMessage(message model.ChatMessage) (int64, error)
 	GetChatMessages(offset int, count int) ([]model.ChatMessage, error)
 	GetMapChunk(x, y int64) (model.WorldMapChunk, error)
-	SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error
+	SaveMapChunkOrUpdate(chunk model.WorldMapChunk, commit bool) error
 	GetTowns(ownerName string) ([]model.Town, error)
 	GetAllTowns() ([]model.Town, error)
+	GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error)
 	AddResourcesOrUpdate(resources model.Resources, commit bool) error
 	GetResources(characterID int64) (model.Resources, error)
 	AddTown(town model.Town, commit bool) error

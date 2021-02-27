@@ -103,9 +103,13 @@ func TestSimpleLogic_PlaceTown_PlacingSecondTown(t *testing.T) {
 	logic.config.WaterLevel = 0.1
 	logic.config.ChunkSize = 2
 
-	logic.GameMap = rpc.WorldMapChunk{
+	chunk, convertErr := model.NewWorldMapChunkFromRPC(rpc.WorldMapChunk{
 		Data: []float32{0.05, 0.04, 0.08, 0.09},
-	}
+	})
+
+	require.NoError(t, convertErr)
+
+	db.On("GetMapChunk", int64(0), int64(0)).Return(chunk, nil)
 
 	request.Location = &rpc.Vector2D{
 		X: 1,

@@ -78,8 +78,8 @@ type WorldMapChunk struct {
 func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) (WorldMapChunk, error) {
 	var terrain []byte
 	result := WorldMapChunk{
-		X:       rpcChunk.X,
-		Y:       rpcChunk.Y,
+		X:       int64(rpcChunk.X),
+		Y:       int64(rpcChunk.Y),
 		Width:   rpcChunk.Width,
 		Height:  rpcChunk.Height,
 		Data:    nil,
@@ -110,8 +110,8 @@ func (w WorldMapChunk) ToRPC() (*rpc.WorldMapChunk, error) {
 	}
 
 	mapChunk := &rpc.WorldMapChunk{
-		X:       w.X,
-		Y:       w.Y,
+		X:       int32(w.X),
+		Y:       int32(w.Y),
 		Width:   w.Width,
 		Height:  w.Height,
 		Data:    terrain,

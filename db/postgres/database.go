@@ -38,6 +38,13 @@ func (d *Database) endTransaction() error {
 
 type transactionFunc func(t *sqlx.Tx) error
 
+func (d *Database) GetTownsForRect(xStart, xEnd, yStart, yEnd int) (results []model.Town, err error) {
+	err = d.db.Select(&results,
+		"SELECT * FROM towns WHERE (x BETWEEN $1 AND $2) AND (y BETWEEN $1 AND $2)",
+		xStart, xEnd, yStart, yEnd)
+	return
+}
+
 func (d *Database) AddTown(town model.Town, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := t.NamedExec(
@@ -116,7 +123,7 @@ func (d *Database) GetTowns(ownerName string) (result []model.Town, err error) {
 	return
 }
 
-func (d *Database) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error {
+func (d *Database) SaveMapChunkOrUpdate(chunk model.WorldMapChunk, commit bool) error {
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := t.NamedQuery(
 			`INSERT INTO chunks (x, y, data, trees, stones, animals, plants) VALUES 

@@ -12,7 +12,10 @@ func TestGetWorldMap(t *testing.T) {
 	var request rpc.Request
 	request.Data = &rpc.Request_GetWorldMapRequest{
 		GetWorldMapRequest: &rpc.GetWorldMapRequest{
-			Location:  nil,
+			Location: &rpc.IntVector2D{
+				X: 2,
+				Y: 2,
+			},
 			SessionID: sessionID,
 		},
 	}

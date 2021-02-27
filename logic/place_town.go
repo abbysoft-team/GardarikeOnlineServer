@@ -4,6 +4,7 @@ import (
 	"abbysoft/gardarike-online/model"
 	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 )
@@ -16,8 +17,25 @@ func canPlaceTown(character model.Character) bool {
 		character.CurrentPopulation >= uint64(townCount*500)
 }
 
-func (s *SimpleLogic) getMapHeightAt(x, y int) float32 {
-	return s.GameMap.Data[y+x*s.config.ChunkSize]
+func (s *SimpleLogic) getMapChunkHeightAt(chunk *rpc.WorldMapChunk, x, y int) float32 {
+	return chunk.Data[y+x*s.config.ChunkSize]
+}
+
+func (s *SimpleLogic) getMapChunkAt(x, y int) (*rpc.WorldMapChunk, error) {
+	i := x / mapChunkSize
+	j := y / mapChunkSize
+
+	chunk, err := s.db.GetMapChunk(int64(i), int64(j))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get chunk from the db: %w", err)
+	}
+
+	rpcChunk, err := chunk.ToRPC()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert map chunk to rpc: %w", err)
+	}
+
+	return rpcChunk, err
 }
 
 func (s *SimpleLogic) PlaceTown(
@@ -51,7 +69,13 @@ func (s *SimpleLogic) PlaceTown(
 			return nil, model.ErrBadRequest
 		}
 
-		if s.getMapHeightAt(int(request.Location.X), int(request.Location.Y)) < s.config.WaterLevel {
+		mapChunk, err := s.getMapChunkAt(int(request.Location.X), int(request.Location.Y))
+		if err != nil {
+			s.log.WithError(err).Error("Failed to get map chunk")
+			return nil, model.ErrInternalServerError
+		}
+
+		if s.getMapChunkHeightAt(mapChunk, int(request.Location.X), int(request.Location.Y)) < s.config.WaterLevel {
 			s.log.Error("PlaceTown: trying to place town bellow the water level")
 			return nil, model.ErrBadRequest
 		}

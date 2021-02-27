@@ -21,8 +21,32 @@ func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
 	return &s, &db, session
 }
 
+func NewLogicMockWithTerrainGenerator() (*SimpleLogic, *DatabaseMock, *PlayerSession, *TerrainGeneratorMock) {
+	logic, db, session := NewLogicMock()
+	terrainGenerator := &TerrainGeneratorMock{}
+	logic.generator = terrainGenerator
+
+	return logic, db, session, terrainGenerator
+}
+
+type TerrainGeneratorMock struct {
+	mock.Mock
+}
+
+func (t *TerrainGeneratorMock) GenerateTerrain(width int, height int, offsetX, offsetY float64) []float32 {
+	args := t.Called(width, height, offsetX, offsetY)
+	return args.Get(0).([]float32)
+}
+
+func (t *TerrainGeneratorMock) SetSeed(seed int64) {
+}
+
 type DatabaseMock struct {
 	mock.Mock
+}
+
+func (d *DatabaseMock) GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error) {
+	panic("implement me")
 }
 
 func (d *DatabaseMock) GetAllTowns() ([]model.Town, error) {
@@ -92,11 +116,13 @@ func (d *DatabaseMock) GetChatMessages(offset int, count int) ([]model.ChatMessa
 }
 
 func (d *DatabaseMock) GetMapChunk(x, y int64) (model.WorldMapChunk, error) {
-	panic("implement me")
+	args := d.Called(x, y)
+	return args.Get(0).(model.WorldMapChunk), args.Error(1)
 }
 
-func (d *DatabaseMock) SaveOrUpdate(chunk model.WorldMapChunk, commit bool) error {
-	panic("implement me")
+func (d *DatabaseMock) SaveMapChunkOrUpdate(chunk model.WorldMapChunk, commit bool) error {
+	args := d.Called(chunk, commit)
+	return args.Error(0)
 }
 
 func (d *DatabaseMock) GetTowns(ownerName string) ([]model.Town, error) {
