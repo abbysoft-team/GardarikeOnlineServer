@@ -62,32 +62,45 @@ func (t Town) ToRPC() *rpc.Town {
 	}
 }
 
-type WorldMapChunk struct {
-	X       int64
-	Y       int64
-	Width   int32
-	Height  int32
-	Data    []byte
-	Towns   []Town
+type ChunkRange struct {
+	MinX int `db:"min_x"`
+	MaxX int `db:"max_x"`
+	MinY int `db:"min_y"`
+	MaxY int `db:"max_y"`
+}
+
+type ChunkResources struct {
 	Trees   uint64
 	Stones  uint64
 	Animals uint64
 	Plants  uint64
 }
 
+type WorldMapChunk struct {
+	X      int64
+	Y      int64
+	Width  int32
+	Height int32
+	Data   []byte
+	Towns  []Town
+	ChunkResources
+}
+
 func NewWorldMapChunkFromRPC(rpcChunk rpc.WorldMapChunk) (WorldMapChunk, error) {
 	var terrain []byte
 	result := WorldMapChunk{
-		X:       int64(rpcChunk.X),
-		Y:       int64(rpcChunk.Y),
-		Width:   rpcChunk.Width,
-		Height:  rpcChunk.Height,
-		Data:    nil,
-		Towns:   nil,
-		Trees:   rpcChunk.Trees,
-		Stones:  rpcChunk.Stones,
-		Animals: rpcChunk.Animals,
-		Plants:  rpcChunk.Plants,
+		X:      int64(rpcChunk.X),
+		Y:      int64(rpcChunk.Y),
+		Width:  rpcChunk.Width,
+		Height: rpcChunk.Height,
+		Data:   nil,
+		Towns:  nil,
+		ChunkResources: ChunkResources{
+			Trees:   rpcChunk.Trees,
+			Stones:  rpcChunk.Stones,
+			Animals: rpcChunk.Animals,
+			Plants:  rpcChunk.Plants,
+		},
 	}
 
 	buffer := bytes.NewBuffer(terrain)

@@ -65,7 +65,7 @@ func NewLogic(generator generation.TerrainGenerator, eventsChan chan model.Event
 	logic.resourceManager = NewResourceManager(logic)
 
 	logic.log.Info("Running game loop")
-	go logic.gameLoop()
+	logic.startGameLoop()
 
 	return logic, nil
 }

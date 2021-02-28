@@ -45,6 +45,14 @@ type DatabaseMock struct {
 	mock.Mock
 }
 
+func (d *DatabaseMock) GetChunkRange() (model.ChunkRange, error) {
+	panic("implement me")
+}
+
+func (d *DatabaseMock) IncrementMapResources(resources model.ChunkResources, commit bool) error {
+	panic("implement me")
+}
+
 func (d *DatabaseMock) GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error) {
 	panic("implement me")
 }

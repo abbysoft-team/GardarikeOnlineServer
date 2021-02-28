@@ -5,7 +5,6 @@ import (
 	"abbysoft/gardarike-online/model"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-
 	pq "github.com/lib/pq"
 )
 
@@ -37,6 +36,21 @@ func (d *Database) endTransaction() error {
 }
 
 type transactionFunc func(t *sqlx.Tx) error
+
+func (d *Database) IncrementMapResources(resources model.ChunkResources, commit bool) error {
+	return d.WithTransaction(func(t *sqlx.Tx) error {
+		_, err := t.NamedExec(
+			"UPDATE chunks SET stones = stones + :stones, trees = trees + :trees, animals = animals + :animals, plants = plants + :plants",
+			resources)
+		return err
+	}, commit)
+}
+
+func (d *Database) GetChunkRange() (result model.ChunkRange, err error) {
+	err = d.db.Get(&result,
+		"SELECT MAX(x) as max_x, MIN(y) as min_x, MAX(y) as max_y, MIN(y) as min_y FROM chunks")
+	return
+}
 
 func (d *Database) GetTownsForRect(xStart, xEnd, yStart, yEnd int) (results []model.Town, err error) {
 	err = d.db.Select(&results,
@@ -162,7 +176,9 @@ func (d *Database) UpdateCharacter(character model.Character, commit bool) error
 	return d.WithTransaction(func(t *sqlx.Tx) error {
 		_, err := d.db.NamedExec(
 			`UPDATE characters SET 
-                      name=:name, max_population=:maxPopulation, current_population=:currentPopulation
+                      name=:name, 
+                      max_population=:maxPopulation, 
+                      current_population=:currentPopulation,
 			   WHERE id=:Id`, &character)
 		return err
 	}, commit)
