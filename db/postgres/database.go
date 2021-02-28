@@ -40,7 +40,7 @@ type transactionFunc func(t *sqlx.Tx) error
 
 func (d *Database) GetTownsForRect(xStart, xEnd, yStart, yEnd int) (results []model.Town, err error) {
 	err = d.db.Select(&results,
-		"SELECT * FROM towns WHERE (x BETWEEN $1 AND $2) AND (y BETWEEN $1 AND $2)",
+		"SELECT * FROM towns WHERE (x BETWEEN $1 AND $2) AND (y BETWEEN $3 AND $4)",
 		xStart, xEnd, yStart, yEnd)
 	return
 }
