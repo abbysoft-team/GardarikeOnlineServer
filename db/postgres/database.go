@@ -199,9 +199,9 @@ func (d *DatabaseTransaction) UpdateCharacter(character model.Character) error {
 	_, err := d.tx.NamedExec(
 		`UPDATE characters SET 
 			  name=:name, 
-			  max_population=:maxPopulation, 
-			  current_population=:currentPopulation
-         WHERE id=:Id`, &character)
+			  max_population=:max_population, 
+			  current_population=:current_population
+         WHERE id=:id`, &character)
 	return d.handleError(err)
 }
 

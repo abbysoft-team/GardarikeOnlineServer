@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -22,10 +21,6 @@ func TestPlaceTown(t *testing.T) {
 	}
 
 	resp, err := client.SendRequest(request)
-
-	if assert.EqualError(t, err, model.ErrNotEnoughResources.Error()) {
-		return
-	}
 
 	if !assert.NoError(t, err, "request error is not nil") {
 		return
