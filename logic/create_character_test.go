@@ -32,7 +32,7 @@ func TestSimpleLogic_CreateCharacter(t *testing.T) {
 	assert.NotZero(t, resp.Id)
 }
 
-func TestSimpleLogic_CreateCharacter_Error(t *testing.T) {
+func TestSimpleLogic_CreateCharacter_DuplicateLogin(t *testing.T) {
 	logic, db, session := NewLogicMock()
 	request := &rpc.CreateCharacterRequest{
 		Name: "test",

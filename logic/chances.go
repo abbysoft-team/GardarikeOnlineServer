@@ -6,9 +6,8 @@ import (
 )
 
 const (
-	PopulationGrownEventChance      = 2.0
-	PlayerResourcesGrownEventChance = 2.0
-	ResourceIncrementChance         = 2.0
+	PopulationGrownEventChance = 2.0
+	ResourceIncrementChance    = 2.0
 )
 
 // checkRandomEventHappened - check if the random event of 'chance' percent freq has happened

@@ -53,7 +53,7 @@ func (s *SimpleLogic) updateSessions() {
 // startGameLoop - runs endless game loop
 func (s *SimpleLogic) startGameLoop() {
 	go func() {
-		for _ = range time.Tick(time.Second) {
+		for _ = range time.Tick(5 * time.Second) {
 			s.updateSessions()
 		}
 	}()
@@ -81,6 +81,7 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 func (s *SimpleLogic) updateSession(session *PlayerSession) {
 	if time.Now().Sub(session.LastRequestTime) > s.config.AFKTimeout {
 		s.log.WithField("sessionID", session.SessionID).
+			WithField("timeout", s.config.AFKTimeout).
 			Info("Session AFK timeout, delete session")
 		delete(s.sessions, session.SessionID)
 		return
@@ -93,19 +94,13 @@ func (s *SimpleLogic) updateSession(session *PlayerSession) {
 		s.characterPopulationGrownEvent(session)
 	}
 
-	resourcesGrownEvent := CheckRandomEventHappened(PlayerResourcesGrownEventChance)
-	if resourcesGrownEvent {
+	if !character.Resources.IsEnough(model.ResourcesLimit) {
 		character.Resources.Add(model.Resources{
 			Wood:    2,
-			Food:    4,
+			Food:    3,
 			Stone:   1,
 			Leather: 3,
 		})
-
-		s.log.WithField("sessionID", session.SessionID).
-			WithField("character", session.SelectedCharacter.Name).
-			WithField("resources", character.Resources).
-			Debugf("Character resources have grown")
 
 		if err := session.Tx.AddResourcesOrUpdate(character.Resources); err != nil {
 			s.log.WithError(err).Error("Failed to update resources")
