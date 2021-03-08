@@ -171,6 +171,7 @@ message ErrorResponse {
 
 message SelectCharacterResponse {
   repeated Town towns = 1;
+  Resources resources = 2;
 }
 
 message ChatMessage {

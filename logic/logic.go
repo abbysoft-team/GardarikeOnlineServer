@@ -98,9 +98,9 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 	if err != nil {
 		s.log.WithError(err).Error("Failed to get character's resources")
 		return nil, model.ErrInternalServerError
-	} else {
-		char.Resources = resources
 	}
+
+	char.Resources = resources
 
 	session.SelectedCharacter = &char
 	s.log.WithFields(logrus.Fields{
@@ -110,7 +110,7 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 
 	s.EventsChan <- model.NewSystemChatMessageEvent(consts.MessageCharacterAuthorized(char.Name))
 
-	response := &rpc.SelectCharacterResponse{}
+	response := &rpc.SelectCharacterResponse{Resources: resources.ToRPC()}
 	for _, town := range char.Towns {
 		response.Towns = append(response.Towns, town.ToRPC())
 	}

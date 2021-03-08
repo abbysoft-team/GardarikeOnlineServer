@@ -30,7 +30,7 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 
 	db.On("GetCharacter", int64(2)).Return(character, nil)
 	db.On("GetTowns", character.Name).Return(towns, nil)
-	db.On("GetResources", character.ID).Return(model.Resources{}, nil)
+	db.On("GetResources", character.ID).Return(model.ResourcesPlaceTown, nil)
 
 	resp, err := logic.SelectCharacter(session, request)
 	require.NoError(t, err)
@@ -41,6 +41,7 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 	require.Equal(t, model.NewSystemChatMessageEvent(consts.MessageCharacterAuthorized(character.Name)), event)
 
 	require.NotEmpty(t, resp.Towns)
+	require.Equal(t, model.ResourcesPlaceTown.ToRPC(), resp.Resources)
 }
 
 func TestSimpleLogic_SelectCharacter_WrongAccount(t *testing.T) {
