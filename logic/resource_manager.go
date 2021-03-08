@@ -30,7 +30,13 @@ var resourceIncrementValue = model.ChunkResources{
 }
 
 func (r *ResourceManager) Update() {
-	if err := r.logic.db.IncrementMapResources(resourceIncrementValue, true); err != nil {
+	tx, err := r.logic.db.BeginTransaction(true, true)
+	if err != nil {
+		r.logger.WithError(err).Error("Failed to begin transaction")
+		return
+	}
+
+	if err := tx.IncrementMapResources(resourceIncrementValue); err != nil {
 		r.logger.WithError(err).Error("Failed to increment map resources")
 	}
 }

@@ -16,7 +16,7 @@ func (s *SimpleLogic) GetResources(
 		return nil, model.ErrCharacterNotSelected
 	}
 
-	resources, err := s.db.GetResources(session.SelectedCharacter.ID)
+	resources, err := session.Tx.GetResources(session.SelectedCharacter.ID)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to get resources")
 		return nil, model.ErrInternalServerError

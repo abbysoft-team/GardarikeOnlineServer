@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/model"
 	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
@@ -21,11 +22,11 @@ func (s *SimpleLogic) getMapChunkHeightAt(chunk *rpc.WorldMapChunk, x, y int) fl
 	return chunk.Data[y+x*s.config.ChunkSize]
 }
 
-func (s *SimpleLogic) getMapChunkAt(x, y int) (*rpc.WorldMapChunk, error) {
+func (s *SimpleLogic) getMapChunkAt(x, y int, tx db.DatabaseTransaction) (*rpc.WorldMapChunk, error) {
 	i := x / mapChunkSize
 	j := y / mapChunkSize
 
-	chunk, err := s.db.GetMapChunk(int64(i), int64(j))
+	chunk, err := tx.GetMapChunk(int64(i), int64(j))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get chunk from the db: %w", err)
 	}
@@ -55,6 +56,8 @@ func (s *SimpleLogic) PlaceTown(
 		}
 	}
 
+	tx := session.Tx
+
 	if request.Location == nil {
 		request.Location = &rpc.Vector2D{
 			X: rand.Float32() * float32(s.config.ChunkSize),
@@ -69,7 +72,7 @@ func (s *SimpleLogic) PlaceTown(
 			return nil, model.ErrBadRequest
 		}
 
-		mapChunk, err := s.getMapChunkAt(int(request.Location.X), int(request.Location.Y))
+		mapChunk, err := s.getMapChunkAt(int(request.Location.X), int(request.Location.Y), tx)
 		if err != nil {
 			s.log.WithError(err).Error("Failed to get map chunk")
 			return nil, model.ErrInternalServerError
@@ -95,14 +98,14 @@ func (s *SimpleLogic) PlaceTown(
 		Name:       request.Name,
 	}
 
-	if err := s.db.AddTown(town, false); err != nil {
+	if err := tx.AddTown(town); err != nil {
 		s.log.WithError(err).Error("Failed to add town")
 		return nil, model.ErrInternalServerError
 	}
 
 	session.SelectedCharacter.MaxPopulation += consts.TownPopulationBonus
 
-	if err := s.db.UpdateCharacter(*session.SelectedCharacter, false); err != nil {
+	if err := tx.UpdateCharacter(*session.SelectedCharacter); err != nil {
 		s.log.WithError(err).Error("Failed to update character")
 		return nil, model.ErrInternalServerError
 	}
@@ -110,7 +113,7 @@ func (s *SimpleLogic) PlaceTown(
 	if !isFirstTown {
 		session.SelectedCharacter.Resources.Subtract(model.ResourcesPlaceTown)
 
-		if err := s.db.AddResourcesOrUpdate(session.SelectedCharacter.Resources, true); err != nil {
+		if err := tx.AddResourcesOrUpdate(session.SelectedCharacter.Resources); err != nil {
 			s.log.WithError(err).Error("Failed to update character resources")
 			return nil, model.ErrInternalServerError
 		}

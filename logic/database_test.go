@@ -1,12 +1,13 @@
 package logic
 
 import (
+	"abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/model"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 )
 
-func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
+func NewLogicMock() (*SimpleLogic, *DatabaseTransactionMock, *PlayerSession) {
 	var s SimpleLogic
 	var db DatabaseMock
 	s.db = &db
@@ -18,10 +19,11 @@ func NewLogicMock() (*SimpleLogic, *DatabaseMock, *PlayerSession) {
 	session := NewPlayerSession(1)
 	s.sessions[session.SessionID] = session
 
-	return &s, &db, session
+	session.Tx = &db.DatabaseTransactionMock
+	return &s, &db.DatabaseTransactionMock, session
 }
 
-func NewLogicMockWithTerrainGenerator() (*SimpleLogic, *DatabaseMock, *PlayerSession, *TerrainGeneratorMock) {
+func NewLogicMockWithTerrainGenerator() (*SimpleLogic, *DatabaseTransactionMock, *PlayerSession, *TerrainGeneratorMock) {
 	logic, db, session := NewLogicMock()
 	terrainGenerator := &TerrainGeneratorMock{}
 	logic.generator = terrainGenerator
@@ -41,99 +43,133 @@ func (t *TerrainGeneratorMock) GenerateTerrain(width int, height int, offsetX, o
 func (t *TerrainGeneratorMock) SetSeed(seed int64) {
 }
 
-type DatabaseMock struct {
+type DatabaseTransactionMock struct {
 	mock.Mock
+	isCompleted bool
 }
 
-func (d *DatabaseMock) GetChunkRange() (model.ChunkRange, error) {
+func (d *DatabaseTransactionMock) EndTransaction() error {
+	d.isCompleted = true
+	return nil
+}
+
+func (d *DatabaseTransactionMock) IsCompleted() bool {
+	return d.isCompleted
+}
+
+func (d *DatabaseTransactionMock) IsFailed() bool {
+	return false
+}
+
+func (d *DatabaseTransactionMock) IsSucceed() bool {
+	return true
+}
+
+func (d *DatabaseTransactionMock) SetAutoCommit(value bool) {
+
+}
+
+func (d *DatabaseTransactionMock) SetAutoRollBack(value bool) {
+
+}
+
+type DatabaseMock struct {
+	DatabaseTransactionMock
+}
+
+func (d *DatabaseMock) BeginTransaction(autoCommit bool, autoRollBack bool) (db.DatabaseTransaction, error) {
+	return d, nil
+}
+
+func (d *DatabaseTransactionMock) GetChunkRange() (model.ChunkRange, error) {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) IncrementMapResources(resources model.ChunkResources, commit bool) error {
+func (d *DatabaseTransactionMock) IncrementMapResources(resources model.ChunkResources) error {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error) {
+func (d *DatabaseTransactionMock) GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error) {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) GetAllTowns() ([]model.Town, error) {
+func (d *DatabaseTransactionMock) GetAllTowns() ([]model.Town, error) {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) AddTown(town model.Town, commit bool) error {
-	args := d.Called(town, commit)
+func (d *DatabaseTransactionMock) AddTown(town model.Town) error {
+	args := d.Called(town)
 	return args.Error(0)
 }
 
-func (d *DatabaseMock) AddResourcesOrUpdate(resources model.Resources, commit bool) error {
-	args := d.Called(resources, commit)
+func (d *DatabaseTransactionMock) AddResourcesOrUpdate(resources model.Resources) error {
+	args := d.Called(resources)
 	return args.Error(0)
 }
 
-func (d *DatabaseMock) GetResources(characterID int64) (model.Resources, error) {
+func (d *DatabaseTransactionMock) GetResources(characterID int64) (model.Resources, error) {
 	args := d.Called(characterID)
 	return args.Get(0).(model.Resources), args.Error(1)
 }
 
-func (d *DatabaseMock) AddAccountCharacter(characterID, accountID int, commit bool) error {
+func (d *DatabaseTransactionMock) AddAccountCharacter(characterID, accountID int) error {
 	args := d.Called(characterID, accountID)
 	return args.Error(0)
 }
 
-func (d *DatabaseMock) GetCharacter(id int64) (model.Character, error) {
+func (d *DatabaseTransactionMock) GetCharacter(id int64) (model.Character, error) {
 	args := d.Called(id)
 	return args.Get(0).(model.Character), args.Error(1)
 }
 
-func (d *DatabaseMock) AddCharacter(name string, commit bool) (int, error) {
+func (d *DatabaseTransactionMock) AddCharacter(name string) (int, error) {
 	args := d.Called(name)
 	return args.Int(0), args.Error(1)
 }
 
-func (d *DatabaseMock) DeleteCharacter(id int64, commit bool) error {
+func (d *DatabaseTransactionMock) DeleteCharacter(id int64) error {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) GetCharacters(accountID int64) ([]model.Character, error) {
+func (d *DatabaseTransactionMock) GetCharacters(accountID int64) ([]model.Character, error) {
 	args := d.Called(accountID)
 	return args.Get(0).([]model.Character), args.Error(1)
 }
 
-func (d *DatabaseMock) UpdateCharacter(character model.Character, commit bool) error {
-	args := d.Called(character, commit)
+func (d *DatabaseTransactionMock) UpdateCharacter(character model.Character) error {
+	args := d.Called(character)
 	return args.Error(0)
 }
 
-func (d *DatabaseMock) GetAccount(login string) (model.Account, error) {
+func (d *DatabaseTransactionMock) GetAccount(login string) (model.Account, error) {
 	args := d.Called(login)
 	return args.Get(0).(model.Account), args.Error(1)
 }
 
-func (d *DatabaseMock) AddAccount(login string, password string, salt string) (int, error) {
+func (d *DatabaseTransactionMock) AddAccount(login string, password string, salt string) (int, error) {
 	args := d.Called(login, password, salt)
 	return args.Int(0), args.Error(1)
 }
 
-func (d *DatabaseMock) AddChatMessage(message model.ChatMessage) (int64, error) {
+func (d *DatabaseTransactionMock) AddChatMessage(message model.ChatMessage) (int64, error) {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) GetChatMessages(offset int, count int) ([]model.ChatMessage, error) {
+func (d *DatabaseTransactionMock) GetChatMessages(offset int, count int) ([]model.ChatMessage, error) {
 	panic("implement me")
 }
 
-func (d *DatabaseMock) GetMapChunk(x, y int64) (model.WorldMapChunk, error) {
+func (d *DatabaseTransactionMock) GetMapChunk(x, y int64) (model.WorldMapChunk, error) {
 	args := d.Called(x, y)
 	return args.Get(0).(model.WorldMapChunk), args.Error(1)
 }
 
-func (d *DatabaseMock) SaveMapChunkOrUpdate(chunk model.WorldMapChunk, commit bool) error {
-	args := d.Called(chunk, commit)
+func (d *DatabaseTransactionMock) SaveMapChunkOrUpdate(chunk model.WorldMapChunk) error {
+	args := d.Called(chunk)
 	return args.Error(0)
 }
 
-func (d *DatabaseMock) GetTowns(ownerName string) ([]model.Town, error) {
+func (d *DatabaseTransactionMock) GetTowns(ownerName string) ([]model.Town, error) {
 	args := d.Called(ownerName)
 	return args.Get(0).([]model.Town), args.Error(1)
 }

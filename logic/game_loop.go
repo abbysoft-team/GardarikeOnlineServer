@@ -25,7 +25,22 @@ func (s *SimpleLogic) updateSessions() {
 				return
 			}
 
+			tx, err := s.db.BeginTransaction(false, true)
+			if err != nil {
+				s.log.WithError(err).Error("Failed to begin transaction")
+				finishChan <- true
+				return
+			}
+
+			session.Tx = tx
 			s.updateSession(session)
+
+			if !tx.IsCompleted() {
+				if err := tx.EndTransaction(); err != nil {
+					s.log.WithError(err).Error("Failed to commit transaction")
+				}
+			}
+
 			finishChan <- true
 		}()
 	}
@@ -58,7 +73,7 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 		WithField("character", session.SelectedCharacter.Name).
 		Debugf("Player's population grows")
 
-	if err := s.db.UpdateCharacter(*session.SelectedCharacter, true); err != nil {
+	if err := session.Tx.UpdateCharacter(*session.SelectedCharacter); err != nil {
 		s.log.WithError(err).Error("Failed to update character")
 	}
 }
@@ -92,7 +107,7 @@ func (s *SimpleLogic) updateSession(session *PlayerSession) {
 			WithField("resources", character.Resources).
 			Debugf("Character resources have grown")
 
-		if err := s.db.AddResourcesOrUpdate(character.Resources, true); err != nil {
+		if err := session.Tx.AddResourcesOrUpdate(character.Resources); err != nil {
 			s.log.WithError(err).Error("Failed to update resources")
 		}
 	}

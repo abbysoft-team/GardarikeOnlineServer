@@ -21,7 +21,13 @@ func saltPassword(password, salt string) string {
 func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, model.Error) {
 	s.log.WithField("login", request.GetUsername()).Info("Login request")
 
-	acc, err := s.db.GetAccount(request.GetUsername())
+	tx, err := s.db.BeginTransaction(false, true)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to begin transaction")
+		return nil, model.ErrInternalServerError
+	}
+
+	acc, err := tx.GetAccount(request.GetUsername())
 	if err != nil && errors.Is(err, sql.ErrNoRows) {
 		return nil, model.ErrInvalidUserPassword
 	} else if err != nil {
@@ -33,10 +39,15 @@ func (s *SimpleLogic) Login(request *rpc.LoginRequest) (*rpc.LoginResponse, mode
 		return nil, model.ErrInvalidUserPassword
 	}
 
-	chars, err := s.db.GetCharacters(acc.ID)
+	chars, err := tx.GetCharacters(acc.ID)
 	if err != nil {
 		s.log.WithError(err).WithField("accID", acc.ID).
 			Error("Failed to get characters for account")
+		return nil, model.ErrInternalServerError
+	}
+
+	if err := tx.EndTransaction(); err != nil {
+		s.log.WithError(err).Error("Failed to commit transactions")
 		return nil, model.ErrInternalServerError
 	}
 

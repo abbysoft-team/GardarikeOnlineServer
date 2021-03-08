@@ -10,7 +10,7 @@ import (
 )
 
 func TestSimpleLogic_CreateAccount(t *testing.T) {
-	logic, db, session := NewLogicMock()
+	logic, db, _ := NewLogicMock()
 	request := &rpc.CreateAccountRequest{
 		Login:    "login",
 		Password: "password",
@@ -26,7 +26,7 @@ func TestSimpleLogic_CreateAccount(t *testing.T) {
 		assert.Equal(t, saltPassword(expectedPass, salt), pass, "password not salted properly")
 	})
 
-	resp, err := logic.CreateAccount(session, request)
+	resp, err := logic.CreateAccount(request)
 	db.AssertExpectations(t)
 
 	if !assert.NoError(t, err, "request error is not nil") {
@@ -41,7 +41,7 @@ func TestSimpleLogic_CreateAccount(t *testing.T) {
 }
 
 func TestSimpleLogic_CreateAccount_AlreadyExists(t *testing.T) {
-	logic, db, session := NewLogicMock()
+	logic, db, _ := NewLogicMock()
 	request := &rpc.CreateAccountRequest{
 		Login:    "login",
 		Password: "password",
@@ -50,7 +50,7 @@ func TestSimpleLogic_CreateAccount_AlreadyExists(t *testing.T) {
 	db.On("AddAccount", "login", mock.Anything, mock.Anything).Once().
 		Return(0, db2.ErrDuplicatedUniqueKey)
 
-	_, err := logic.CreateAccount(session, request)
+	_, err := logic.CreateAccount(request)
 	db.AssertExpectations(t)
 
 	assert.EqualError(t, err, model.ErrUsernameIsTaken.Error())

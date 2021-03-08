@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/model"
 	rpc "abbysoft/gardarike-online/rpc/generated"
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ type PlayerSession struct {
 	Mutex             sync.Mutex
 	LastRequestTime   time.Time
 	WorkDistribution  rpc.GetWorkDistributionResponse
+	Tx                db.DatabaseTransaction
 }
 
 func NewPlayerSession(accountID int64) *PlayerSession {

@@ -23,7 +23,7 @@ func (s *SimpleLogic) SendChatMessage(session *PlayerSession, request *rpc.SendC
 		Text:   request.Text,
 	}
 
-	if insertedID, err := s.db.AddChatMessage(message); err != nil {
+	if insertedID, err := session.Tx.AddChatMessage(message); err != nil {
 		s.log.WithError(err).Error("Failed to SendChatMessage")
 		return nil, model.ErrInternalServerError
 	} else {

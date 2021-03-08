@@ -21,14 +21,19 @@ func randStringBytes(n int) string {
 	return string(b)
 }
 
-func (s *SimpleLogic) CreateAccount(session *PlayerSession, request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error) {
+func (s *SimpleLogic) CreateAccount(request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error) {
 	s.log.WithField("login", request.Login).Info("CreateAccount")
 
 	salt := randStringBytes(10)
 	saltedPass := saltPassword(request.Password, salt)
 
-	id, err := s.db.AddAccount(request.Login, saltedPass, salt)
+	tx, err := s.db.BeginTransaction(true, true)
+	if err != nil {
+		s.log.WithError(err).Error("Failed to begin transaction")
+		return nil, model.ErrInternalServerError
+	}
 
+	id, err := tx.AddAccount(request.Login, saltedPass, salt)
 	if err != nil && errors.Is(err, db.ErrDuplicatedUniqueKey) {
 		return nil, model.ErrUsernameIsTaken
 	} else if err != nil {

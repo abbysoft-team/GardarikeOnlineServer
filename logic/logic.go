@@ -23,7 +23,7 @@ type Logic interface {
 	SendChatMessage(session *PlayerSession, request *rpc.SendChatMessageRequest) (*rpc.SendChatMessageResponse, model.Error)
 	GetChatHistory(session *PlayerSession, request *rpc.GetChatHistoryRequest) (*rpc.GetChatHistoryResponse, model.Error)
 	GetWorkDistribution(session *PlayerSession, request *rpc.GetWorkDistributionRequest) (*rpc.GetWorkDistributionResponse, model.Error)
-	CreateAccount(session *PlayerSession, request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error)
+	CreateAccount(request *rpc.CreateAccountRequest) (*rpc.CreateAccountResponse, model.Error)
 	CreateCharacter(session *PlayerSession, request *rpc.CreateCharacterRequest) (*rpc.CreateCharacterResponse, model.Error)
 	GetResources(session *PlayerSession, request *rpc.GetResourcesRequest) (*rpc.GetResourcesResponse, model.Error)
 	PlaceTown(session *PlayerSession, request *rpc.PlaceTownRequest) (*rpc.PlaceTownResponse, model.Error)
@@ -75,7 +75,9 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		WithField("sessionID", request.GetSessionID()).
 		Infof("SelectCharacter request")
 
-	char, err := s.db.GetCharacter(request.GetCharacterID())
+	tx := session.Tx
+
+	char, err := tx.GetCharacter(request.GetCharacterID())
 	if err != nil {
 		return nil, model.ErrCharacterNotFound
 	}
@@ -84,16 +86,18 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		return nil, model.ErrForbidden
 	}
 
-	towns, err := s.db.GetTowns(char.Name)
+	towns, err := tx.GetTowns(char.Name)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to get character's towns")
+		return nil, model.ErrInternalServerError
 	} else {
 		char.Towns = towns
 	}
 
-	resources, err := s.db.GetResources(char.ID)
+	resources, err := tx.GetResources(char.ID)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to get character's resources")
+		return nil, model.ErrInternalServerError
 	} else {
 		char.Resources = resources
 	}

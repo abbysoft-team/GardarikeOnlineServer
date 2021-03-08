@@ -22,7 +22,7 @@ func (s *SimpleLogic) GetChatHistory(session *PlayerSession, request *rpc.GetCha
 		limit = int(request.Count)
 	}
 
-	messages, dbErr := s.db.GetChatMessages(offset, limit)
+	messages, dbErr := session.Tx.GetChatMessages(offset, limit)
 	if dbErr != nil {
 		s.log.WithError(dbErr).Error("Failed to GetChatMessages")
 		return nil, model.ErrInternalServerError

@@ -12,18 +12,20 @@ func (s *SimpleLogic) CreateCharacter(session *PlayerSession, request *rpc.Creat
 		"name":      request.Name,
 	}).Info("CreateCharacter")
 
-	id, err := s.db.AddCharacter(request.Name, false)
+	tx := session.Tx
+
+	id, err := tx.AddCharacter(request.Name)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to create character")
 		return nil, model.ErrInternalServerError
 	}
 
-	if err = s.db.AddAccountCharacter(id, int(session.AccountID), false); err != nil {
+	if err = tx.AddAccountCharacter(id, int(session.AccountID)); err != nil {
 		s.log.WithError(err).Error("Failed to add account character")
 		return nil, model.ErrInternalServerError
 	}
 
-	if err = s.db.AddResourcesOrUpdate(model.Resources{CharacterID: id}, true); err != nil {
+	if err = tx.AddResourcesOrUpdate(model.Resources{CharacterID: id}); err != nil {
 		s.log.WithError(err).Error("Failed to add resources for character")
 		return nil, model.ErrInternalServerError
 	}

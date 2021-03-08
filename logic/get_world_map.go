@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-func (s *SimpleLogic) saveChunk(chunk rpc.WorldMapChunk) error {
+func (s *SimpleLogic) saveChunk(chunk rpc.WorldMapChunk, session *PlayerSession) error {
 	modelChunk, err := model.NewWorldMapChunkFromRPC(chunk)
 	if err != nil {
 		return err
 	}
 
-	return s.db.SaveMapChunkOrUpdate(modelChunk, true)
+	return session.Tx.SaveMapChunkOrUpdate(modelChunk)
 }
 
-func (s *SimpleLogic) generateAndSaveMapChunk(x, y int) (*rpc.WorldMapChunk, error) {
+func (s *SimpleLogic) generateAndSaveMapChunk(x, y int, session *PlayerSession) (*rpc.WorldMapChunk, error) {
 	s.log.WithFields(log.Fields{
 		"x": x,
 		"y": y,
@@ -45,14 +45,14 @@ func (s *SimpleLogic) generateAndSaveMapChunk(x, y int) (*rpc.WorldMapChunk, err
 		WaterLevel: s.config.WaterLevel,
 	}
 
-	if err := s.saveChunk(chunk); err != nil {
+	if err := s.saveChunk(chunk, session); err != nil {
 		return nil, fmt.Errorf("failed to save map chunk: %w", err)
 	}
 
 	return &chunk, nil
 }
 
-func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequest) (*rpc.GetWorldMapResponse, model.Error) {
+func (s *SimpleLogic) GetWorldMap(session *PlayerSession, request *rpc.GetWorldMapRequest) (*rpc.GetWorldMapResponse, model.Error) {
 	s.log.WithField("location", request.GetLocation()).
 		WithField("sessionID", request.GetSessionID()).
 		Infof("GetMap request")
@@ -61,7 +61,7 @@ func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequ
 		s.log.WithField("alwaysGenerate", s.config.AlwaysRegenerateMap).
 			WithField("location", request.GetLocation()).Info("Generating chunk")
 
-		if newChunk, err := s.generateAndSaveMapChunk(int(request.Location.X), int(request.Location.Y)); err != nil {
+		if newChunk, err := s.generateAndSaveMapChunk(int(request.Location.X), int(request.Location.Y), session); err != nil {
 			s.log.WithError(err).Error("Failed to regenerate game map")
 			return nil, model.ErrInternalServerError
 		} else {
@@ -74,7 +74,9 @@ func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequ
 		return newChunk()
 	}
 
-	chunk, err := s.db.GetMapChunk(int64(request.Location.X), int64(request.Location.Y))
+	tx := session.Tx
+
+	chunk, err := tx.GetMapChunk(int64(request.Location.X), int64(request.Location.Y))
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		s.log.WithError(err).Error("Failed to get map chunk")
 		return nil, model.ErrInternalServerError
@@ -95,7 +97,7 @@ func (s *SimpleLogic) GetWorldMap(_ *PlayerSession, request *rpc.GetWorldMapRequ
 	yStart := int(request.Location.Y) * mapChunkSize
 	yEnd := yStart + mapChunkSize
 
-	towns, err := s.db.GetTownsForRect(xStart, xEnd, yStart, yEnd)
+	towns, err := tx.GetTownsForRect(xStart, xEnd, yStart, yEnd)
 	if err != nil {
 		s.log.WithError(err).Error("Failed to get chunk towns")
 		return nil, model.ErrInternalServerError
