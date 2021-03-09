@@ -28,9 +28,11 @@ type WorldDatabaseTransaction interface {
 	GetTowns(ownerName string) ([]model.Town, error)
 	GetAllTowns() ([]model.Town, error)
 	GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error)
-	AddResourcesOrUpdate(resources model.Resources) error
+	AddResourcesOrUpdate(characterID int64, resources model.Resources) error
 	GetResources(characterID int64) (model.Resources, error)
 	AddTown(town model.Town) error
+	AddTownBuilding(townID int64, building model.Building) error
+	GetAllBuildings() (map[int64]model.CharacterBuildings, error)
 }
 
 type DatabaseTransaction interface {

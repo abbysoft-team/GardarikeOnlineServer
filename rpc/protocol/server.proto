@@ -15,6 +15,7 @@ service GameServer {
   rpc GetChatHistory(GetChatHistoryRequest) returns (GetChatHistoryResponse);
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
   rpc CreateEmpire(CreateCharacterRequest) returns (CreateCharacterResponse);
+  rpc PlaceBuilding(PlaceBuildingRequest) returns (PlaceBuildingResponse);
 }
 
 // Requests
@@ -31,7 +32,20 @@ message Request {
     CreateAccountRequest createAccountRequest = 9;
     CreateCharacterRequest createCharacterRequest = 10;
     GetResourcesRequest getResourcesRequest = 11;
+    PlaceBuildingRequest placeBuildingRequest = 12;
   }
+}
+
+enum BuildingType {
+  HOUSE = 0;
+  QUARRY = 1;
+}
+
+message PlaceBuildingRequest {
+  string sessionID = 1;
+  BuildingType buildingID = 2;
+  int64 townID = 3;
+  Vector2D location = 4;
 }
 
 message GetResourcesRequest {
@@ -109,7 +123,12 @@ message Response {
     CreateAccountResponse createAccountResponse = 12;
     CreateCharacterResponse createCharacterResponse = 13;
     GetResourcesResponse getResourcesResponse = 14;
+    PlaceBuildingResponse placeBuildingResponse = 15;
   }
+}
+
+message PlaceBuildingResponse {
+
 }
 
 message Resources {
@@ -241,6 +260,7 @@ message Town {
   string name = 3;
   string ownerName = 4;
   uint64 population = 5;
+  int64  id = 6;
 }
 
 message Building {

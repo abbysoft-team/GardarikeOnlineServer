@@ -23,13 +23,140 @@ func NewPacketHandler(logic *SimpleLogic) PacketHandler {
 	}
 }
 
+type handleFunc func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error)
+
+type requestHandler struct {
+	handleFunc            handleFunc
+	authorizationRequired bool
+	characterRequired     bool
+}
+
+func (p *PacketHandler) getHandleFunc(request rpc.Request) *requestHandler {
+	var handler requestHandler
+
+	if request.GetLoginRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.Login(request.GetLoginRequest())
+			return rpc.Response{
+				Data: &rpc.Response_LoginResponse{
+					LoginResponse: response,
+				},
+			}, err
+		}
+		handler.authorizationRequired = false
+		handler.characterRequired = false
+	} else if request.GetGetWorldMapRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetWorldMap(s, request.GetGetWorldMapRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetWorldMapResponse{
+					GetWorldMapResponse: response,
+				},
+			}, err
+		}
+
+		handler.characterRequired = false
+	} else if request.GetSelectCharacterRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.SelectCharacter(s, request.GetSelectCharacterRequest())
+			return rpc.Response{
+				Data: &rpc.Response_SelectCharacterResponse{
+					SelectCharacterResponse: response,
+				},
+			}, err
+		}
+		handler.characterRequired = false
+	} else if request.GetSendChatMessageRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.SendChatMessage(s, request.GetSendChatMessageRequest())
+			return rpc.Response{
+				Data: &rpc.Response_SendChatMessageResponse{
+					SendChatMessageResponse: response,
+				},
+			}, err
+		}
+	} else if request.GetGetChatHistoryRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetChatHistory(s, request.GetGetChatHistoryRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetChatHistoryResponse{
+					GetChatHistoryResponse: response,
+				},
+			}, err
+		}
+	} else if request.GetGetWorkDistributionRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetWorkDistribution(s, request.GetGetWorkDistributionRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetWorkDistributionResponse{
+					GetWorkDistributionResponse: response,
+				},
+			}, err
+		}
+	} else if request.GetCreateAccountRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.CreateAccount(request.GetCreateAccountRequest())
+			return rpc.Response{
+				Data: &rpc.Response_CreateAccountResponse{
+					CreateAccountResponse: response,
+				},
+			}, err
+		}
+
+		handler.authorizationRequired = false
+		handler.characterRequired = false
+	} else if request.GetCreateCharacterRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.CreateCharacter(s, request.GetCreateCharacterRequest())
+			return rpc.Response{
+				Data: &rpc.Response_CreateCharacterResponse{
+					CreateCharacterResponse: response,
+				},
+			}, err
+		}
+		handler.characterRequired = false
+	} else if request.GetGetResourcesRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.GetResources(s, request.GetGetResourcesRequest())
+			return rpc.Response{
+				Data: &rpc.Response_GetResourcesResponse{
+					GetResourcesResponse: response,
+				},
+			}, err
+		}
+	} else if request.GetPlaceTownRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.PlaceTown(s, request.GetPlaceTownRequest())
+			return rpc.Response{
+				Data: &rpc.Response_PlaceTownResponse{
+					PlaceTownResponse: response,
+				},
+			}, err
+		}
+
+		handler.characterRequired = true
+		handler.authorizationRequired = true
+	} else if request.GetPlaceBuildingRequest() != nil {
+		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
+			response, err := p.logic.PlaceBuilding(s, r.GetPlaceBuildingRequest())
+			return rpc.Response{
+				Data: &rpc.Response_PlaceBuildingResponse{
+					PlaceBuildingResponse: response,
+				},
+			}, err
+		}
+	} else {
+		return nil
+	}
+
+	return &handler
+}
+
 // TODO: refactor this method (too complex)
 func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	var request rpc.Request
 	var requestErr model.Error
 	var response rpc.Response
-	authorizationRequired := true
-	characterRequired := true
 
 	if err := proto.Unmarshal(data, &request); err != nil || len(data) == 0 {
 		p.log.WithError(err).Error("Failed to serialize client request")
@@ -45,114 +172,6 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 	}
 
 	requestName := strings.Split(fmt.Sprintf("%T", request.Data), "_")[1]
-
-	var handleFunc func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error)
-
-	if request.GetLoginRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.Login(request.GetLoginRequest())
-			return rpc.Response{
-				Data: &rpc.Response_LoginResponse{
-					LoginResponse: response,
-				},
-			}, err
-		}
-		authorizationRequired = false
-		characterRequired = false
-	} else if request.GetGetWorldMapRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.GetWorldMap(s, request.GetGetWorldMapRequest())
-			return rpc.Response{
-				Data: &rpc.Response_GetWorldMapResponse{
-					GetWorldMapResponse: response,
-				},
-			}, err
-		}
-
-		characterRequired = false
-	} else if request.GetSelectCharacterRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.SelectCharacter(s, request.GetSelectCharacterRequest())
-			return rpc.Response{
-				Data: &rpc.Response_SelectCharacterResponse{
-					SelectCharacterResponse: response,
-				},
-			}, err
-		}
-		characterRequired = false
-	} else if request.GetSendChatMessageRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.SendChatMessage(s, request.GetSendChatMessageRequest())
-			return rpc.Response{
-				Data: &rpc.Response_SendChatMessageResponse{
-					SendChatMessageResponse: response,
-				},
-			}, err
-		}
-	} else if request.GetGetChatHistoryRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.GetChatHistory(s, request.GetGetChatHistoryRequest())
-			return rpc.Response{
-				Data: &rpc.Response_GetChatHistoryResponse{
-					GetChatHistoryResponse: response,
-				},
-			}, err
-		}
-	} else if request.GetGetWorkDistributionRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.GetWorkDistribution(s, request.GetGetWorkDistributionRequest())
-			return rpc.Response{
-				Data: &rpc.Response_GetWorkDistributionResponse{
-					GetWorkDistributionResponse: response,
-				},
-			}, err
-		}
-	} else if request.GetCreateAccountRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.CreateAccount(request.GetCreateAccountRequest())
-			return rpc.Response{
-				Data: &rpc.Response_CreateAccountResponse{
-					CreateAccountResponse: response,
-				},
-			}, err
-		}
-
-		authorizationRequired = false
-		characterRequired = false
-	} else if request.GetCreateCharacterRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.CreateCharacter(s, request.GetCreateCharacterRequest())
-			return rpc.Response{
-				Data: &rpc.Response_CreateCharacterResponse{
-					CreateCharacterResponse: response,
-				},
-			}, err
-		}
-		characterRequired = false
-	} else if request.GetGetResourcesRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.GetResources(s, request.GetGetResourcesRequest())
-			return rpc.Response{
-				Data: &rpc.Response_GetResourcesResponse{
-					GetResourcesResponse: response,
-				},
-			}, err
-		}
-	} else if request.GetPlaceTownRequest() != nil {
-		handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {
-			response, err := p.logic.PlaceTown(s, request.GetPlaceTownRequest())
-			return rpc.Response{
-				Data: &rpc.Response_PlaceTownResponse{
-					PlaceTownResponse: response,
-				},
-			}, err
-		}
-
-		characterRequired = true
-		authorizationRequired = true
-	} else {
-		requestErr = model.ErrBadRequest
-	}
 
 	var sessionID string
 	var authorized bool
@@ -170,16 +189,22 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		}
 	}
 
-	if !authorized && authorizationRequired {
+	handler := p.getHandleFunc(request)
+	if handler == nil {
+		requestErr = model.ErrBadRequest
+	}
+
+	if handler != nil && !authorized && handler.authorizationRequired {
 		requestErr = model.ErrNotAuthorized
-	} else if session != nil &&
+	} else if handler != nil &&
+		session != nil &&
 		requestErr == nil &&
-		characterRequired &&
+		handler.characterRequired &&
 		session.SelectedCharacter == nil {
 		requestErr = model.ErrCharacterNotSelected
 	}
 
-	if handleFunc != nil && requestErr == nil {
+	if handler != nil && handler.handleFunc != nil && requestErr == nil {
 		if session != nil {
 			session.Mutex.Lock()
 
@@ -193,7 +218,7 @@ func (p *PacketHandler) HandleClientPacket(data []byte) *rpc.Response {
 		}
 
 		if requestErr == nil {
-			response, requestErr = handleFunc(session, request)
+			response, requestErr = handler.handleFunc(session, request)
 		}
 		if session != nil {
 			// Only commit should be handled, rollback is happened automatically on errors

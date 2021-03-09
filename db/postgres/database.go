@@ -3,6 +3,7 @@ package postgres
 import (
 	"abbysoft/gardarike-online/db"
 	"abbysoft/gardarike-online/model"
+	rpc "abbysoft/gardarike-online/rpc/generated"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	pq "github.com/lib/pq"
@@ -14,6 +15,37 @@ type DatabaseTransaction struct {
 	autoRollBack bool
 	isRolledBack bool
 	isCommitted  bool
+}
+
+type allBuildingsRow struct {
+	CharacterID int64  `db:"character_id"`
+	BuildingID  int64  `db:"building_id"`
+	Count       uint64 `db:"count"`
+}
+
+func (d *DatabaseTransaction) GetAllBuildings() (result map[int64]model.CharacterBuildings, err error) {
+	var rows []allBuildingsRow
+	err = d.tx.Select(&rows, `select c.id character_id, tb.building_id, COUNT(tb.building_id) from town_buildings tb 
+join towns t on tb.town_id = t.id 
+join characters c on t.owner_name = c.name
+GROUP BY c.id, tb.building_id`)
+
+	if err != nil {
+		return nil, d.handleError(err)
+	}
+
+	result = make(map[int64]model.CharacterBuildings)
+	for _, row := range rows {
+		if result[row.CharacterID] == nil {
+			result[row.CharacterID] = make(model.CharacterBuildings)
+		}
+
+		if model.IsValidBuildingType(int32(row.BuildingID)) {
+			result[row.CharacterID][rpc.BuildingType(row.BuildingID)] = row.Count
+		}
+	}
+
+	return
 }
 
 func (d *DatabaseTransaction) SetAutoCommit(value bool) {
@@ -38,6 +70,12 @@ func (d *DatabaseTransaction) IsSucceed() bool {
 
 type Database struct {
 	db *sqlx.DB
+}
+
+func (d *DatabaseTransaction) AddTownBuilding(townID int64, building model.Building) error {
+	_, err := d.tx.Exec("INSERT INTO town_buildings VALUES ($1, $2, $3, $4)",
+		townID, building.ID, int64(building.Location.X), int64(building.Location.Y))
+	return d.handleError(err)
 }
 
 func (d *Database) BeginTransaction(autoCommit, autoRollBack bool) (db.DatabaseTransaction, error) {
@@ -123,16 +161,21 @@ func (d *DatabaseTransaction) GetTownsForRect(xStart, xEnd, yStart, yEnd int) (r
 
 func (d *DatabaseTransaction) AddTown(town model.Town) error {
 	_, err := d.tx.NamedExec(
-		`INSERT INTO towns VALUES (:x, :y, :owner_name, :population, :name)`, town)
+		`INSERT INTO towns VALUES (DEFAULT, :x, :y, :owner_name, :population, :name)`, town)
 	return d.handleError(err)
 }
 
-func (d *DatabaseTransaction) AddResourcesOrUpdate(resources model.Resources) error {
+type resourcesRow struct {
+	model.Resources
+	characterID int64 `db:"character_id"`
+}
+
+func (d *DatabaseTransaction) AddResourcesOrUpdate(characterID int64, resources model.Resources) error {
 	_, err := d.tx.NamedExec(
 		`INSERT INTO resources VALUES (:character_id, DEFAULT, DEFAULT, DEFAULT, DEFAULT) 
 ON CONFLICT (character_id) DO UPDATE SET
 stone = :stone, food = :food, leather = :leather, wood = :wood
-`, resources)
+`, resourcesRow{Resources: resources, characterID: characterID})
 	return d.handleError(err)
 }
 

@@ -102,7 +102,7 @@ func (d *DatabaseTransactionMock) AddTown(town model.Town) error {
 	return args.Error(0)
 }
 
-func (d *DatabaseTransactionMock) AddResourcesOrUpdate(resources model.Resources) error {
+func (d *DatabaseTransactionMock) AddResourcesOrUpdate(characterID int64, resources model.Resources) error {
 	args := d.Called(resources)
 	return args.Error(0)
 }

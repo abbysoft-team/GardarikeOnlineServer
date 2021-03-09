@@ -8,6 +8,7 @@ ALTER TABLE IF EXISTS chatmessages
 
 CREATE TABLE IF NOT EXISTS towns
 (
+    id         serial      PRIMARY KEY,
     x          int         NOT NULL,
     y          int         NOT NULL,
     name       varchar(40) NOT NULL,

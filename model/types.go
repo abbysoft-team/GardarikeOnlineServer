@@ -45,15 +45,18 @@ func (c ChatMessage) ToRPC() *rpc.ChatMessage {
 }
 
 type Town struct {
+	ID         int64
 	X          int64
 	Y          int64
 	OwnerName  string `db:"owner_name"`
 	Population uint64
 	Name       string
+	Buildings  []Building
 }
 
 func (t Town) ToRPC() *rpc.Town {
 	return &rpc.Town{
+		Id:         t.ID,
 		X:          t.X,
 		Y:          t.Y,
 		Name:       t.Name,
@@ -162,11 +165,10 @@ func (c Character) ToRPC() *rpc.Character {
 }
 
 type Resources struct {
-	CharacterID int `db:"character_id"`
-	Wood        uint64
-	Food        uint64
-	Stone       uint64
-	Leather     uint64
+	Wood    uint64
+	Food    uint64
+	Stone   uint64
+	Leather uint64
 }
 
 func (r Resources) ToRPC() *rpc.Resources {

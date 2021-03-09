@@ -25,7 +25,7 @@ func (s *SimpleLogic) CreateCharacter(session *PlayerSession, request *rpc.Creat
 		return nil, model.ErrInternalServerError
 	}
 
-	if err = tx.AddResourcesOrUpdate(model.Resources{CharacterID: id}); err != nil {
+	if err = tx.AddResourcesOrUpdate(int64(id), model.Resources{}); err != nil {
 		s.log.WithError(err).Error("Failed to add resources for character")
 		return nil, model.ErrInternalServerError
 	}
