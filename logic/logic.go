@@ -7,6 +7,7 @@ import (
 	"abbysoft/gardarike-online/model"
 	"abbysoft/gardarike-online/model/consts"
 	rpc "abbysoft/gardarike-online/rpc/generated"
+	"database/sql"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -79,8 +80,11 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 	tx := session.Tx
 
 	char, err := tx.GetCharacter(request.GetCharacterID())
-	if err != nil {
+	if err != nil && err.Error() == sql.ErrNoRows.Error() {
 		return nil, model.ErrCharacterNotFound
+	} else if err != nil {
+		s.log.WithError(err).Error("Failed to get character")
+		return nil, model.ErrInternalServerError
 	}
 
 	if char.AccountID != session.AccountID {
@@ -95,14 +99,6 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 		char.Towns = towns
 	}
 
-	resources, err := tx.GetResources(char.ID)
-	if err != nil {
-		s.log.WithError(err).Error("Failed to get character's resources")
-		return nil, model.ErrInternalServerError
-	}
-
-	char.Resources = resources
-
 	session.SelectedCharacter = &char
 	s.log.WithFields(logrus.Fields{
 		"sessionID": request.GetSessionID(),
@@ -111,7 +107,7 @@ func (s *SimpleLogic) SelectCharacter(session *PlayerSession, request *rpc.Selec
 
 	s.EventsChan <- model.NewSystemChatMessageEvent(consts.MessageCharacterAuthorized(char.Name))
 
-	response := &rpc.SelectCharacterResponse{Resources: resources.ToRPC()}
+	response := &rpc.SelectCharacterResponse{Resources: char.Resources.ToRPC()}
 	for _, town := range char.Towns {
 		response.Towns = append(response.Towns, town.ToRPC())
 	}

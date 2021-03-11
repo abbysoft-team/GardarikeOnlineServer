@@ -33,6 +33,8 @@ type requestHandler struct {
 
 func (p *PacketHandler) getHandleFunc(request rpc.Request) *requestHandler {
 	var handler requestHandler
+	handler.characterRequired = true
+	handler.authorizationRequired = true
 
 	if request.GetLoginRequest() != nil {
 		handler.handleFunc = func(s *PlayerSession, r rpc.Request) (rpc.Response, model.Error) {

@@ -6,3 +6,12 @@ CREATE TABLE IF NOT EXISTS town_buildings (
 
    UNIQUE (town_id, location_x, location_y)
 );
+
+CREATE TABLE IF NOT EXISTS production_rates
+(
+    character_id int PRIMARY KEY,
+    wood         int NOT NULL DEFAULT 0,
+    stone        int NOT NULL DEFAULT 0,
+    food         int NOT NULL DEFAULT 0,
+    leather      int NOT NULL DEFAULT 0
+)

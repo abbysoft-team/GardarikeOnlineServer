@@ -45,3 +45,4 @@ var ErrMessageTooLong = NewError("chat message too long", rpc.Error_MESSAGE_TOO_
 var ErrUsernameIsTaken = NewError("username is already registered", rpc.Error_USERNAME_IS_ALREADY_TAKEN)
 var ErrForbidden = NewError("action is forbidden", rpc.Error_FORBIDDEN)
 var ErrNotEnoughResources = NewError("not enough resources", rpc.Error_NOT_ENOUGH_RESOURCES)
+var ErrTownNotFound = NewError("town not found", rpc.Error_TOWN_NOT_FOUND)

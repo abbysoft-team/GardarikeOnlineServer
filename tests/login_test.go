@@ -4,7 +4,7 @@ package tests
 
 import (
 	rpc "abbysoft/gardarike-online/rpc/generated"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -18,18 +18,11 @@ func TestLoginSuccessful(t *testing.T) {
 	}
 
 	response, err := client.SendRequest(request)
-	if !assert.NoError(t, err, "Error while making request") {
-		return
-	}
+	require.NoError(t, err, "Error while making request")
 
 	loginResponse := response.GetLoginResponse()
-	if !assert.NotNil(t, loginResponse, "Response is nil") {
-		return
-	}
-
-	if !assert.NotEmpty(t, loginResponse.SessionID) {
-		return
-	}
+	require.NotNil(t, loginResponse, "Response is nil")
+	require.NotEmpty(t, loginResponse.SessionID)
 
 	sessionID = loginResponse.SessionID
 }

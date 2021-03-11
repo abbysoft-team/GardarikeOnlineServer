@@ -86,7 +86,7 @@ func TestSimpleLogic_PlaceTown_PlacingSecondTown(t *testing.T) {
 	}
 	resourcesAfterPlacing.Subtract(model.ResourcesPlaceTown)
 
-	db.On("AddResourcesOrUpdate", resourcesAfterPlacing, mock.Anything).Return(nil)
+	db.On("UpdateResources", resourcesAfterPlacing, mock.Anything).Return(nil)
 
 	resp, err := logic.PlaceTown(session, request)
 	require.NoError(t, err)

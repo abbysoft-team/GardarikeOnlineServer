@@ -153,6 +153,17 @@ type Character struct {
 	CurrentPopulation uint64 `db:"current_population"`
 	Towns             []Town
 	Resources         Resources
+	ProductionRate    Resources
+}
+
+func (c Character) HasTown(townID int64) bool {
+	for _, town := range c.Towns {
+		if town.ID == townID {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (c Character) ToRPC() *rpc.Character {
@@ -165,10 +176,11 @@ func (c Character) ToRPC() *rpc.Character {
 }
 
 type Resources struct {
-	Wood    uint64
-	Food    uint64
-	Stone   uint64
-	Leather uint64
+	CharacterID int64 `db:"character_id"`
+	Wood        uint64
+	Food        uint64
+	Stone       uint64
+	Leather     uint64
 }
 
 func (r Resources) ToRPC() *rpc.Resources {
@@ -201,6 +213,26 @@ func (r *Resources) Add(resources Resources) {
 	r.Wood += resources.Wood
 	r.Stone += resources.Stone
 	r.Leather += resources.Leather
+
+	*r = minResources(*r, ResourcesLimit)
+}
+
+func minResources(a, b Resources) (r Resources) {
+	r = a
+	if a.Food > b.Food {
+		r.Food = b.Food
+	}
+	if a.Wood > b.Wood {
+		r.Wood = b.Wood
+	}
+	if a.Stone > b.Stone {
+		r.Stone = b.Stone
+	}
+	if a.Leather > b.Leather {
+		r.Leather = b.Leather
+	}
+
+	return
 }
 
 func (r Resources) IsEnough(requested Resources) bool {
@@ -208,4 +240,8 @@ func (r Resources) IsEnough(requested Resources) bool {
 		r.Stone >= requested.Stone &&
 		r.Wood >= requested.Wood &&
 		r.Leather >= requested.Leather
+}
+
+func (r Resources) IsLimitReached() bool {
+	return r.IsEnough(ResourcesLimit)
 }

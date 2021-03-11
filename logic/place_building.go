@@ -12,7 +12,7 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		"buildingID": request.BuildingID,
 		"townID":     request.TownID,
 		"location":   request.Location,
-	})
+	}).Info("PlaceBuilding")
 
 	building, found := model.Buildings[request.BuildingID]
 	if !found {
@@ -20,6 +20,11 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		return nil, model.ErrBadRequest
 	}
 
+	if !session.SelectedCharacter.HasTown(request.TownID) {
+		return nil, model.ErrTownNotFound
+	}
+
+	building.Location = model.LocationFromRPC(request.Location)
 	if err := session.Tx.AddTownBuilding(request.TownID, building); err != nil {
 		s.log.WithError(err).Error("Failed to add town building")
 		return nil, model.ErrInternalServerError
@@ -31,8 +36,11 @@ func (s *SimpleLogic) PlaceBuilding(session *PlayerSession, request *rpc.PlaceBu
 		return nil, model.ErrNotEnoughResources
 	}
 
-	if err := session.Tx.AddResourcesOrUpdate(char.ID, char.Resources); err != nil {
-		s.log.WithError(err).Error("Failed to update character resources")
+	char.ProductionRate.Add(building.Production)
+	char.MaxPopulation += building.PopulationBonus
+
+	if err := session.Tx.UpdateCharacter(*char); err != nil {
+		s.log.WithError(err).Error("Failed to update character")
 		return nil, model.ErrInternalServerError
 	}
 

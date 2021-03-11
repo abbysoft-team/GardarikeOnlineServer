@@ -23,6 +23,17 @@ type allBuildingsRow struct {
 	Count       uint64 `db:"count"`
 }
 
+func (d *DatabaseTransaction) UpdateProductionRates(rates model.Resources) error {
+	_, err := d.tx.NamedExec(`UPDATE production_rates SET wood=:wood, leather=:leather, food=:food, stone=:stone
+WHERE character_id=:character_id`, rates)
+	return d.handleError(err)
+}
+
+func (d *DatabaseTransaction) GetProductionRates(characterID int64) (result model.Resources, err error) {
+	err = d.tx.Get(&result, "SELECT * FROM production_rates WHERE character_id=$1", characterID)
+	return result, d.handleError(err)
+}
+
 func (d *DatabaseTransaction) GetAllBuildings() (result map[int64]model.CharacterBuildings, err error) {
 	var rows []allBuildingsRow
 	err = d.tx.Select(&rows, `select c.id character_id, tb.building_id, COUNT(tb.building_id) from town_buildings tb 
@@ -165,22 +176,16 @@ func (d *DatabaseTransaction) AddTown(town model.Town) error {
 	return d.handleError(err)
 }
 
-type resourcesRow struct {
-	model.Resources
-	characterID int64 `db:"character_id"`
-}
-
-func (d *DatabaseTransaction) AddResourcesOrUpdate(characterID int64, resources model.Resources) error {
+func (d *DatabaseTransaction) UpdateResources(resources model.Resources) error {
 	_, err := d.tx.NamedExec(
-		`INSERT INTO resources VALUES (:character_id, DEFAULT, DEFAULT, DEFAULT, DEFAULT) 
-ON CONFLICT (character_id) DO UPDATE SET
-stone = :stone, food = :food, leather = :leather, wood = :wood
-`, resourcesRow{Resources: resources, characterID: characterID})
+		`UPDATE resources SET stone = :stone, food = :food, leather = :leather, wood = :wood
+WHERE character_id=:character_id`, resources)
 	return d.handleError(err)
 }
 
 func (d *DatabaseTransaction) GetResources(characterID int64) (result model.Resources, err error) {
 	err = d.tx.Get(&result, "SELECT * FROM resources WHERE character_id=$1", characterID)
+
 	return result, d.handleError(err)
 }
 
@@ -245,6 +250,15 @@ func (d *DatabaseTransaction) UpdateCharacter(character model.Character) error {
 			  max_population=:max_population, 
 			  current_population=:current_population
          WHERE id=:id`, &character)
+	if err != nil {
+		return d.handleError(err)
+	}
+
+	if err := d.UpdateResources(character.Resources); err != nil {
+		return d.handleError(err)
+	}
+
+	err = d.UpdateProductionRates(character.ProductionRate)
 	return d.handleError(err)
 }
 
@@ -266,12 +280,40 @@ func (d *DatabaseTransaction) GetCharacter(id int64) (result model.Character, er
 	err = d.tx.Get(&result,
 		`SELECT c.*, ac.account_id FROM characters c 
     JOIN account_characters ac on c.id = ac.character_id WHERE c.id = $1`, id)
+
+	if err != nil {
+		return result, d.handleError(err)
+	}
+
+	resources, err := d.GetResources(id)
+	if err != nil {
+		return result, fmt.Errorf("failed to get character resources: %w", err)
+	}
+
+	result.Resources = resources
+
+	productionRates, err := d.GetProductionRates(id)
+	if err != nil {
+		return result, fmt.Errorf("failed to get character production rates: %w", err)
+	}
+
+	result.ProductionRate = productionRates
 	return result, d.handleError(err)
 }
 
 func (d *DatabaseTransaction) AddCharacter(name string) (id int, err error) {
 	err = d.tx.Get(&id, "INSERT INTO characters VALUES (DEFAULT, $1, DEFAULT, DEFAULT) RETURNING id", name)
-	return id, d.handleError(err)
+	if err != nil {
+		return 0, d.handleError(err)
+	}
+
+	_, err = d.tx.Exec("INSERT INTO resources VALUES ($1, 0, 0, 0, 0)", id)
+	if err != nil {
+		return id, fmt.Errorf("failed to insert character resources: %w", err)
+	}
+
+	_, err = d.tx.Exec("INSERT INTO production_rates VALUES ($1, 0, 0, 0, 0)", id)
+	return id, fmt.Errorf("failed to insert character production rates: %w", err)
 }
 
 func (d *DatabaseTransaction) DeleteCharacter(id int64) error {

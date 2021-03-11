@@ -11,6 +11,8 @@ type CharacterDatabaseTransaction interface {
 	DeleteCharacter(id int64) error
 	GetCharacters(accountID int64) ([]model.Character, error)
 	UpdateCharacter(character model.Character) error
+	GetResources(characterID int64) (model.Resources, error)
+	GetProductionRates(characterID int64) (model.Resources, error)
 }
 
 type AccountDatabaseTransaction interface {
@@ -28,8 +30,8 @@ type WorldDatabaseTransaction interface {
 	GetTowns(ownerName string) ([]model.Town, error)
 	GetAllTowns() ([]model.Town, error)
 	GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error)
-	AddResourcesOrUpdate(characterID int64, resources model.Resources) error
-	GetResources(characterID int64) (model.Resources, error)
+	UpdateResources(resources model.Resources) error
+	UpdateProductionRates(rates model.Resources) error
 	AddTown(town model.Town) error
 	AddTownBuilding(townID int64, building model.Building) error
 	GetAllBuildings() (map[int64]model.CharacterBuildings, error)

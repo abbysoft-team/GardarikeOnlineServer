@@ -2,7 +2,6 @@ package logic
 
 import (
 	"abbysoft/gardarike-online/model"
-	rpc "abbysoft/gardarike-online/rpc/generated"
 	"time"
 )
 
@@ -13,21 +12,6 @@ const (
 func (s *SimpleLogic) updateSessions() {
 	sessionsCount := len(s.sessions)
 	finishChan := make(chan bool, sessionsCount)
-
-	var buildings map[int64]model.CharacterBuildings
-
-	tx, err := s.db.BeginTransaction(true, true)
-	if err != nil {
-		s.log.WithError(err).Error("Failed to begin transaction")
-	} else if b, err := tx.GetAllBuildings(); err != nil {
-		s.log.WithError(err).Error("Failed to get characters buildings")
-	} else {
-		buildings = b
-	}
-
-	if buildings == nil {
-		buildings = make(map[int64]model.CharacterBuildings)
-	}
 
 	for _, session := range s.sessions {
 		session := session
@@ -51,10 +35,7 @@ func (s *SimpleLogic) updateSessions() {
 			session.Tx = tx
 
 			s.updateSession(session)
-
-			if buildings[session.SelectedCharacter.ID] != nil {
-				s.updateSessionBuildings(session, buildings[session.SelectedCharacter.ID])
-			}
+			s.updateSessionResources(session)
 
 			if !tx.IsCompleted() {
 				if err := tx.EndTransaction(); err != nil {
@@ -92,6 +73,7 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 
 	s.log.WithField("sessionID", session.SessionID).
 		WithField("character", session.SelectedCharacter.Name).
+		WithField("population", session.SelectedCharacter.CurrentPopulation).
 		Debugf("Player's population grows")
 
 	if err := session.Tx.UpdateCharacter(*session.SelectedCharacter); err != nil {
@@ -99,15 +81,22 @@ func (s *SimpleLogic) characterPopulationGrownEvent(session *PlayerSession) {
 	}
 }
 
-func (s *SimpleLogic) updateSessionBuildings(session *PlayerSession, buildings model.CharacterBuildings) {
+func (s *SimpleLogic) updateSessionResources(session *PlayerSession) {
 	character := session.SelectedCharacter
 
-	houseNumber := buildings[rpc.BuildingType_HOUSE]
-	quarryNumber := buildings[rpc.BuildingType_QUARRY]
+	if !character.Resources.IsLimitReached() {
+		character.Resources.Add(model.Resources{
+			Wood:    1,
+			Food:    1,
+			Stone:   1,
+			Leather: 1,
+		})
 
-	character.Resources.Add(model.Resources{Food: houseNumber, Stone: quarryNumber})
-	if err := session.Tx.AddResourcesOrUpdate(character.ID, character.Resources); err != nil {
-		s.log.WithError(err).Error("Failed to update character resources")
+		character.Resources.Add(character.ProductionRate)
+
+		if err := session.Tx.UpdateResources(character.Resources); err != nil {
+			s.log.WithError(err).Error("Failed to update resources")
+		}
 	}
 }
 
@@ -125,18 +114,5 @@ func (s *SimpleLogic) updateSession(session *PlayerSession) {
 	populationGrownEvent := CheckRandomEventHappened(PopulationGrownEventChance)
 	if populationGrownEvent && character.MaxPopulation != character.CurrentPopulation {
 		s.characterPopulationGrownEvent(session)
-	}
-
-	if !character.Resources.IsEnough(model.ResourcesLimit) {
-		character.Resources.Add(model.Resources{
-			Wood:    2,
-			Food:    3,
-			Stone:   1,
-			Leather: 3,
-		})
-
-		if err := session.Tx.AddResourcesOrUpdate(character.ID, character.Resources); err != nil {
-			s.log.WithError(err).Error("Failed to update resources")
-		}
 	}
 }
