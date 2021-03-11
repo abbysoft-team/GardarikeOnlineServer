@@ -75,12 +75,15 @@ func (s *SimpleLogic) GetWorldMap(session *PlayerSession, request *rpc.GetWorldM
 	}
 
 	tx := session.Tx
+	tx.SetAutoRollBack(false)
 
 	chunk, err := tx.GetMapChunk(int64(request.Location.X), int64(request.Location.Y))
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		s.log.WithError(err).Error("Failed to get map chunk")
 		return nil, model.ErrInternalServerError
 	}
+
+	tx.SetAutoRollBack(true)
 
 	if len(chunk.Data) == 0 {
 		return newChunk()

@@ -172,7 +172,7 @@ func (d *DatabaseTransaction) GetTownsForRect(xStart, xEnd, yStart, yEnd int) (r
 
 func (d *DatabaseTransaction) AddTown(town model.Town) error {
 	_, err := d.tx.NamedExec(
-		`INSERT INTO towns VALUES (DEFAULT, :x, :y, :owner_name, :population, :name)`, town)
+		`INSERT INTO towns VALUES (DEFAULT, :x, :y, :name, :owner_name, :population)`, town)
 	return d.handleError(err)
 }
 
@@ -313,7 +313,11 @@ func (d *DatabaseTransaction) AddCharacter(name string) (id int, err error) {
 	}
 
 	_, err = d.tx.Exec("INSERT INTO production_rates VALUES ($1, 0, 0, 0, 0)", id)
-	return id, fmt.Errorf("failed to insert character production rates: %w", err)
+	if err != nil {
+		err = fmt.Errorf("failed to insert character production rates: %w", err)
+	}
+
+	return id, err
 }
 
 func (d *DatabaseTransaction) DeleteCharacter(id int64) error {
