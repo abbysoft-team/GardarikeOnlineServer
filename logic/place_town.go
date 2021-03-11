@@ -113,7 +113,7 @@ func (s *SimpleLogic) PlaceTown(
 	if !isFirstTown {
 		session.SelectedCharacter.Resources.Subtract(model.ResourcesPlaceTown)
 
-		if err := tx.UpdateResources(session.SelectedCharacter.Resources); err != nil {
+		if err := tx.AddOrUpdateResources(session.SelectedCharacter.Resources); err != nil {
 			s.log.WithError(err).Error("Failed to update character resources")
 			return nil, model.ErrInternalServerError
 		}

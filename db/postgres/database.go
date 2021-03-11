@@ -23,9 +23,10 @@ type allBuildingsRow struct {
 	Count       uint64 `db:"count"`
 }
 
-func (d *DatabaseTransaction) UpdateProductionRates(rates model.Resources) error {
-	_, err := d.tx.NamedExec(`UPDATE production_rates SET wood=:wood, leather=:leather, food=:food, stone=:stone
-WHERE character_id=:character_id`, rates)
+func (d *DatabaseTransaction) AddOrUpdateProductionRates(rates model.Resources) error {
+	_, err := d.tx.NamedExec(
+		`INSERT INTO production_rates VALUES (:character_id, :wood, :leather, :stone, :food) ON CONFLICT DO 
+    UPDATE SET wood=:wood, leather=:leather, food=:food, stone=:stone`, rates)
 	return d.handleError(err)
 }
 
@@ -176,10 +177,10 @@ func (d *DatabaseTransaction) AddTown(town model.Town) error {
 	return d.handleError(err)
 }
 
-func (d *DatabaseTransaction) UpdateResources(resources model.Resources) error {
+func (d *DatabaseTransaction) AddOrUpdateResources(resources model.Resources) error {
 	_, err := d.tx.NamedExec(
-		`UPDATE resources SET stone = :stone, food = :food, leather = :leather, wood = :wood
-WHERE character_id=:character_id`, resources)
+		`INSERT INTO resources VALUES (:character_id, :wood, :stone, :food, :leather) ON CONFLICT DO 
+    UPDATE SET stone = :stone, food = :food, leather = :leather, wood = :wood`, resources)
 	return d.handleError(err)
 }
 
@@ -254,11 +255,11 @@ func (d *DatabaseTransaction) UpdateCharacter(character model.Character) error {
 		return d.handleError(err)
 	}
 
-	if err := d.UpdateResources(character.Resources); err != nil {
+	if err := d.AddOrUpdateResources(character.Resources); err != nil {
 		return d.handleError(err)
 	}
 
-	err = d.UpdateProductionRates(character.ProductionRate)
+	err = d.AddOrUpdateProductionRates(character.ProductionRate)
 	return d.handleError(err)
 }
 

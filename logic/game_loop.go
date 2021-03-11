@@ -94,7 +94,7 @@ func (s *SimpleLogic) updateSessionResources(session *PlayerSession) {
 
 		character.Resources.Add(character.ProductionRate)
 
-		if err := session.Tx.UpdateResources(character.Resources); err != nil {
+		if err := session.Tx.AddOrUpdateResources(character.Resources); err != nil {
 			s.log.WithError(err).Error("Failed to update resources")
 		}
 	}

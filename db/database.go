@@ -30,8 +30,8 @@ type WorldDatabaseTransaction interface {
 	GetTowns(ownerName string) ([]model.Town, error)
 	GetAllTowns() ([]model.Town, error)
 	GetTownsForRect(xStart, xEnd, yStart, yEnd int) ([]model.Town, error)
-	UpdateResources(resources model.Resources) error
-	UpdateProductionRates(rates model.Resources) error
+	AddOrUpdateResources(resources model.Resources) error
+	AddOrUpdateProductionRates(rates model.Resources) error
 	AddTown(town model.Town) error
 	AddTownBuilding(townID int64, building model.Building) error
 	GetAllBuildings() (map[int64]model.CharacterBuildings, error)

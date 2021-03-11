@@ -24,13 +24,13 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 		MaxPopulation:     1,
 		CurrentPopulation: 1,
 		Towns:             nil,
+		Resources:         model.ResourcesPlaceTown,
 	}
 
-	towns := []model.Town{{1, 1, "test2", 100, "town"}}
+	towns := []model.Town{{ID: 1, X: 1, Y: 5, OwnerName: "test2", Name: "town", Population: 100}}
 
 	db.On("GetCharacter", int64(2)).Return(character, nil)
 	db.On("GetTowns", character.Name).Return(towns, nil)
-	db.On("GetResources", character.ID).Return(model.ResourcesPlaceTown, nil)
 
 	resp, err := logic.SelectCharacter(session, request)
 	require.NoError(t, err)
@@ -42,6 +42,8 @@ func TestSimpleLogic_SelectCharacter(t *testing.T) {
 
 	require.NotEmpty(t, resp.Towns)
 	require.Equal(t, model.ResourcesPlaceTown.ToRPC(), resp.Resources)
+
+	db.AssertExpectations(t)
 }
 
 func TestSimpleLogic_SelectCharacter_WrongAccount(t *testing.T) {

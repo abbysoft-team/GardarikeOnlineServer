@@ -18,7 +18,6 @@ func TestSimpleLogic_CreateCharacter(t *testing.T) {
 
 	db.On("AddCharacter", "test").Return(1, nil)
 	db.On("AddAccountCharacter", 1, 2).Return(nil)
-	db.On("UpdateResources", model.Resources{CharacterID: 1}).Return(nil)
 
 	resp, err := logic.CreateCharacter(session, request)
 

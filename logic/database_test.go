@@ -48,6 +48,27 @@ type DatabaseTransactionMock struct {
 	isCompleted bool
 }
 
+func (d *DatabaseTransactionMock) GetProductionRates(characterID int64) (model.Resources, error) {
+	panic("implement me")
+}
+
+func (d *DatabaseTransactionMock) AddOrUpdateResources(resources model.Resources) error {
+	args := d.Called(resources)
+	return args.Error(0)
+}
+
+func (d *DatabaseTransactionMock) AddOrUpdateProductionRates(rates model.Resources) error {
+	panic("implement me")
+}
+
+func (d *DatabaseTransactionMock) AddTownBuilding(townID int64, building model.Building) error {
+	panic("implement me")
+}
+
+func (d *DatabaseTransactionMock) GetAllBuildings() (map[int64]model.CharacterBuildings, error) {
+	panic("implement me")
+}
+
 func (d *DatabaseTransactionMock) EndTransaction() error {
 	d.isCompleted = true
 	return nil
